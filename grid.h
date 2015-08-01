@@ -10,7 +10,15 @@ public:
     Grid(Grid const& other);
     ~Grid();
 
+    enum TranslateType{
+        T_LINE,
+        T_COLUMN,
+        T_BLOCK
+    };
+
     Cell *getCell(int _nLin, int _nCol);
+    Cell *getTranslatedCell(int _i, int _j, int type = T_LINE);
+    void translateCoordinates(int _i, int _j, int &_l, int &_c, int type = T_LINE);
     int *getMatrixCopy();
     void setValues(int *_pValues);
     int getValue(int _nLin, int _nCol);

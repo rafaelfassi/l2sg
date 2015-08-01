@@ -1,0 +1,6 @@
+*.user
+Makefile
+Makefile.Debug
+Makefile.Release
+qrc_*
+.directory

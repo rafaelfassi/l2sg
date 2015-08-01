@@ -31,6 +31,32 @@ Cell *Grid::getCell(int _nLin, int _nCol)
     return &m_cells[ _nCol + (_nLin * 9) ];
 }
 
+Cell *Grid::getTranslatedCell(int _i, int _j, int type)
+{
+    int l, c;
+    translateCoordinates(_i, _j, l, c, type);
+    return getCell(l, c);
+}
+
+void Grid::translateCoordinates(int _i, int _j, int &_l, int &_c, int type)
+{
+    switch(type)
+    {
+    case T_LINE:
+        _l = _i;
+        _c = _j;
+        break;
+    case T_COLUMN:
+        _l = _j;
+        _c = _i;
+        break;
+    case T_BLOCK:
+        _l = (_j / 3) + (_i / 3) * 3;
+        _c = (_j % 3) + ((_i - (_l / 3) * 3) * 3);
+        break;
+    }
+}
+
 int *Grid::getMatrixCopy()
 {
     return new int;
