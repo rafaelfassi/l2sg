@@ -21,7 +21,9 @@ SOURCES += main.cpp \
     solverbruteforce.cpp \
     visualgrid.cpp \
     solverlogic.cpp \
-    combination.cpp
+    combination.cpp \
+    abstractsolver.cpp \
+    testsolverlogic.cpp
 
 HEADERS += \
     cell.h \
@@ -29,4 +31,6 @@ HEADERS += \
     solverbruteforce.h \
     visualgrid.h \
     solverlogic.h \
-    combination.h
+    combination.h \
+    abstractsolver.h \
+    testsolverlogic.h

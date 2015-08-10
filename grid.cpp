@@ -69,7 +69,7 @@ void Grid::setValues(int *_pValues)
             setValue(i, j, _pValues[j + (i * 9)]);
 }
 
-int Grid::getValue(int _nLin, int _nCol)
+int Grid::getValue(int _nLin, int _nCol) const
 {
     return m_cells[ _nCol + (_nLin * 9) ].getValue();
 }
@@ -87,6 +87,24 @@ bool Grid::getNoteVisible(int _nLin, int _nCol, int _nVal)
 void Grid::setNoteVisible(int _nLin, int _nCol, int _nVal, bool _bVisible)
 {
     m_cells[ _nCol + (_nLin * 9) ].setNoteVisible(_nVal, _bVisible);
+}
+
+bool Grid::compareValues(int *_pValues)
+{
+    for(int i = 0; i < 9; i++)
+        for(int j = 0; j < 9; j++)
+            if(getValue(i, j) != _pValues[j + (i * 9)])
+                return false;
+    return true;
+}
+
+bool Grid::compareValues(const Grid &_grid)
+{
+    for(int i = 0; i < 9; i++)
+        for(int j = 0; j < 9; j++)
+            if(getValue(i, j) != _grid.getValue(i, j))
+                return false;
+    return true;
 }
 
 void Grid::dump()
@@ -181,6 +199,15 @@ bool Grid::checkRules(int _nLin, int _nCol, int _nVal)
     return true;
 }
 
+bool Grid::isFull()
+{
+    for(int i = 0; i < 9; i++)
+        for(int j = 0; j < 9; j++)
+            if(getValue(i, j) == 0)
+                return false;
+    return true;
+}
+
 void Grid::fillNotes()
 {
     for(int i = 0; i < 9; i++)
@@ -196,6 +223,13 @@ void Grid::fillNotes()
             }
         }
     }
+}
+
+void Grid::clearNotes()
+{
+    for(int i = 0; i < 9; i++)
+        for(int j = 0; j < 9; j++)
+            getCell(i, j)->setNotes(0);
 }
 
 void Grid::clearNotesCascade(int _nLin, int _nCol, int _nValue)

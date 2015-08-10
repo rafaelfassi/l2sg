@@ -1,10 +1,17 @@
 #include "solverbruteforce.h"
 
-SolverBruteForce::SolverBruteForce(Grid &_pGrid) : m_pGrid(_pGrid)
+SolverBruteForce::SolverBruteForce(Grid &_pGrid) : AbstractSolver(_pGrid)
 {
 }
 
-QList<Grid> &SolverBruteForce::solve(int _nMaxSolutions)
+void SolverBruteForce::solve()
+{
+    solveSolutions();
+    if(m_lSolutions.size())
+        m_pGrid = m_lSolutions.at(0);
+}
+
+QList<Grid> &SolverBruteForce::solveSolutions(int _nMaxSolutions)
 {
     m_nMaxSolutions = _nMaxSolutions;
 
@@ -32,7 +39,7 @@ void SolverBruteForce::resolve(int lin, int col)
                 if(col < 8) resolve(lin, col + 1);
                 else resolve(lin + 1, 0);
 
-                // Se chegar aqui e porque em algum ponto das chamadas recursivas, a funcao verifica() retornou false
+                // Se chegar aqui e porque em algum ponto das chamadas recursivas, a funcao checkRules() retornou false
                 // Vamos voltar ao valor anterior e deixar laco for tentar com outro valor.
                 m_pGrid.setValue(lin, col, t);
             }

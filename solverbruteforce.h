@@ -3,24 +3,21 @@
 
 #include <QList>
 
-#include "grid.h"
+#include "abstractsolver.h"
 
 class Grid;
 
-class SolverBruteForce
+class SolverBruteForce : public AbstractSolver
 {
 public:
     SolverBruteForce(Grid &_pGrid);
-
-    QList<Grid> &solve(int _nMaxSolutions = 1);
+    virtual void solve();
+    QList<Grid> &solveSolutions(int _nMaxSolutions = 1);
 
     void resolve(int lin, int col);
 
 private:
-    Grid &m_pGrid;
-
     QList<Grid> m_lSolutions;
-
     int m_nMaxSolutions;
 };
 

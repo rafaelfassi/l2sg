@@ -1,13 +1,14 @@
 #ifndef SOLVERLOGIC_H
 #define SOLVERLOGIC_H
 
-#include "grid.h"
+#include "abstractsolver.h"
 
-class SolverLogic
+class SolverLogic : public AbstractSolver
 {
 public:
     SolverLogic(Grid &_pGrid);
-    void solve();
+    virtual void solve();
+    int getResultLevel() { return m_level; }
     bool existNoteSolitary();
     void noteSolitarySolve();
     void uniquePossibilitySolve();
@@ -20,7 +21,7 @@ public:
     void getFirstBlockPos(int _nBlockNum, int &_nLin, int &_nCol);
 
 private:
-    Grid &m_pGrid;
+    int m_level;
 };
 
 #endif // SOLVERLOGIC_H

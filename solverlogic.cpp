@@ -10,7 +10,8 @@
 //O 6 e 7 só podem estar em 2 campos, então no campo X2XX567XX podemos limpar o resto e deixar somente 6 e 7.
 //X2XXXXXX9 XXXXXXXXX XXXXX67XX   XXXX5XXX9 XXXXXXXXX XXXXXXXXX   X2XX5XXXX XXXXXXXXX XXXXX67XX
 
-SolverLogic::SolverLogic(Grid &_pGrid) : m_pGrid(_pGrid)
+SolverLogic::SolverLogic(Grid &_pGrid)
+    : AbstractSolver(_pGrid), m_level(0)
 {
 }
 
@@ -18,8 +19,9 @@ void SolverLogic::solve()
 {
     QString notesSignature;
     QString newNotesSignature;
-    int level(0), maxLevel(2);
+    int maxLevel(2);
     bool loop(true);
+    m_level = 0;
 
     do
     {
@@ -33,20 +35,23 @@ void SolverLogic::solve()
 
         uniquePossibilitySolve();
 
-        if(level > 0) notesReplicatedSolve();
+        if(m_level > 0) notesReplicatedSolve();
 
-        if(level > 1) numCellQqNumPossibSolve();
+        if(m_level > 1) numCellQqNumPossibSolve();
+
+        if(m_pGrid.isFull())
+            break;
 
         newNotesSignature = m_pGrid.getNotesSignature();
 
         if(newNotesSignature == notesSignature)
         {
-            loop = (++level <= maxLevel);
+            loop = (++m_level <= maxLevel);
             if(loop)
             {
                 std::cout << std::endl;
                 std::cout << "***************************************************************" << std::endl;
-                std::cout << "Level:" << level << std::endl;
+                std::cout << "Level:" << m_level << std::endl;
                 std::cout << "***************************************************************" << std::endl;
                 std::cout << std::endl;
             }
@@ -62,7 +67,8 @@ bool SolverLogic::existNoteSolitary()
     {
         for(int j = 0; j < 9; j++)
         {
-            if(m_pGrid.getCell(i, j)->notesCount() == 1) return true;
+            if(m_pGrid.getCell(i, j)->notesCount() == 1)
+                return true;
         }
     }
 
@@ -91,67 +97,47 @@ void SolverLogic::noteSolitarySolve()
 
 void SolverLogic::uniquePossibilitySolve()
 {
-
     int count(0);
-    int item(-1);
+    int l1(-1);
+    int c1(-1);
 
-    // Para cada numero de 1 a 9
-    for(int x=1; x <=9; x++)
+    for(int type = Grid::T_LINE; type <= Grid::T_BLOCK; ++type)
     {
-        // Percorrer todas as linhas
-        for(int i = 0; i < 9; i++)
+        // Para cada numero de 1 a 9
+        for(int x=1; x <=9; x++)
         {
-            count = 0;
-            item = -1;
-            // Percorrer todas as colunas da linha atual procurando pelo numero
-            for(int j = 0; j < 9; j++)
-            {
-                if(m_pGrid.getNoteVisible(i, j, x))
-                {
-                    item = j;
-                    count++;
-                }
-                // Se o numero estiver em mais de uma coluna nao e a unica possibilidade
-                if(count > 1) break;
-            }
-
-            // Se o numero so exite em uma coluna essa e a unica possibilidade
-            if(count == 1)
-            {
-                m_pGrid.setValue(i, item, x);
-                m_pGrid.clearNotesCascade(i, item, x);
-                std::cout << "Unica possibilidade Linha >> Lin: " << i+1 << " - Col: " << item+1 << " - Num: " << x << std::endl;
-                m_pGrid.dump();
-            }
-        }
-
-
-
-        for(int j = 0; j < 9; j++)
-        {
-            count = 0;
-            item = -1;
+            // Percorrer todas as linhas
             for(int i = 0; i < 9; i++)
             {
-                if(m_pGrid.getNoteVisible(i, j, x))
+                count = 0;
+                c1 = -1;
+                l1 = -1;
+                // Percorrer todas as colunas da linha atual procurando pelo numero
+                for(int j = 0; j < 9; j++)
                 {
-                    item = i;
-                    count++;
+                    int l, c;
+                    m_pGrid.translateCoordinates(i, j, l, c, type);
+
+                    if(m_pGrid.getNoteVisible(l, c, x))
+                    {
+                        l1 = l;
+                        c1 = c;
+                        count++;
+                    }
+                    // Se o numero estiver em mais de uma coluna nao e a unica possibilidade
+                    if(count > 1) break;
                 }
-                if(count > 1) break;
-            }
-            if(count == 1)
-            {
-                m_pGrid.setValue(item, j, x);
-                m_pGrid.clearNotesCascade(item, j, x);
-                std::cout << "Unica possibilidade Coluna >> Lin: " << item+1 << " - Col: " << j+1 << " - Num: " << x << std::endl;
-                m_pGrid.dump();
+
+                // Se o numero so exite em uma coluna essa e a unica possibilidade
+                if(count == 1)
+                {
+                    m_pGrid.setValue(l1, c1, x);
+                    m_pGrid.clearNotesCascade(l1, c1, x);
+                    std::cout << "Unica possibilidade Linha >> Lin: " << l1+1 << " - Col: " << c1+1 << " - Num: " << x << std::endl;
+                    m_pGrid.dump();
+                }
             }
         }
-
-
-
-
     }
 }
 

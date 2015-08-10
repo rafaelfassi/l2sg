@@ -21,14 +21,18 @@ public:
     void translateCoordinates(int _i, int _j, int &_l, int &_c, int type = T_LINE);
     int *getMatrixCopy();
     void setValues(int *_pValues);
-    int getValue(int _nLin, int _nCol);
+    int getValue(int _nLin, int _nCol) const;
     void setValue(int _nLin, int _nCol, int _nVal);
     bool getNoteVisible(int _nLin, int _nCol, int _nVal);
     void setNoteVisible(int _nLin, int _nCol, int _nVal, bool _bVisible);
+    bool compareValues(int *_pValues);
+    bool compareValues(const Grid &_grid);
     void dump();
 
     bool checkRules(int _nLin, int _nCol, int _nVal);
+    bool isFull();
     void fillNotes();
+    void clearNotes();
     void clearNotesCascade(int _nLin, int _nCol, int _nValue);
     QString getNotesSignature();
 
