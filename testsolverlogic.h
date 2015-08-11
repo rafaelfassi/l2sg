@@ -11,7 +11,7 @@ public:
 
 private:
     bool testUnit(const QString &unitName, int level, int *in, int *out = 0);
-    void printRes(const QString &errorMsg = QString());
+    void printMsg(const QString &msg = QString());
 };
 
 #endif // TESTSOLVERLOGIC_H

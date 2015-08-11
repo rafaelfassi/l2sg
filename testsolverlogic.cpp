@@ -100,9 +100,67 @@ bool TestSolverLogic::execTest()
     }
 
 
+    // Médio *************************************************************************
+    {
+        int in[9*9] =  {6,0,0,  7,2,0,  0,0,9,
+                        0,0,0,  0,4,0,  0,3,0,
+                        3,0,0,  0,0,0,  0,6,7,
+
+                        0,0,0,  0,0,0,  0,8,3,
+                        0,0,0,  8,0,7,  0,0,0,
+                        5,7,0,  0,0,0,  0,0,0,
+
+                        9,5,0,  0,0,0,  0,0,1,
+                        0,2,0,  0,5,0,  0,0,0,
+                        4,0,0,  0,3,1,  0,0,2};
+
+        int ou[9*9] =  {6,4,5,  7,2,3,  8,1,9,
+                        8,1,7,  6,4,9,  2,3,5,
+                        3,9,2,  1,8,5,  4,6,7,
+
+                        1,6,4,  5,9,2,  7,8,3,
+                        2,3,9,  8,6,7,  1,5,4,
+                        5,7,8,  3,1,4,  9,2,6,
+
+                        9,5,3,  2,7,8,  6,4,1,
+                        7,2,1,  4,5,6,  3,9,8,
+                        4,8,6,  9,3,1,  5,7,2};
+
+        if(!testUnit("1_0000", 1, in, ou))
+            return false;
+    }
+
+    {
+        int in[9*9] =  {7,0,0,  6,0,0,  3,0,0,
+                        0,6,8,  0,0,0,  0,0,9,
+                        0,0,0,  5,1,0,  4,0,0,
+
+                        0,0,2,  0,0,0,  0,9,0,
+                        0,0,0,  8,4,3,  0,0,0,
+                        0,3,0,  0,0,0,  7,0,0,
+
+                        0,0,4,  0,9,5,  0,0,0,
+                        9,0,0,  0,0,0,  5,2,0,
+                        0,0,5,  0,0,1,  0,0,6};
+
+        int ou[9*9] =  {7,4,1,  6,2,9,  3,8,5,
+                        5,6,8,  3,7,4,  2,1,9,
+                        3,2,9,  5,1,8,  4,6,7,
+
+                        4,5,2,  1,6,7,  8,9,3,
+                        1,9,7,  8,4,3,  6,5,2,
+                        8,3,6,  9,5,2,  7,4,1,
+
+                        6,7,4,  2,9,5,  1,3,8,
+                        9,1,3,  7,8,6,  5,2,4,
+                        2,8,5,  4,3,1,  9,7,6};
+
+        if(!testUnit("1_0001", 1, in, ou))
+            return false;
+    }
+
     // Dificil ***********************************************************************
     {
-        // Do video https://www.youtube.com/watch?v=YsHpygKu0lE
         int in[9*9] =  {0,3,0,  9,6,1,  0,8,0,
                         1,6,0,  0,0,8,  0,2,9,
                         9,8,4,  7,0,0,  1,0,0,
@@ -131,13 +189,44 @@ bool TestSolverLogic::execTest()
             return false;
     }
 
+    {
+        int in[9*9] =  {3,8,0,  6,0,0,  0,0,0,
+                        0,0,2,  0,0,7,  0,0,0,
+                        5,9,0,  0,0,0,  0,0,0,
 
-    printRes("Test OK");
+                        0,7,4,  0,6,0,  0,0,3,
+                        0,0,3,  0,1,0,  9,0,0,
+                        1,0,0,  0,9,0,  6,2,0,
+
+                        0,0,0,  0,0,0,  0,9,5,
+                        0,0,0,  8,0,0,  2,0,0,
+                        0,0,0,  0,0,2,  0,7,4};
+
+        int ou[9*9] =  {3,8,7,  6,2,9,  4,5,1,
+                        4,1,2,  5,8,7,  3,6,9,
+                        5,9,6,  1,4,3,  7,8,2,
+
+                        9,7,4,  2,6,8,  5,1,3,
+                        6,2,3,  7,1,5,  9,4,8,
+                        1,5,8,  3,9,4,  6,2,7,
+
+                        2,3,1,  4,7,6,  8,9,5,
+                        7,4,9,  8,5,1,  2,3,6,
+                        8,6,5,  9,3,2,  1,7,4};
+
+        if(!testUnit("2_0001", 2, in, ou))
+            return false;
+    }
+
+
+    printMsg("Test OK");
     return true;
 }
 
 bool TestSolverLogic::testUnit(const QString &unitName, int level, int *in, int *out)
 {
+    printMsg(QString("Test %1").arg(unitName));
+
     Grid grid;
     grid.setValues(in);
     grid.fillNotes();
@@ -147,7 +236,7 @@ bool TestSolverLogic::testUnit(const QString &unitName, int level, int *in, int 
 
     if(!grid.isFull())
     {
-        printRes(QString("%1 Not Solve").arg(unitName));
+        printMsg(QString("%1 Not Solve").arg(unitName));
         return false;
     }
 
@@ -155,7 +244,7 @@ bool TestSolverLogic::testUnit(const QString &unitName, int level, int *in, int 
     {
         if(!grid.compareValues(out))
         {
-            printRes(QString("%1 Error In Solution").arg(unitName));
+            printMsg(QString("%1 Error In Solution").arg(unitName));
             return false;
         }
     }
@@ -168,17 +257,17 @@ bool TestSolverLogic::testUnit(const QString &unitName, int level, int *in, int 
 
         if(solutions.size() != 1)
         {
-            printRes(QString("%1 Is Not Valid").arg(unitName));
+            printMsg(QString("%1 Is Not Valid").arg(unitName));
             return false;
         }
 
         if(!grid.compareValues(solutions[0]))
         {
-            printRes(QString("%1 Error In Solution").arg(unitName));
+            printMsg(QString("%1 Error In Solution").arg(unitName));
             return false;
         }
 
-        printRes(QString("Use this as out solution to %1").arg(unitName));
+        printMsg(QString("Use this as out solution to %1").arg(unitName));
         for(int i = 0; i < 9; i++)
         {
             for(int j = 0; j < 9; j++)
@@ -193,18 +282,19 @@ bool TestSolverLogic::testUnit(const QString &unitName, int level, int *in, int 
 
     if(solverLogic.getResultLevel() != level)
     {
-        printRes(QString("%1 Error In Level").arg(unitName));
+        printMsg(QString("%1 Error In Level").arg(unitName));
         return false;
     }
 
+    printMsg(QString("%1 Pass").arg(unitName));
     return true;
 }
 
-void TestSolverLogic::printRes(const QString &errorMsg)
+void TestSolverLogic::printMsg(const QString &msg)
 {
     std::cout << std::endl;
     std::cout << "***************************************************************" << std::endl;
-    std::cout << errorMsg.toStdString() << std::endl;
+    std::cout << msg.toStdString() << std::endl;
     std::cout << "***************************************************************" << std::endl;
     std::cout << std::endl;
 }

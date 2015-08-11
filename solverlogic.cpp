@@ -19,7 +19,7 @@ void SolverLogic::solve()
 {
     QString notesSignature;
     QString newNotesSignature;
-    int maxLevel(2);
+    int level(0), maxLevel(2);
     bool loop(true);
     m_level = 0;
 
@@ -29,15 +29,19 @@ void SolverLogic::solve()
         else notesSignature = newNotesSignature;
 
         while(existNoteSolitary())
-        {
             noteSolitarySolve();
-        }
 
         uniquePossibilitySolve();
 
-        if(m_level > 0) notesReplicatedSolve();
+        if(level > 0)
+        {
+            notesReplicatedSolve();
+        }
 
-        if(m_level > 1) numCellQqNumPossibSolve();
+        if(level > 1)
+        {
+            numCellQqNumPossibSolve();
+        }
 
         if(m_pGrid.isFull())
             break;
@@ -46,15 +50,20 @@ void SolverLogic::solve()
 
         if(newNotesSignature == notesSignature)
         {
-            loop = (++m_level <= maxLevel);
-            if(loop)
+            loop = (++level <= maxLevel);
+            if(loop && level > m_level)
             {
+                m_level = level;
                 std::cout << std::endl;
                 std::cout << "***************************************************************" << std::endl;
                 std::cout << "Level:" << m_level << std::endl;
                 std::cout << "***************************************************************" << std::endl;
                 std::cout << std::endl;
             }
+        }
+        else
+        {
+            level = qMax(level - 1, 0);
         }
 
     } while(loop);
@@ -144,110 +153,85 @@ void SolverLogic::uniquePossibilitySolve()
 
 void SolverLogic::notesReplicatedSolve()
 {
-
-    for(int i = 0; i < 9; i++)
-    {
-        for(int j = 0; j < 9; j++)
-        {
-            Cell *cell = m_pGrid.getCell(i, j);
-            if(cell->notesCount() == 2)
-            {
-                int notesAt = cell->getNotes();
-                //if(i == 8) continue;
-                for(int j2 = j+1; j2 < 9; j2++)
-                {
-                    if(m_pGrid.getCell(i, j2)->getNotes() == notesAt)
-                    {
-                        clearLinNotesExceptEqual(i, cell->getNotes());
-                        //clearBlockNotesExceptEqual(i, j2, notesAt);
-                        std::cout << "Nota replicada em linha >> Lin: " << i+1 << " - Col: " << j2+1 << std::endl;
-                        m_pGrid.dump();
-                    }
-                }
-            }
-        }
-    }
-
-
-    for(int j = 0; j < 9; j++)
+    for(int type = Grid::T_LINE; type <= Grid::T_BLOCK; ++type)
     {
         for(int i = 0; i < 9; i++)
         {
-            Cell *cell = m_pGrid.getCell(i, j);
-            if(cell->notesCount() == 2)
+            for(int j = 0; j < 9; j++)
             {
-                int notesAt = cell->getNotes();
-                //if(i == 8) continue;
-                for(int i2 = i+1; i2 < 9; i2++)
-                {
-                    if(m_pGrid.getCell(i2, j)->getNotes() == notesAt)
-                    {
-                        clearColNotesExceptEqual(j, notesAt);
-                        //clearBlockNotesExceptEqual(i2, j, notesAt);
-                        std::cout << "Nota replicada em coluna >> Lin: " << i2+1 << " - Col: " << j+1 << std::endl;
-                        m_pGrid.dump();
-                    }
-                }
-            }
-        }
-    }
-
-
-
-    for(int b = 0; b < 9; b++)
-    {
-        int lIni, cIni;
-        getFirstBlockPos(b, lIni, cIni);
-
-        for(int l = lIni; l < (lIni+3); l++)
-        {
-            for(int c = cIni; c < (cIni+3); c++)
-            {
-
-                Cell *cell = m_pGrid.getCell(l, c);
+                Cell *cell = m_pGrid.getTranslatedCell(i, j, type);
                 if(cell->notesCount() == 2)
                 {
                     int notesAt = cell->getNotes();
 
-                    int lIni2;
-                    int cIni2;
-
-                    if(c == cIni+2)
+                    for(int j2 = j+1; j2 < 9; ++j2)
                     {
-                        lIni2 = l+1;
-                        cIni2 = cIni;
-                    }
-                    else
-                    {
-                        lIni2 = l;
-                        cIni2 = c+1;
-                    }
-
-                    for(int l2 = lIni2; l2 < (lIni+3); l2++)
-                    {
-                        for(int c2 = cIni2; c2 < (cIni+3); c2++)
+                        if(m_pGrid.getTranslatedCell(i, j2, type)->getNotes() == notesAt)
                         {
-
-                            if(m_pGrid.getCell(l2, c2)->getNotes() == notesAt)
+                            // Limpar todas as notas menos as exatamente iguais
+                            bool first(true);
+                            QList<int> lst = Cell::getVisibleNotesLst(notesAt);
+                            for(int j3 = 0; j3 < 9; j3++)
                             {
-                                clearBlockNotesExceptEqual(l2, c2, notesAt);
-                                std::cout << "Nota replicada em bloco >> Lin: " << l2+1 << " - Col: " << c2+1 << std::endl;
-                                m_pGrid.dump();
+                                Cell *cell2 = m_pGrid.getTranslatedCell(i, j3, type);
+                                if(cell2->getNotes() != notesAt)
+                                {
+                                    bool change(false);
+                                    int l, c;
+                                    m_pGrid.translateCoordinates(i, j3, l, c, type);
+
+                                    foreach (const int &noteNum, lst)
+                                    {
+                                        if(m_pGrid.getNoteVisible(l, c, noteNum))
+                                        {
+                                            m_pGrid.setNoteVisible(l, c, noteNum, false);
+                                            change = true;
+                                        }
+                                    }
+
+                                    if(change)
+                                    {
+                                        if(first)
+                                        {
+                                            std::cout
+                                                    << "Nota replicada para "
+                                                    << (type == Grid::T_LINE ? "Linha" : (type == Grid::T_COLUMN ? "Coluna" : "Bloco"))
+                                                    << std::endl;
+                                            std::cout << "Células:" << std::endl;
+
+                                            m_pGrid.translateCoordinates(i, j, l, c, type);
+                                            std::cout  << "Lin: " << l+1 << " - Col: " << c+1 << std::endl;
+
+                                            m_pGrid.translateCoordinates(i, j2, l, c, type);
+                                            std::cout  << "Lin: " << l+1 << " - Col: " << c+1 << std::endl;
+
+                                            std::cout << "Removendo ocorrencias de ";
+                                            foreach (int oc, lst) { std::cout << oc << " "; }
+                                            std::cout << "nas células:" << std::endl;
+                                        }
+
+                                        m_pGrid.translateCoordinates(i, j3, l, c, type);
+                                        std::cout  << "Lin: " << l+1 << " - Col: " << c+1 << std::endl;
+
+                                        first = false;
+                                    }
+                                }
                             }
 
+                            if(!first)
+                            {
+                                std::cout << std::endl;
+                                m_pGrid.dump();
+                                return;
+                            }
                         }
-                        cIni2 = cIni;
                     }
-
                 }
-
-
-
             }
         }
     }
-
 }
+
 
 /*
     Sendo p o número total de possibilidades diferentes em n células, no caso de p = n podemos remover essas
@@ -344,6 +328,7 @@ void SolverLogic::numCellQqNumPossibSolve()
                         {
                             std::cout << std::endl;
                             m_pGrid.dump();
+                            return;
                         }
                     }
                 }
