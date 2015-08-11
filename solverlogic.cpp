@@ -142,7 +142,10 @@ void SolverLogic::uniquePossibilitySolve()
                 {
                     m_pGrid.setValue(l1, c1, x);
                     m_pGrid.clearNotesCascade(l1, c1, x);
-                    std::cout << "Unica possibilidade Linha >> Lin: " << l1+1 << " - Col: " << c1+1 << " - Num: " << x << std::endl;
+                    std::cout << "Unica possibilidade para "
+                              << (type == Grid::T_LINE ? "Linha" : (type == Grid::T_COLUMN ? "Coluna" : "Bloco"))
+                              << std::endl;
+                    std::cout << "Lin: " << l1+1 << " - Col: " << c1+1 << " - Num: " << x << std::endl;
                     m_pGrid.dump();
                 }
             }
@@ -335,87 +338,4 @@ void SolverLogic::numCellQqNumPossibSolve()
             }
         }
     }
-}
-
-void SolverLogic::limparOcorrExterna(QList<int> &cels, int ocorrencias)
-{
-    for(int i = 0; i < 9; ++i)
-    {
-        if(!cels.contains(i))
-        {
-            Cell *cell = m_pGrid.getCell(3, i);
-            int notes = cell->getNotes();
-            int newNotes = notes & ~ocorrencias;
-
-            if(notes != newNotes)
-            {
-                cell->setNotes(cell->getNotes() & ~ocorrencias);
-                std::cout << "numCellQqNumPossib >> Lin: " << 3+1 << " - Col: " << i+1 << std::endl;
-                m_pGrid.dump();
-            }
-        }
-    }
-}
-
-void SolverLogic::clearLinNotesExceptEqual(int _nLin, int _nNotes)
-{
-    QList<int> lst = Cell::getVisibleNotesLst(_nNotes);
-
-    for(int c = 0; c < 9; c++)
-    {
-        Cell *cell = m_pGrid.getCell(_nLin, c);
-        if(cell->getNotes() != _nNotes)
-        {
-            foreach (const int &noteNum, lst)
-            {
-                m_pGrid.setNoteVisible(_nLin, c, noteNum, false);
-            }
-        }
-    }
-}
-
-void SolverLogic::clearColNotesExceptEqual(int _nCol, int _nNotes)
-{
-    QList<int> lst = Cell::getVisibleNotesLst(_nNotes);
-
-    for(int l = 0; l < 9; l++)
-    {
-        Cell *cell = m_pGrid.getCell(l, _nCol);
-        if(cell->getNotes() != _nNotes)
-        {
-            foreach (const int &noteNum, lst)
-            {
-                m_pGrid.setNoteVisible(l, _nCol, noteNum, false);
-            }
-        }
-    }
-}
-
-void SolverLogic::clearBlockNotesExceptEqual(int _nLin, int _nCol, int _nNotes)
-{
-    int lr = _nLin / 3;
-    int cr = _nCol / 3;
-
-    QList<int> lst = Cell::getVisibleNotesLst(_nNotes);
-
-    for (int l = lr * 3; l < (lr + 1) * 3; l++)
-    {
-        for (int c = cr * 3; c < (cr + 1) * 3; c++)
-        {
-            Cell *cell = m_pGrid.getCell(l, c);
-            if(cell->getNotes() != _nNotes)
-            {
-                foreach (const int &noteNum, lst)
-                {
-                    m_pGrid.setNoteVisible(l, c, noteNum, false);
-                }
-            }
-        }
-    }
-}
-
-void SolverLogic::getFirstBlockPos(int _nBlockNum, int &_nLin, int &_nCol)
-{
-    _nLin = (_nBlockNum / 3) * 3;
-    _nCol = (_nBlockNum - _nLin) * 3;
 }

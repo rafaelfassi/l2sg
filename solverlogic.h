@@ -14,11 +14,6 @@ public:
     void uniquePossibilitySolve();
     void notesReplicatedSolve();
     void numCellQqNumPossibSolve();
-    void limparOcorrExterna(QList<int> &cels, int ocorrencias);
-    void clearLinNotesExceptEqual(int _nLin, int _nNotes);
-    void clearColNotesExceptEqual(int _nCol, int _nNotes);
-    void clearBlockNotesExceptEqual(int _nLin, int _nCol, int _nNotes);  
-    void getFirstBlockPos(int _nBlockNum, int &_nLin, int &_nCol);
 
 private:
     int m_level;
