@@ -1,7 +1,6 @@
 #include "grid.h"
 
 #include <iostream>
-#include <QString>
 
 Grid::Grid() : m_dumpCount(0)
 {
@@ -69,6 +68,35 @@ void Grid::setValues(int *_pValues)
             setValue(i, j, _pValues[j + (i * 9)]);
 }
 
+void Grid::setValues(const QString &values)
+{
+    int arr[9*9];
+    if(fillArrayFormString(values, arr))
+        setValues(arr);
+}
+
+bool Grid::fillArrayFormString(const QString &values, int *array)
+{
+    int x(0);
+    for(int i = 0; i < values.size(); ++i)
+    {
+        QChar ch = values[i];
+
+        if(ch.isSpace())
+            continue;
+
+        if(x == 9*9)
+            return false;
+
+        if(ch.isDigit())
+            array[x++] = ch.digitValue();
+        else
+            array[x++] = 0;
+    }
+
+    return (x == 9*9);
+}
+
 int Grid::getValue(int _nLin, int _nCol) const
 {
     return m_cells[ _nCol + (_nLin * 9) ].getValue();
@@ -107,8 +135,11 @@ bool Grid::compareValues(const Grid &_grid)
     return true;
 }
 
-void Grid::dump()
+void Grid::dump(int _dumpFlags, const QString &_null, const QString &_numSep)
 {
+    std::string numSep = _numSep.toStdString();
+    std::string null = _null.toStdString();
+
     std::cout << "Dump:" << ++m_dumpCount << std::endl;
 
     std::cout << "Valores:" << std::endl;
@@ -116,29 +147,42 @@ void Grid::dump()
     {
         for(int j = 0; j < 9; j++)
         {
-            std::cout << getValue(i, j) << " ";
-            if (j % 3 == 2) std::cout << "  ";
+            int val = getValue(i, j);
+            if(val)
+                std::cout << val << numSep;
+            else
+                std::cout << null << numSep;
+
+            if (!(_dumpFlags & D_ONE_LINE) && j % 3 == 2) std::cout << "  ";
         }
-        std::cout << std::endl;
-        if (i % 3 == 2) std::cout << std::endl;
+        if(!(_dumpFlags & D_ONE_LINE))
+        {
+            std::cout << std::endl;
+            if (i % 3 == 2) std::cout << std::endl;
+        }
     }
 
+    if(_dumpFlags & D_ONE_LINE) std::cout << std::endl;
 
-    std::cout << "Anotacoes:" << std::endl;
-    for(int i = 0; i < 9; i++)
+
+    if(_dumpFlags & D_ANOTATION)
     {
-        for(int j = 0; j < 9; j++)
+        std::cout << "Anotacoes:" << std::endl;
+        for(int i = 0; i < 9; i++)
         {
-            for(int x = 1; x <= 9; x++)
+            for(int j = 0; j < 9; j++)
             {
-                if(getNoteVisible(i, j, x)) std::cout << x;
-                else std::cout << "X";
+                for(int x = 1; x <= 9; x++)
+                {
+                    if(getNoteVisible(i, j, x)) std::cout << x;
+                    else std::cout << "X";
+                }
+                std::cout << " ";
+                if (j % 3 == 2) std::cout << "  ";
             }
-            std::cout << " ";
-            if (j % 3 == 2) std::cout << "  ";
+            std::cout << std::endl;
+            if (i % 3 == 2) std::cout << std::endl;
         }
-        std::cout << std::endl;
-        if (i % 3 == 2) std::cout << std::endl;
     }
 
 }

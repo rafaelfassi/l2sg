@@ -99,6 +99,36 @@ bool TestSolverLogic::execTest()
             return false;
     }
 
+    {
+        int in[9*9] =  {7,0,0,  0,6,0,  0,0,9,
+                        0,2,0,  0,0,8,  0,0,0,
+                        0,3,0,  0,0,0,  0,4,0,
+
+                        0,9,0,  0,0,0,  3,0,0,
+                        0,0,8,  0,0,2,  6,0,0,
+                        0,0,6,  0,5,0,  0,8,0,
+
+                        0,7,0,  0,0,0,  0,2,0,
+                        0,0,0,  2,0,0,  0,3,0,
+                        9,0,0,  0,7,0,  0,0,4};
+
+        int ou[9*9] =  {7,8,5,  3,6,4,  2,1,9,
+                        6,2,4,  9,1,8,  5,7,3,
+                        1,3,9,  5,2,7,  8,4,6,
+
+                        2,9,7,  4,8,6,  3,5,1,
+                        5,4,8,  1,3,2,  6,9,7,
+                        3,1,6,  7,5,9,  4,8,2,
+
+                        8,7,3,  6,4,1,  9,2,5,
+                        4,6,1,  2,9,5,  7,3,8,
+                        9,5,2,  8,7,3,  1,6,4};
+
+        if(!testUnit("0_0003", 0, in, ou))
+            return false;
+
+    }
+
 
     // Médio *************************************************************************
     {
@@ -268,16 +298,7 @@ bool TestSolverLogic::testUnit(const QString &unitName, int level, int *in, int 
         }
 
         printMsg(QString("Use this as out solution to %1").arg(unitName));
-        for(int i = 0; i < 9; i++)
-        {
-            for(int j = 0; j < 9; j++)
-            {
-                std::cout << solutions[0].getValue(i, j) << ",";
-                if (j % 3 == 2) std::cout << "  ";
-            }
-            std::cout << std::endl;
-            if (i % 3 == 2) std::cout << std::endl;
-        }
+        solutions[0].dump(0, "0", ",");
     }
 
     if(solverLogic.getResultLevel() != level)
