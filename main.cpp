@@ -1,6 +1,4 @@
 #include <iostream>
-#include <QDebug>
-
 #include "grid.h"
 #include "solverbruteforce.h"
 #include "solverlogic.h"
@@ -113,17 +111,30 @@
 //                   0,0,8,  0,0,4,  5,0,0};
 
 
-int grade[9*9] =  {0,0,6,  0,0,0,  2,1,7,
-                   0,3,0,  0,2,0,  0,0,0,
-                   7,0,0,  6,0,0,  0,0,0,
+//int grade[9*9] =  {0,0,6,  0,0,0,  2,1,7,
+//                   0,3,0,  0,2,0,  0,0,0,
+//                   7,0,0,  6,0,0,  0,0,0,
 
-                   0,1,3,  5,8,0,  4,2,0,
-                   0,0,2,  3,0,0,  0,0,5,
-                   8,5,0,  0,0,4,  6,0,0,
+//                   0,1,3,  5,8,0,  4,2,0,
+//                   0,0,2,  3,0,0,  0,0,5,
+//                   8,5,0,  0,0,4,  6,0,0,
 
-                   0,8,0,  0,0,0,  0,6,2,
-                   0,0,7,  0,0,0,  3,0,0,
-                   0,0,0,  0,0,0,  0,4,0};
+//                   0,8,0,  0,0,0,  0,6,2,
+//                   0,0,7,  0,0,0,  3,0,0,
+//                   0,0,0,  0,0,0,  0,4,0};
+
+int grade[9*9] =  {0,0,6,  0,0,3,  0,0,0,
+                   5,4,0,  8,0,0,  2,0,9,
+                   0,0,0,  0,0,9,  6,1,0,
+
+                   0,0,0,  0,8,1,  0,0,0,
+                   4,0,0,  0,9,0,  1,6,8,
+                   0,8,0,  0,3,4,  5,0,0,
+
+                   0,0,4,  3,7,0,  0,0,0,
+                   2,6,7,  9,4,8,  3,5,1,
+                   3,0,0,  0,0,0,  4,0,0};
+
 
 
 /*
@@ -173,20 +184,17 @@ int grade[9*9] =  {0,0,6,  0,0,0,  2,1,7,
 int main()
 {
 
-/*
-    Grid grid;
-    grid.setValues(grade);
 
-    SolverBruteForce solv(grid);
+//    Grid grid;
+//    grid.setValues(grade);
+//    SolverBruteForce solv(grid);
+//    std::vector<Grid> solutions = solv.solveSolutions(2);
+//    for(size_t x = 0; x < solutions.size(); x++)
+//    {
+//        std::cout << "Solution " << x+1 << std::endl;
+//        solutions[x].dump();
+//    }
 
-    QList<Grid> solutions = solv.solveSolutions(2);
-
-    for(int x = 0; x < solutions.size(); x++)
-    {
-        qDebug() << "Solucao " << x+1;
-        solutions[x].dump();
-    }
-*/
 
 //    Grid grid;
 //    grid.setValues("..6...217.3..2....7..6......1358.42...23....585...46...8.....62..7...3.........4.");
@@ -195,8 +203,8 @@ int main()
 
 
     Grid grid;
-    //grid.setValues(grade);
-    grid.setValues("9.6..5....3.........5.76............46...95....9....7..18.3.9......8.13.6..9..4.5");
+    grid.setValues(grade);
+    //grid.setValues("9.6..5....3.........5.76............46...95....9....7..18.3.9......8.13.6..9..4.5");
     grid.fillNotes();
     grid.dump();
 

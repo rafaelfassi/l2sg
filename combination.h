@@ -2,7 +2,6 @@
 #define COMBINATION_H
 
 #include <vector>
-#include <QList>
 
 class Combination
 {
@@ -10,7 +9,7 @@ public:
     Combination(int n = 0, int r = 0);
     ~Combination();
     void reset(int n, int r);
-    bool getNextCombination(QList<int> &combination);
+    bool getNextCombination(std::vector<int> &combination);
 
 private:
     std::vector<bool> m_v;

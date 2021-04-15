@@ -1,7 +1,7 @@
 #ifndef SOLVERBRUTEFORCE_H
 #define SOLVERBRUTEFORCE_H
 
-#include <QList>
+#include <vector>
 
 #include "abstractsolver.h"
 
@@ -12,13 +12,13 @@ class SolverBruteForce : public AbstractSolver
 public:
     SolverBruteForce(Grid &_pGrid);
     virtual void solve();
-    QList<Grid> &solveSolutions(int _nMaxSolutions = 1);
+    std::vector<Grid> &solveSolutions(size_t _nMaxSolutions = 1);
 
     void resolve(int lin, int col);
 
 private:
-    QList<Grid> m_lSolutions;
-    int m_nMaxSolutions;
+    std::vector<Grid> m_lSolutions;
+    size_t m_nMaxSolutions;
 };
 
 #endif // SOLVERBRUTEFORCE_H

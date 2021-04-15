@@ -23,7 +23,7 @@ void Combination::reset(int n, int r)
     std::fill(m_v.begin() + m_r, m_v.end(), true);
 }
 
-bool Combination::getNextCombination(QList<int> &combination)
+bool Combination::getNextCombination(std::vector<int> &combination)
 {
     combination.clear();
 
@@ -34,7 +34,7 @@ bool Combination::getNextCombination(QList<int> &combination)
     {
         if (!m_v[i])
         {
-            combination.append(i);
+            combination.push_back(i);
         }
     }
 

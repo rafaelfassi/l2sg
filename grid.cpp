@@ -56,7 +56,14 @@ void Grid::translateCoordinates(int _i, int _j, int &_l, int &_c, int type)
     }
 }
 
-int *Grid::getMatrixCopy()
+std::pair<int, int> Grid::getBlockStartCoordinates(int _b)
+{
+    int l = (_b / 3) * 3;
+    int c = (_b % 3) * 3;
+    return std::make_pair(l, c);
+}
+
+int* Grid::getMatrixCopy()
 {
     return new int;
 }
@@ -68,28 +75,28 @@ void Grid::setValues(int *_pValues)
             setValue(i, j, _pValues[j + (i * 9)]);
 }
 
-void Grid::setValues(const QString &values)
+void Grid::setValues(const std::string &values)
 {
     int arr[9*9];
     if(fillArrayFormString(values, arr))
         setValues(arr);
 }
 
-bool Grid::fillArrayFormString(const QString &values, int *array)
+bool Grid::fillArrayFormString(const std::string &values, int *array)
 {
     int x(0);
-    for(int i = 0; i < values.size(); ++i)
+    for(size_t i = 0; i < values.size(); ++i)
     {
-        QChar ch = values[i];
+        const auto ch = values[i];
 
-        if(ch.isSpace())
+        if(std::isspace(ch))
             continue;
 
         if(x == 9*9)
             return false;
 
-        if(ch.isDigit())
-            array[x++] = ch.digitValue();
+        if(std::isdigit(ch))
+            array[x++] = (ch - '0'); // Converts the character to int. Notice that '0' == 48
         else
             array[x++] = 0;
     }
@@ -135,11 +142,8 @@ bool Grid::compareValues(const Grid &_grid)
     return true;
 }
 
-void Grid::dump(int _dumpFlags, const QString &_null, const QString &_numSep)
+void Grid::dump(int _dumpFlags, const std::string &_null, const std::string &_numSep)
 {
-    std::string numSep = _numSep.toStdString();
-    std::string null = _null.toStdString();
-
     std::cout << "Dump:" << ++m_dumpCount << std::endl;
 
     std::cout << "Valores:" << std::endl;
@@ -149,9 +153,9 @@ void Grid::dump(int _dumpFlags, const QString &_null, const QString &_numSep)
         {
             int val = getValue(i, j);
             if(val)
-                std::cout << val << numSep;
+                std::cout << val << _numSep;
             else
-                std::cout << null << numSep;
+                std::cout << _null << _numSep;
 
             if (!(_dumpFlags & D_ONE_LINE) && j % 3 == 2) std::cout << "  ";
         }
@@ -310,15 +314,33 @@ void Grid::clearNotesCascade(int _nLin, int _nCol, int _nValue)
 
 }
 
-QString Grid::getNotesSignature()
+void Grid::clearRowNotes(int _row, int _val, const std::function<bool(int)> &_clear)
 {
-    QString result;
+    for(int c = 0; c < 9; ++c)
+    {
+        if(getNoteVisible(_row, c, _val) && _clear(c))
+            setNoteVisible(_row, c, _val, false);
+    }
+}
+
+void Grid::clearColNotes(int _col, int _val, const std::function<bool(int)> &_clear)
+{
+    for(int l = 0; l < 9; ++l)
+    {
+        if(getNoteVisible(l, _col, _val) && _clear(l))
+            setNoteVisible(l, _col, _val, false);
+    }
+}
+
+std::string Grid::getNotesSignature()
+{
+    std::string result;
 
     for(int i = 0; i < 9; i++)
     {
         for(int j = 0; j < 9; j++)
         {
-            result += QString::number(getCell(i, j)->getNotes());
+            result += std::to_string(getCell(i, j)->getNotes());
         }
     }
 

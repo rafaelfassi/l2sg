@@ -253,9 +253,9 @@ bool TestSolverLogic::execTest()
     return true;
 }
 
-bool TestSolverLogic::testUnit(const QString &unitName, int level, int *in, int *out)
+bool TestSolverLogic::testUnit(const std::string &unitName, int level, int *in, int *out)
 {
-    printMsg(QString("Test %1").arg(unitName));
+    printMsg(unitName, "Start testing...");
 
     Grid grid;
     grid.setValues(in);
@@ -266,7 +266,7 @@ bool TestSolverLogic::testUnit(const QString &unitName, int level, int *in, int 
 
     if(!grid.isFull())
     {
-        printMsg(QString("%1 Not Solve").arg(unitName));
+        printMsg(unitName, "Not solved");
         return false;
     }
 
@@ -274,7 +274,7 @@ bool TestSolverLogic::testUnit(const QString &unitName, int level, int *in, int 
     {
         if(!grid.compareValues(out))
         {
-            printMsg(QString("%1 Error In Solution").arg(unitName));
+            printMsg(unitName, "Error in solution");
             return false;
         }
     }
@@ -283,39 +283,48 @@ bool TestSolverLogic::testUnit(const QString &unitName, int level, int *in, int 
         Grid gridBf;
         gridBf.setValues(in);
         SolverBruteForce solverBruteForce(gridBf);
-        QList<Grid> solutions = solverBruteForce.solveSolutions(2);
+        std::vector<Grid> solutions = solverBruteForce.solveSolutions(2);
 
         if(solutions.size() != 1)
         {
-            printMsg(QString("%1 Is Not Valid").arg(unitName));
+            printMsg(unitName, "Is not valid");
             return false;
         }
 
         if(!grid.compareValues(solutions[0]))
         {
-            printMsg(QString("%1 Error In Solution").arg(unitName));
+            printMsg(unitName, "Error in solution");
             return false;
         }
 
-        printMsg(QString("Use this as out solution to %1").arg(unitName));
+        printMsg(unitName, "Please, use this as the out solution");
         solutions[0].dump(0, "0", ",");
     }
 
     if(solverLogic.getResultLevel() != level)
     {
-        printMsg(QString("%1 Error In Level").arg(unitName));
+        printMsg(unitName, "Error in level " + std::to_string(solverLogic.getResultLevel()));
         return false;
     }
 
-    printMsg(QString("%1 Pass").arg(unitName));
+    printMsg(unitName, "Passed");
     return true;
 }
 
-void TestSolverLogic::printMsg(const QString &msg)
+void TestSolverLogic::printMsg(const std::string &msg)
 {
     std::cout << std::endl;
     std::cout << "***************************************************************" << std::endl;
-    std::cout << msg.toStdString() << std::endl;
+    std::cout << msg << std::endl;
+    std::cout << "***************************************************************" << std::endl;
+    std::cout << std::endl;
+}
+
+void TestSolverLogic::printMsg(const std::string &testName, const std::string &msg)
+{
+    std::cout << std::endl;
+    std::cout << "***************************************************************" << std::endl;
+    std::cout << testName << " " << msg << std::endl;
     std::cout << "***************************************************************" << std::endl;
     std::cout << std::endl;
 }

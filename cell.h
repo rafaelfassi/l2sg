@@ -1,7 +1,7 @@
 #ifndef CELL_H
 #define CELL_H
 
-#include <QList>
+#include <vector>
 
 class Cell
 {
@@ -25,13 +25,13 @@ public:
     void setNotes(int _nNotes) { m_nNotes = _nNotes; }
     bool getNoteVisible(int _nNoteVal);
     void setNoteVisible(int _nNoteVal, bool _bVisible);
-    int notesCount();
+    size_t notesCount();
     void clearNotes();
-    QList<int> getVisibleNotesLst();
+    std::vector<int> getVisibleNotesLst();
 
-    static int notesCount(int _nNotes);
+    static size_t notesCount(int _nNotes);
     static bool getNoteVisible(int _nNoteVal, int _nNotes);
-    static QList<int> getVisibleNotesLst(int _nNotes);
+    static std::vector<int> getVisibleNotesLst(int _nNotes);
 
 private:
     int m_nValue;

@@ -11,7 +11,7 @@ void SolverBruteForce::solve()
         m_pGrid = m_lSolutions.at(0);
 }
 
-QList<Grid> &SolverBruteForce::solveSolutions(int _nMaxSolutions)
+std::vector<Grid> &SolverBruteForce::solveSolutions(size_t _nMaxSolutions)
 {
     m_nMaxSolutions = _nMaxSolutions;
 
@@ -47,6 +47,6 @@ void SolverBruteForce::resolve(int lin, int col)
     }
     else
     {
-        m_lSolutions.append(m_pGrid);
+        m_lSolutions.push_back(m_pGrid);
     }
 }

@@ -45,19 +45,20 @@ void Cell::setNoteVisible(int _nNoteVal, bool _bVisible)
     }
 }
 
-int Cell::notesCount()
+size_t Cell::notesCount()
 {
     return notesCount(m_nNotes);
 }
 
-int Cell::notesCount(int _nNotes)
+size_t Cell::notesCount(int _nNotes)
 {
-    int flag = 1, count = 0, valor;
+    int flag = 1, value;
+    size_t count(0);
 
     for(int x = 0; x < 9; x++)
     {
-        valor = _nNotes&flag;
-        if(valor) count++;
+        value = _nNotes&flag;
+        if(value) count++;
         flag = flag << 1;
     }
 
@@ -69,13 +70,13 @@ void Cell::clearNotes()
     m_nNotes = 0;
 }
 
-QList<int> Cell::getVisibleNotesLst()
+std::vector<int> Cell::getVisibleNotesLst()
 {
-    QList<int> lst;
+    std::vector<int> lst;
 
     for(int x = 1; x <=9; x++)
     {
-        if(getNoteVisible(x)) lst.append(x);
+        if(getNoteVisible(x)) lst.push_back(x);
     }
 
     return lst;
@@ -108,13 +109,13 @@ bool Cell::getNoteVisible(int _nNoteVal, int _nNotes)
     }
 }
 
-QList<int> Cell::getVisibleNotesLst(int _nNotes)
+std::vector<int> Cell::getVisibleNotesLst(int _nNotes)
 {
-    QList<int> lst;
+    std::vector<int> lst;
 
     for(int x = 1; x <=9; x++)
     {
-        if(getNoteVisible(x, _nNotes)) lst.append(x);
+        if(getNoteVisible(x, _nNotes)) lst.push_back(x);
     }
 
     return lst;

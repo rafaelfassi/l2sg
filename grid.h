@@ -2,7 +2,8 @@
 #define GRID_H
 
 #include "cell.h"
-#include <QString>
+#include <string>
+#include <functional>
 
 class Grid
 {
@@ -25,24 +26,27 @@ public:
     Cell *getCell(int _nLin, int _nCol);
     Cell *getTranslatedCell(int _i, int _j, int type = T_LINE);
     void translateCoordinates(int _i, int _j, int &_l, int &_c, int type = T_LINE);
-    int *getMatrixCopy();
+    std::pair<int, int> getBlockStartCoordinates(int _b);
+    int* getMatrixCopy();
     void setValues(int *_pValues);
-    void setValues(const QString &values);
-    bool fillArrayFormString(const QString &values, int *array);
+    void setValues(const std::string &values);
+    bool fillArrayFormString(const std::string &values, int *array);
     int getValue(int _nLin, int _nCol) const;
     void setValue(int _nLin, int _nCol, int _nVal);
     bool getNoteVisible(int _nLin, int _nCol, int _nVal);
     void setNoteVisible(int _nLin, int _nCol, int _nVal, bool _bVisible);
     bool compareValues(int *_pValues);
     bool compareValues(const Grid &_grid);
-    void dump(int _dumpFlags = D_ANOTATION, const QString &_null = "0", const QString &_numSep = " ");
+    void dump(int _dumpFlags = D_ANOTATION, const std::string &_null = "0", const std::string &_numSep = " ");
 
     bool checkRules(int _nLin, int _nCol, int _nVal);
     bool isFull();
     void fillNotes();
     void clearNotes();
     void clearNotesCascade(int _nLin, int _nCol, int _nValue);
-    QString getNotesSignature();
+    void clearRowNotes(int _row, int _val, const std::function<bool(int)> &_clear);
+    void clearColNotes(int _col, int _val, const std::function<bool(int)> &_clear);
+    std::string getNotesSignature();
 
 protected:
     Cell *m_cells;
