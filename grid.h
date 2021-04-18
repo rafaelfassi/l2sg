@@ -2,30 +2,31 @@
 #define GRID_H
 
 #include "cell.h"
-#include <string>
 #include <functional>
+#include <string>
 
 class Grid
 {
 public:
     Grid();
-    Grid(Grid const& other);
-    Grid& operator=(const Grid& other);
-    ~Grid();
+    Grid(Grid const &other) = default;
+    ~Grid() = default;
 
-    enum TranslateType{
+    enum TranslateType
+    {
         T_LINE,
         T_COLUMN,
         T_BLOCK
     };
 
-    enum DumpFlags {
+    enum DumpFlags
+    {
         D_ANOTATION = 0x01,
-        D_ONE_LINE  = 0x02
+        D_ONE_LINE = 0x02
     };
 
-    Cell *getCell(int _nLin, int _nCol);
-    Cell *getTranslatedCell(int _i, int _j, int type = T_LINE);
+    Cell &getCell(int _nLin, int _nCol);
+    Cell &getTranslatedCell(int _i, int _j, int type = T_LINE);
     void translateCoordinates(int _i, int _j, int &_l, int &_c, int type = T_LINE);
     std::pair<int, int> getCellCoordinates(int _cellNum);
     std::pair<int, int> getBlockStartCoordinates(int _b);
@@ -38,7 +39,8 @@ public:
     void setNoteVisible(int _nLin, int _nCol, int _nVal, bool _bVisible);
     bool compareValues(int *_pValues);
     bool compareValues(const Grid &_grid);
-    void dump(int _dumpFlags = D_ANOTATION, const std::string &_null = "0", const std::string &_numSep = " ", const std::string &_lineSep = "", const std::string &_colSep = "  ");
+    void dump(int _dumpFlags = D_ANOTATION, const std::string &_null = "0", const std::string &_numSep = " ",
+              const std::string &_lineSep = "", const std::string &_colSep = "  ");
 
     bool checkRules(int _nLin, int _nCol, int _nVal);
     bool isValuesValid();
@@ -51,7 +53,7 @@ public:
     std::string getNotesSignature();
 
 protected:
-    Cell *m_cells;
+    std::array<Cell, 9 * 9> m_cells;
     int m_nSize;
     int m_dumpCount;
 };

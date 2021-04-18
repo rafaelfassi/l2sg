@@ -1,10 +1,9 @@
 #include "combination.h"
 #include <algorithm>
 
-Combination::Combination(int n, int r)
-    : m_hasNext(true)
+Combination::Combination(int n, int r) : m_hasNext(true)
 {
-    if(n && r)
+    if (n && r)
         reset(n, r);
 }
 
@@ -27,7 +26,7 @@ bool Combination::getNextCombination(std::vector<int> &combination)
 {
     combination.clear();
 
-    if(!m_hasNext)
+    if (!m_hasNext)
         return false;
 
     for (int i = 0; i < m_n; ++i)

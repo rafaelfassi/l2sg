@@ -1,16 +1,17 @@
 #include "testsolverlogic.h"
 #include "grid.h"
-#include "solverlogic.h"
 #include "solverbruteforce.h"
+#include "solverlogic.h"
 #include <iostream>
 
 TestSolverLogic::TestSolverLogic()
 {
-
 }
 
 bool TestSolverLogic::execTest()
 {
+    // clang-format off
+
     // Facil ***********************************************************************
     {
         int in[9*9] =  {9,1,0,  2,0,8,  0,3,0,
@@ -248,6 +249,7 @@ bool TestSolverLogic::execTest()
             return false;
     }
 
+    // clang-format on
 
     printMsg("Test OK");
     return true;
@@ -264,15 +266,15 @@ bool TestSolverLogic::testUnit(const std::string &unitName, int level, int *in, 
     SolverLogic solverLogic(grid);
     solverLogic.solve();
 
-    if(!grid.isFull())
+    if (!grid.isFull())
     {
         printMsg(unitName, "Not solved");
         return false;
     }
 
-    if(out)
+    if (out)
     {
-        if(!grid.compareValues(out))
+        if (!grid.compareValues(out))
         {
             printMsg(unitName, "Error in solution");
             return false;
@@ -285,13 +287,13 @@ bool TestSolverLogic::testUnit(const std::string &unitName, int level, int *in, 
         SolverBruteForce solverBruteForce(gridBf);
         std::vector<Grid> solutions = solverBruteForce.solveSolutions(2);
 
-        if(solutions.size() != 1)
+        if (solutions.size() != 1)
         {
             printMsg(unitName, "Is not valid");
             return false;
         }
 
-        if(!grid.compareValues(solutions[0]))
+        if (!grid.compareValues(solutions[0]))
         {
             printMsg(unitName, "Error in solution");
             return false;
@@ -301,7 +303,7 @@ bool TestSolverLogic::testUnit(const std::string &unitName, int level, int *in, 
         solutions[0].dump(0, "0", ",");
     }
 
-    if(solverLogic.getResultLevel() != level)
+    if (solverLogic.getResultLevel() != level)
     {
         printMsg(unitName, "Error in level " + std::to_string(solverLogic.getResultLevel()));
         return false;

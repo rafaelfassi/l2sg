@@ -11,7 +11,6 @@ add_executable(sudoku_solver
     cell.cpp 
     grid.cpp 
     solverbruteforce.cpp
-    visualgrid.cpp
     solverlogic.cpp
     combination.cpp
     abstractsolver.cpp
@@ -20,7 +19,6 @@ add_executable(sudoku_solver
     cell.h
     grid.h
     solverbruteforce.h
-    visualgrid.h
     solverlogic.h
     combination.h
     abstractsolver.h

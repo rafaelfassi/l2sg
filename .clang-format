@@ -1,0 +1,11 @@
+﻿---
+BreakBeforeBraces: Allman
+ColumnLimit: '110'
+IndentCaseLabels: 'true'
+IndentWidth: 4
+UseTab: Never
+AllowShortFunctionsOnASingleLine: InlineOnly
+PointerAlignment: Right
+AccessModifierOffset: -4
+
+...

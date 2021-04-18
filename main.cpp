@@ -1,12 +1,12 @@
-#include <iostream>
-#include <chrono>
-#include <fstream>
 #include "grid.h"
 #include "solverbruteforce.h"
 #include "solverlogic.h"
 #include "testsolverlogic.h"
+#include <chrono>
+#include <fstream>
+#include <iostream>
 
-
+// clang-format off
 //int grade[9*9] =  {0,0,0,  0,0,0,  0,0,0,
 //                   0,0,0,  0,0,0,  0,0,0,
 //                   0,0,0,  0,0,0,  0,0,0,
@@ -183,34 +183,34 @@ int grade[9*9] =  {0,0,6,  0,0,3,  0,0,0,
 
 */
 
+// clang-format on
+
 int main()
 {
-  std::chrono::steady_clock::time_point time_begin = std::chrono::steady_clock::now();
+    std::chrono::steady_clock::time_point time_begin = std::chrono::steady_clock::now();
 
-  //  Grid grid;
-  //  // grid.setValues(grade);
-  //  grid.setValues("12.48.7....6......78...1......8.56...3..9.1.......4.....2.63..83.....2.7.472.93..");
-  //  SolverBruteForce solv(grid);
-  //  std::vector<Grid> solutions = solv.solveSolutions(2);
-  //  for(size_t x = 0; x < solutions.size(); x++)
-  //  {
-  //      std::cout << "Solution " << x+1 << std::endl;
-  //      solutions[x].dump();
-  //  }
-
+    //  Grid grid;
+    //  // grid.setValues(grade);
+    //  grid.setValues("12.48.7....6......78...1......8.56...3..9.1.......4.....2.63..83.....2.7.472.93..");
+    //  SolverBruteForce solv(grid);
+    //  std::vector<Grid> solutions = solv.solveSolutions(2);
+    //  for(size_t x = 0; x < solutions.size(); x++)
+    //  {
+    //      std::cout << "Solution " << x+1 << std::endl;
+    //      solutions[x].dump();
+    //  }
 
     Grid grid;
-    //grid.setValues(grade);
+    // grid.setValues(grade);
     grid.setValues("12.48.7....6......78...1......8.56...3..9.1.......4.....2.63..83.....2.7.472.93..");
     grid.fillNotes();
-    //grid.dump();
+    // grid.dump();
 
     SolverLogic solverLogic(grid);
     solverLogic.solve();
     grid.dump();
     grid.dump(Grid::D_ONE_LINE, "_", "", "+", "");
     std::cout << "Level:" << solverLogic.getResultLevel() << std::endl;
-
 
     // std::ifstream infile("/home/rafael/Dev/SudokuSolver/puzzels/tdoku/data/puzzles1_unbiased");
     // std::string line;
@@ -239,14 +239,12 @@ int main()
     //     }
     // }
 
-  //  TestSolverLogic test;
-  //  test.execTest();
+    //  TestSolverLogic test;
+    //  test.execTest();
 
     std::chrono::steady_clock::time_point time_end = std::chrono::steady_clock::now();
     std::cout << "Elapsed time: "
-              << std::chrono::duration_cast<std::chrono::milliseconds>(time_end - time_begin).count() 
-              << "[ms]"
-              << std::endl;
+              << std::chrono::duration_cast<std::chrono::milliseconds>(time_end - time_begin).count()
+              << "[ms]" << std::endl;
     return 0;
-
 }
