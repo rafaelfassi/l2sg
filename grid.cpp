@@ -1,6 +1,7 @@
 #include "grid.h"
 
 #include <iostream>
+#include <unordered_set>
 
 Grid::Grid() : m_dumpCount(0)
 {
@@ -9,12 +10,19 @@ Grid::Grid() : m_dumpCount(0)
 
 Grid::Grid(Grid const& other)
 {
+    *this = other;
+}
+
+Grid& Grid::operator=(const Grid& other)
+{
     int totalSize = 9*9;
 
     m_cells = new Cell[totalSize];
 
     for(int x = 0; x < totalSize; x++)
         m_cells[x] = other.m_cells[x];
+
+    return *this;
 }
 
 Grid::~Grid()
@@ -56,16 +64,18 @@ void Grid::translateCoordinates(int _i, int _j, int &_l, int &_c, int type)
     }
 }
 
-std::pair<int, int> Grid::getBlockStartCoordinates(int _b)
+std::pair<int, int> Grid::getCellCoordinates(int _cellNum)
 {
-    int l = (_b / 3) * 3;
-    int c = (_b % 3) * 3;
+    const int l = _cellNum / 9;
+    const int c = _cellNum % 9;
     return std::make_pair(l, c);
 }
 
-int* Grid::getMatrixCopy()
+std::pair<int, int> Grid::getBlockStartCoordinates(int _b)
 {
-    return new int;
+    const int l = (_b / 3) * 3;
+    const int c = (_b % 3) * 3;
+    return std::make_pair(l, c);
 }
 
 void Grid::setValues(int *_pValues)
@@ -95,7 +105,7 @@ bool Grid::fillArrayFormString(const std::string &values, int *array)
         if(x == 9*9)
             return false;
 
-        if(std::isdigit(ch))
+        if(std::isdigit(ch) && ch > '0')
             array[x++] = (ch - '0'); // Converts the character to int. Notice that '0' == 48
         else
             array[x++] = 0;
@@ -142,7 +152,7 @@ bool Grid::compareValues(const Grid &_grid)
     return true;
 }
 
-void Grid::dump(int _dumpFlags, const std::string &_null, const std::string &_numSep)
+void Grid::dump(int _dumpFlags, const std::string &_null, const std::string &_numSep, const std::string &_lineSep, const std::string &_colSep)
 {
     std::cout << "Dump:" << ++m_dumpCount << std::endl;
 
@@ -151,22 +161,28 @@ void Grid::dump(int _dumpFlags, const std::string &_null, const std::string &_nu
     {
         for(int j = 0; j < 9; j++)
         {
+            bool lastOfCol((j % 3) == 2);
             int val = getValue(i, j);
             if(val)
-                std::cout << val << _numSep;
+                std::cout << val << (lastOfCol ? _colSep : _numSep);
             else
-                std::cout << _null << _numSep;
+                std::cout << _null << (lastOfCol ? _colSep : _numSep);
 
-            if (!(_dumpFlags & D_ONE_LINE) && j % 3 == 2) std::cout << "  ";
+            //if (!(_dumpFlags & D_ONE_LINE) && j % 3 == 2) std::cout << "  ";
         }
-        if(!(_dumpFlags & D_ONE_LINE))
+
+        if (i < 9-1)
         {
-            std::cout << std::endl;
-            if (i % 3 == 2) std::cout << std::endl;
+            std::cout << _lineSep;
+            if(!(_dumpFlags & D_ONE_LINE))
+            {
+                std::cout << std::endl;
+                if (i % 3 == 2) std::cout << std::endl;
+            }
         }
     }
 
-    if(_dumpFlags & D_ONE_LINE) std::cout << std::endl;
+    std::cout << std::endl;
 
 
     if(_dumpFlags & D_ANOTATION)
@@ -179,7 +195,7 @@ void Grid::dump(int _dumpFlags, const std::string &_null, const std::string &_nu
                 for(int x = 1; x <= 9; x++)
                 {
                     if(getNoteVisible(i, j, x)) std::cout << x;
-                    else std::cout << "X";
+                    else std::cout << ".";
                 }
                 std::cout << " ";
                 if (j % 3 == 2) std::cout << "  ";
@@ -244,6 +260,38 @@ bool Grid::checkRules(int _nLin, int _nCol, int _nVal)
     /*
       A posicao esta vazia, e atribuindo o valor testano na posicao informada nao causa nenhuma violacao.
     */
+    return true;
+}
+
+bool Grid::isValuesValid()
+{
+    for(int type = Grid::T_LINE; type <= Grid::T_BLOCK; ++type)
+    {
+        for(int i = 0; i < 9; ++i)
+        {
+            for(int j = 0; j < 9; ++j)
+            {
+                int l, c;
+                std::unordered_set<int> foundValues;
+                translateCoordinates(i, j, l, c, type);
+                auto cell = getCell(l, c);
+                const auto val = cell->getValue();
+                const auto notes = cell->getNotes();
+
+                // If no value is set and the notes are empty.
+                if ((val == 0) && (notes == 0))
+                {
+                    return false;
+                }
+
+                // Duplicated value
+                if (foundValues.find(val) != foundValues.end())
+                {
+                    return false;
+                }
+            }
+        }
+    }
     return true;
 }
 

@@ -10,6 +10,7 @@ class Grid
 public:
     Grid();
     Grid(Grid const& other);
+    Grid& operator=(const Grid& other);
     ~Grid();
 
     enum TranslateType{
@@ -26,8 +27,8 @@ public:
     Cell *getCell(int _nLin, int _nCol);
     Cell *getTranslatedCell(int _i, int _j, int type = T_LINE);
     void translateCoordinates(int _i, int _j, int &_l, int &_c, int type = T_LINE);
+    std::pair<int, int> getCellCoordinates(int _cellNum);
     std::pair<int, int> getBlockStartCoordinates(int _b);
-    int* getMatrixCopy();
     void setValues(int *_pValues);
     void setValues(const std::string &values);
     bool fillArrayFormString(const std::string &values, int *array);
@@ -37,9 +38,10 @@ public:
     void setNoteVisible(int _nLin, int _nCol, int _nVal, bool _bVisible);
     bool compareValues(int *_pValues);
     bool compareValues(const Grid &_grid);
-    void dump(int _dumpFlags = D_ANOTATION, const std::string &_null = "0", const std::string &_numSep = " ");
+    void dump(int _dumpFlags = D_ANOTATION, const std::string &_null = "0", const std::string &_numSep = " ", const std::string &_lineSep = "", const std::string &_colSep = "  ");
 
     bool checkRules(int _nLin, int _nCol, int _nVal);
+    bool isValuesValid();
     bool isFull();
     void fillNotes();
     void clearNotes();

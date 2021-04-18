@@ -255,7 +255,7 @@ bool TestSolverLogic::execTest()
 
 bool TestSolverLogic::testUnit(const std::string &unitName, int level, int *in, int *out)
 {
-    printMsg(unitName, "Start testing...");
+    printMsg(unitName, "Startint test...");
 
     Grid grid;
     grid.setValues(in);

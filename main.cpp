@@ -1,4 +1,6 @@
 #include <iostream>
+#include <chrono>
+#include <fstream>
 #include "grid.h"
 #include "solverbruteforce.h"
 #include "solverlogic.h"
@@ -183,42 +185,68 @@ int grade[9*9] =  {0,0,6,  0,0,3,  0,0,0,
 
 int main()
 {
+  std::chrono::steady_clock::time_point time_begin = std::chrono::steady_clock::now();
 
-
-//    Grid grid;
-//    grid.setValues(grade);
-//    SolverBruteForce solv(grid);
-//    std::vector<Grid> solutions = solv.solveSolutions(2);
-//    for(size_t x = 0; x < solutions.size(); x++)
-//    {
-//        std::cout << "Solution " << x+1 << std::endl;
-//        solutions[x].dump();
-//    }
-
-
-//    Grid grid;
-//    grid.setValues("..6...217.3..2....7..6......1358.42...23....585...46...8.....62..7...3.........4.");
-//    grid.fillNotes();
-//    grid.dump(Grid::D_ONE_LINE, ".", "");
+  //  Grid grid;
+  //  // grid.setValues(grade);
+  //  grid.setValues("12.48.7....6......78...1......8.56...3..9.1.......4.....2.63..83.....2.7.472.93..");
+  //  SolverBruteForce solv(grid);
+  //  std::vector<Grid> solutions = solv.solveSolutions(2);
+  //  for(size_t x = 0; x < solutions.size(); x++)
+  //  {
+  //      std::cout << "Solution " << x+1 << std::endl;
+  //      solutions[x].dump();
+  //  }
 
 
     Grid grid;
-    grid.setValues(grade);
-    //grid.setValues("9.6..5....3.........5.76............46...95....9....7..18.3.9......8.13.6..9..4.5");
+    //grid.setValues(grade);
+    grid.setValues("12.48.7....6......78...1......8.56...3..9.1.......4.....2.63..83.....2.7.472.93..");
     grid.fillNotes();
-    grid.dump();
+    //grid.dump();
 
     SolverLogic solverLogic(grid);
     solverLogic.solve();
     grid.dump();
+    grid.dump(Grid::D_ONE_LINE, "_", "", "+", "");
     std::cout << "Level:" << solverLogic.getResultLevel() << std::endl;
 
 
+    // std::ifstream infile("/home/rafael/Dev/SudokuSolver/puzzels/tdoku/data/puzzles1_unbiased");
+    // std::string line;
+    // size_t maxPuzzles = 1000;//std::numeric_limits<int>::max();
+    // while (maxPuzzles-- && std::getline(infile, line))
+    // {
+    //     if(line.empty() || !std::isdigit(line.front()))
+    //     {
+    //       ++maxPuzzles;
+    //       continue;
+    //     }
 
-//    TestSolverLogic test;
-//    test.execTest();
+    //     std::string puzzle = line.substr(0, line.find(","));
+    //     Grid grid;
+    //     grid.setValues(puzzle);
+    //     grid.fillNotes();
+    //     SolverLogic solverLogic(grid);
+    //     solverLogic.solve();
+    //     if (!grid.isFull())
+    //     {
+    //       std::cout << "Puzzle: " << puzzle << std::endl;
+    //       std::cout << "Level: " << solverLogic.getResultLevel() << std::endl;
+    //       std::cout << "Solved: " << grid.isFull() << std::endl;
+    //       grid.dump(Grid::D_ONE_LINE, "_", "", "", "");
+    //       std::cout << "***********************************************" << std::endl;
+    //     }
+    // }
 
+  //  TestSolverLogic test;
+  //  test.execTest();
 
+    std::chrono::steady_clock::time_point time_end = std::chrono::steady_clock::now();
+    std::cout << "Elapsed time: "
+              << std::chrono::duration_cast<std::chrono::milliseconds>(time_end - time_begin).count() 
+              << "[ms]"
+              << std::endl;
     return 0;
 
 }
