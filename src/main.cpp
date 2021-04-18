@@ -1,7 +1,6 @@
 #include "grid.h"
 #include "solverbruteforce.h"
 #include "solverlogic.h"
-#include "testsolverlogic.h"
 #include <chrono>
 #include <fstream>
 #include <iostream>
@@ -209,7 +208,7 @@ int main()
     SolverLogic solverLogic(grid);
     solverLogic.solve();
     grid.dump();
-    grid.dump(Grid::D_ONE_LINE, "_", "", "+", "");
+    grid.dump(Grid::D_ONE_LINE, "_", "", "", "");
     std::cout << "Level:" << solverLogic.getResultLevel() << std::endl;
 
     // std::ifstream infile("/home/rafael/Dev/SudokuSolver/puzzels/tdoku/data/puzzles1_unbiased");
