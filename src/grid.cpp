@@ -188,7 +188,7 @@ void Grid::dump(int _dumpFlags, const std::string &_null, const std::string &_nu
     }
 }
 
-bool Grid::checkRules(int _nLin, int _nCol, int _nVal)
+bool Grid::isAllowedValue(int _nLin, int _nCol, int _nVal)
 {
     int l, c, lr, cr;
 
@@ -280,7 +280,7 @@ void Grid::fillNotes()
             {
                 for (int x = 1; x <= 9; ++x)
                 {
-                    if (checkRules(i, j, x))
+                    if (isAllowedValue(i, j, x))
                         setNoteVisible(i, j, x, true);
                 }
             }

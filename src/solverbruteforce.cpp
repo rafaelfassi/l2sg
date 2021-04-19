@@ -31,7 +31,7 @@ void SolverBruteForce::resolve(int lin, int col)
         for (int n = 1; n <= 9; ++n)
         {
             // Se atribuir n a posicao atual, ira violar alguma regra?
-            if (m_pGrid.checkRules(lin, col, n))
+            if (m_pGrid.isAllowedValue(lin, col, n))
             {
                 int t = m_pGrid.getValue(lin, col);
                 m_pGrid.setValue(lin, col, n);
@@ -42,7 +42,7 @@ void SolverBruteForce::resolve(int lin, int col)
                 else
                     resolve(lin + 1, 0);
 
-                // Se chegar aqui e porque em algum ponto das chamadas recursivas, a funcao checkRules()
+                // Se chegar aqui e porque em algum ponto das chamadas recursivas, a funcao isAllowedValue()
                 // retornou false Vamos voltar ao valor anterior e deixar laco for tentar com outro valor.
                 m_pGrid.setValue(lin, col, t);
             }

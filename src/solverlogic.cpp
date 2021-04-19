@@ -122,13 +122,13 @@ public:
             if (m_hasAppliedCandidate)
             {
                 m_cellCount = 2;
+                m_hasAppliedCandidate = false;
             }
             else
             {
                 ++m_cellCount;
             }
             m_cellCandidates.clear();
-            m_hasAppliedCandidate = false;
             return nextGuess();
         }
 

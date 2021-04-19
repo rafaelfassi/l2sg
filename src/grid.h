@@ -43,7 +43,7 @@ public:
     void dump(int _dumpFlags = D_ANOTATION, const std::string &_null = "0", const std::string &_numSep = " ",
               const std::string &_lineSep = "", const std::string &_colSep = "  ");
 
-    bool checkRules(int _nLin, int _nCol, int _nVal);
+    bool isAllowedValue(int _nLin, int _nCol, int _nVal);
     bool hasEmptyNoteForNotSetValue();
     bool isFull();
     void fillNotes();
