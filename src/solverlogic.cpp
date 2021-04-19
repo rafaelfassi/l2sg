@@ -20,9 +20,10 @@ class Guesses
 public:
     Guesses(Grid &_pGrid) : m_pGrid(_pGrid), m_cellCount(2), m_currentCell(0), m_hasAppliedCandidate(false) {}
 
-    bool validateGuess()
+    // Verify if one of the cell's candidates is the right value, if so, apply the value permanentely to the grid.
+    void tryConfirmCurrentGuess()
     {
-        if (m_savedPoint.has_value())
+        if (m_savedPoint.has_value() && m_cellCandidates.size())
         {
             // The guess has caused a conflict?
             if (m_pGrid.hasEmptyNoteForNotSetValue())
@@ -34,13 +35,13 @@ public:
                 {
                     for (const auto candidate : m_cellCandidates)
                     {
-                        // Find the candidate with no conflict and apply it on the grid as permanent.
+                        // Find the unique candidate with no conflict and apply it on the grid.
                         if (m_conflicts.find(candidate) == m_conflicts.end())
                         {
                             // Restore the saved point.
                             m_pGrid = m_savedPoint.value();
                             const auto &cellCoord = m_pGrid.getCellCoordinates(m_currentCell);
-                            // Apply the discovered value on the grid.
+                            // Apply the value on the grid.
                             m_pGrid.setValue(cellCoord.first, cellCoord.second, candidate);
                             m_pGrid.clearNotesCascade(cellCoord.first, cellCoord.second, candidate);
                             // Delete the old saved point to make nextGuess() re-create it.
@@ -54,15 +55,14 @@ public:
                         }
                     }
                 }
-                return false;
             }
         }
-
-        return true;
     }
 
     bool nextGuess()
     {
+        tryConfirmCurrentGuess();
+
         if (!m_savedPoint.has_value())
         {
             m_savedPoint = m_pGrid;
@@ -139,7 +139,7 @@ public:
     {
         if (m_cellCandidates.size())
         {
-            while (++m_currentCandidateIdx < m_cellCandidates.size())
+            if (++m_currentCandidateIdx < m_cellCandidates.size())
             {
                 const auto &cellCoord = m_pGrid.getCellCoordinates(m_currentCell);
                 const auto candidate = m_cellCandidates[m_currentCandidateIdx];
@@ -200,11 +200,8 @@ void SolverLogic::solve()
         while (solveUniquePossibility() > 0)
             ;
 
-        if ((m_level < LEV_GUESS) || guesses.validateGuess())
-        {
-            if (m_pGrid.isFull())
-                break;
-        }
+        if (m_pGrid.isFull())
+            break;
 
         newNotesSignature = m_pGrid.getNotesSignature();
 
@@ -217,11 +214,12 @@ void SolverLogic::solve()
 
             if (m_level == LEV_GUESS)
             {
-                if (guesses.nextGuess())
-                    continue;
+                loop = guesses.nextGuess();
             }
-
-            loop = (m_level < maxLevel);
+            else
+            {
+                loop = (m_level < maxLevel);
+            }
         }
 
     } while (loop);
