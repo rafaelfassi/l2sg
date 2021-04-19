@@ -30,6 +30,7 @@ public:
     void translateCoordinates(int _i, int _j, int &_l, int &_c, int type = T_LINE);
     std::pair<int, int> getCellCoordinates(int _cellNum);
     std::pair<int, int> getBlockStartCoordinates(int _b);
+    int getBlockNumber(int _l, int _c);
     void setValues(int *_pValues);
     void setValues(const std::string &values);
     bool fillArrayFormString(const std::string &values, int *array);
@@ -43,7 +44,7 @@ public:
               const std::string &_lineSep = "", const std::string &_colSep = "  ");
 
     bool checkRules(int _nLin, int _nCol, int _nVal);
-    bool isValuesValid();
+    bool hasEmptyNoteForNotSetValue();
     bool isFull();
     void fillNotes();
     void clearNotes();

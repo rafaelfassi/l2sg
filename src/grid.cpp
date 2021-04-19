@@ -52,6 +52,11 @@ std::pair<int, int> Grid::getBlockStartCoordinates(int _b)
     return std::make_pair(l, c);
 }
 
+int Grid::getBlockNumber(int _l, int _c)
+{
+    return (_c/3) + (_l/3)*3;
+}
+
 void Grid::setValues(int *_pValues)
 {
     for (int i = 0; i < 9; ++i)
@@ -80,7 +85,7 @@ bool Grid::fillArrayFormString(const std::string &values, int *array)
             return false;
 
         if (std::isdigit(ch) && ch > '0')
-            array[x++] = (ch - '0'); // Converts the character to int. Notice that '0' == 48
+            array[x++] = (ch - '0'); // Converts the character to int. ('0' == 48)
         else
             array[x++] = 0;
     }
@@ -131,7 +136,7 @@ void Grid::dump(int _dumpFlags, const std::string &_null, const std::string &_nu
 {
     std::cout << "Dump:" << ++m_dumpCount << std::endl;
 
-    std::cout << "Valores:" << std::endl;
+    std::cout << "Values:" << std::endl;
     for (int i = 0; i < 9; ++i)
     {
         for (int j = 0; j < 9; ++j)
@@ -142,8 +147,6 @@ void Grid::dump(int _dumpFlags, const std::string &_null, const std::string &_nu
                 std::cout << val << (lastOfCol ? _colSep : _numSep);
             else
                 std::cout << _null << (lastOfCol ? _colSep : _numSep);
-
-            // if (!(_dumpFlags & D_ONE_LINE) && j % 3 == 2) std::cout << "  ";
         }
 
         if (i < 9 - 1)
@@ -162,7 +165,7 @@ void Grid::dump(int _dumpFlags, const std::string &_null, const std::string &_nu
 
     if (_dumpFlags & D_ANOTATION)
     {
-        std::cout << "Anotacoes:" << std::endl;
+        std::cout << "Notes:" << std::endl;
         for (int i = 0; i < 9; ++i)
         {
             for (int j = 0; j < 9; ++j)
@@ -245,36 +248,17 @@ bool Grid::checkRules(int _nLin, int _nCol, int _nVal)
     return true;
 }
 
-bool Grid::isValuesValid()
+bool Grid::hasEmptyNoteForNotSetValue()
 {
-    for (int type = Grid::T_LINE; type <= Grid::T_BLOCK; ++type)
+    for (int i = 0; i < 9*9; ++i)
     {
-        for (int i = 0; i < 9; ++i)
+        if ((m_cells[i].getValue() == 0) && (m_cells[i].getNotes() == 0))
         {
-            for (int j = 0; j < 9; ++j)
-            {
-                int l, c;
-                std::unordered_set<int> foundValues;
-                translateCoordinates(i, j, l, c, type);
-                auto cell = getCell(l, c);
-                const auto val = cell.getValue();
-                const auto notes = cell.getNotes();
-
-                // If no value is set and the notes are empty.
-                if ((val == 0) && (notes == 0))
-                {
-                    return false;
-                }
-
-                // Duplicated value
-                if (foundValues.find(val) != foundValues.end())
-                {
-                    return false;
-                }
-            }
+            return true;
         }
     }
-    return true;
+
+    return false;
 }
 
 bool Grid::isFull()

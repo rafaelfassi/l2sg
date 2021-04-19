@@ -6,6 +6,15 @@
 class SolverLogic : public AbstractSolver
 {
 public:
+
+    enum Levels
+    {
+        LEV_EASY,
+        LEV_MEDIUM,
+        LEV_HARD,
+        LEV_GUESS
+    };
+
     SolverLogic(Grid &_pGrid);
     virtual void solve();
     int getResultLevel() { return m_level; }

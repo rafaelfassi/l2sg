@@ -8,13 +8,13 @@ SET(CMAKE_CXX_FLAGS_DEBUG "-g -O0")
 SET(CMAKE_CXX_FLAGS_RELEASE "-O3 -s")
 
 add_library(sudoku_solver_lib STATIC
-    cell.cpp 
-    grid.cpp 
+    cell.cpp
+    grid.cpp
     solverbruteforce.cpp
     solverlogic.cpp
     combination.cpp
     abstractsolver.cpp
-    
+
     cell.h
     grid.h
     solverbruteforce.h
@@ -31,5 +31,3 @@ target_link_libraries(sudoku_solver_app
 	PUBLIC
     sudoku_solver_lib
 )
-
-

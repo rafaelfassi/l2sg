@@ -2,6 +2,7 @@
 #include "combination.h"
 #include <iostream>
 #include <optional>
+#include <set>
 #include <stack>
 #include <string>
 #include <unordered_map>
@@ -16,28 +17,39 @@
 
 class Guesses
 {
-  public:
-    Guesses(Grid &_pGrid) : m_pGrid(_pGrid), cellCount(2), m_currentCell(0) {}
+public:
+    Guesses(Grid &_pGrid) : m_pGrid(_pGrid), m_cellCount(2), m_currentCell(0), m_hasAppliedCandidate(false) {}
 
     bool validateGuess()
     {
-        if (m_savedPoints.size())
+        if (m_savedPoint.has_value())
         {
-            if (!m_pGrid.isValuesValid())
+            // The guess has caused a conflict?
+            if (m_pGrid.hasEmptyNoteForNotSetValue())
             {
-                m_conflicts.insert(m_cellGuesses[m_currentGuessIdx]);
-                if (m_conflicts.size() == (m_cellGuesses.size() - 1))
+                m_conflicts.insert(m_cellCandidates[m_currentCandidateIdx]);
+
+                // If only one candidate has no conflict detected, the candidate is the correct value.
+                if (m_conflicts.size() == (m_cellCandidates.size() - 1))
                 {
-                    for (const auto guess : m_cellGuesses)
+                    for (const auto candidate : m_cellCandidates)
                     {
-                        if (m_conflicts.find(guess) == m_conflicts.end())
+                        // Find the candidate with no conflict and apply it on the grid as permanent.
+                        if (m_conflicts.find(candidate) == m_conflicts.end())
                         {
-                            m_pGrid = m_savedPoints.top();
+                            // Restore the saved point.
+                            m_pGrid = m_savedPoint.value();
                             const auto &cellCoord = m_pGrid.getCellCoordinates(m_currentCell);
-                            m_pGrid.setValue(cellCoord.first, cellCoord.second, guess);
-                            m_pGrid.clearNotesCascade(cellCoord.first, cellCoord.second, guess);
-                            m_savedPoints.pop();
-                            m_cellGuesses.clear();
+                            // Apply the discovered value on the grid.
+                            m_pGrid.setValue(cellCoord.first, cellCoord.second, candidate);
+                            m_pGrid.clearNotesCascade(cellCoord.first, cellCoord.second, candidate);
+                            // Delete the old saved point to make nextGuess() re-create it.
+                            m_savedPoint = std::nullopt;
+                            m_cellCandidates.clear();
+                            m_hasAppliedCandidate = true;
+                            std::cout << "Candidate: " << candidate
+                                      << " comfirmed for cell: " << cellCoord.first << "," << cellCoord.second
+                                      << std::endl;
                             break;
                         }
                     }
@@ -51,67 +63,109 @@ class Guesses
 
     bool nextGuess()
     {
-        if (m_savedPoints.empty())
+        if (!m_savedPoint.has_value())
         {
-            m_savedPoints.push(m_pGrid);
+            m_savedPoint = m_pGrid;
         }
         else
         {
-            m_pGrid = m_savedPoints.top();
+            m_pGrid = m_savedPoint.value();
         }
 
-        if (m_cellGuesses.size())
+        if (m_cellCandidates.size())
         {
-            if (++m_currentGuessIdx < m_cellGuesses.size())
+            if (tryApplyNextCellCandidate())
             {
-                const auto &cellCoord = m_pGrid.getCellCoordinates(m_currentCell);
-                m_pGrid.setValue(cellCoord.first, cellCoord.second, m_cellGuesses[m_currentGuessIdx]);
-                m_pGrid.clearNotesCascade(cellCoord.first, cellCoord.second,
-                                          m_cellGuesses[m_currentGuessIdx]);
                 return true;
             }
-
-            ++m_currentCell;
+            else
+            {
+                ++m_currentCell;
+            }
         }
 
         for (; m_currentCell < 9 * 9; ++m_currentCell)
         {
             const auto cellCoord = m_pGrid.getCellCoordinates(m_currentCell);
             auto &cell = m_pGrid.getCell(cellCoord.first, cellCoord.second);
-            if (cell.notesCount() == cellCount)
+            if (cell.notesCount() == m_cellCount)
             {
-                m_currentGuessIdx = 0;
+                m_currentCandidateIdx = -1;
                 m_conflicts.clear();
-                m_cellGuesses = cell.getVisibleNotesLst();
-                m_pGrid.setValue(cellCoord.first, cellCoord.second, m_cellGuesses[m_currentGuessIdx]);
-                m_pGrid.clearNotesCascade(cellCoord.first, cellCoord.second,
-                                          m_cellGuesses[m_currentGuessIdx]);
-                return true;
+                m_cellCandidates = cell.getVisibleNotesLst();
+                const int notes = cell.getNotes();
+                const int blk(m_pGrid.getBlockNumber(cellCoord.first, cellCoord.second));
+                if (((m_triedGuessesRow.find(std::make_pair(cellCoord.first, notes)) ==
+                      m_triedGuessesRow.end()) &&
+                     (m_triedGuessesCol.find(std::make_pair(cellCoord.second, notes)) ==
+                      m_triedGuessesCol.end()) &&
+                     (m_triedGuessesBlk.find(std::make_pair(blk, notes)) == m_triedGuessesBlk.end())))
+                {
+                    m_triedGuessesRow.insert(std::make_pair(cellCoord.first, notes));
+                    m_triedGuessesCol.insert(std::make_pair(cellCoord.second, notes));
+                    m_triedGuessesBlk.insert(std::make_pair(blk, notes));
+
+                    if (tryApplyNextCellCandidate())
+                    {
+                        std::cout << "Start " << m_cellCount
+                                  << " candidates guessing for cell: " << cellCoord.first << ","
+                                  << cellCoord.second << std::endl;
+                        return true;
+                    }
+                }
             }
         }
 
-        if (m_currentCell >= 9 * 9)
+        if ((m_currentCell >= 9 * 9) && (m_cellCount < 8))
         {
             m_currentCell = 0;
-            ++cellCount;
-            m_cellGuesses.clear();
+            if (m_hasAppliedCandidate)
+            {
+                m_cellCount = 2;
+            }
+            else
+            {
+                ++m_cellCount;
+            }
+            m_cellCandidates.clear();
+            m_hasAppliedCandidate = false;
             return nextGuess();
         }
 
         return false;
     }
 
-  private:
+    bool tryApplyNextCellCandidate()
+    {
+        if (m_cellCandidates.size())
+        {
+            while (++m_currentCandidateIdx < m_cellCandidates.size())
+            {
+                const auto &cellCoord = m_pGrid.getCellCoordinates(m_currentCell);
+                const auto candidate = m_cellCandidates[m_currentCandidateIdx];
+                m_pGrid.setValue(cellCoord.first, cellCoord.second, candidate);
+                m_pGrid.clearNotesCascade(cellCoord.first, cellCoord.second, candidate);
+                return true;
+            }
+        }
+        return false;
+    }
+
+private:
     Grid &m_pGrid;
-    std::stack<Grid> m_savedPoints;
+    std::optional<Grid> m_savedPoint;
     int m_currentCell;
-    std::vector<int> m_cellGuesses;
+    std::vector<int> m_cellCandidates;
     std::unordered_set<int> m_conflicts;
-    int m_currentGuessIdx;
-    int cellCount;
+    std::set<std::pair<int, int>> m_triedGuessesRow;
+    std::set<std::pair<int, int>> m_triedGuessesCol;
+    std::set<std::pair<int, int>> m_triedGuessesBlk;
+    int m_currentCandidateIdx;
+    int m_cellCount;
+    bool m_hasAppliedCandidate;
 };
 
-SolverLogic::SolverLogic(Grid &_pGrid) : AbstractSolver(_pGrid), m_level(0)
+SolverLogic::SolverLogic(Grid &_pGrid) : AbstractSolver(_pGrid), m_level(LEV_EASY)
 {
 }
 
@@ -119,7 +173,7 @@ void SolverLogic::solve()
 {
     std::string notesSignature;
     std::string newNotesSignature;
-    int maxLevel(3);
+    int maxLevel(LEV_GUESS);
     bool loop(true);
     Guesses guesses(m_pGrid);
 
@@ -130,12 +184,12 @@ void SolverLogic::solve()
         else
             notesSignature = newNotesSignature;
 
-        if (m_level > 1)
+        if (m_level >= LEV_HARD)
         {
             solveCandidatesOnlyInBlockLineOrCol();
             solveNumCellsEqualNumCandidates();
         }
-        else if (m_level > 0)
+        else if (m_level >= LEV_MEDIUM)
         {
             solveNumCellsEqualNumCandidates(2);
         }
@@ -146,7 +200,7 @@ void SolverLogic::solve()
         while (solveUniquePossibility() > 0)
             ;
 
-        if ((m_level <= 2) || guesses.validateGuess())
+        if ((m_level < LEV_GUESS) || guesses.validateGuess())
         {
             if (m_pGrid.isFull())
                 break;
@@ -161,29 +215,14 @@ void SolverLogic::solve()
                 ++m_level;
             }
 
-            if (m_level > 2)
+            if (m_level == LEV_GUESS)
             {
                 if (guesses.nextGuess())
                     continue;
             }
 
             loop = (m_level < maxLevel);
-            // if(!loop)
-            // {
-            //     //m_level = level;
-            //     // std::cout << std::endl;
-            //     // std::cout << "***************************************************************" <<
-            //     std::endl;
-            //     // std::cout << "Level:" << m_level << std::endl;
-            //     // std::cout << "***************************************************************" <<
-            //     std::endl;
-            //     // std::cout << std::endl;
-            // }
         }
-        // else
-        // {
-        //     level = std::max(level - 1, 0);
-        // }
 
     } while (loop);
 }
@@ -200,8 +239,7 @@ int SolverLogic::solveSolitaryCandidate()
             if (cell.notesCount() == 1)
             {
                 int x(0);
-                while (!cell.getNoteVisible(x))
-                    ++x;
+                while (!cell.getNoteVisible(x)) ++x;
                 cell.setValue(x);
                 m_pGrid.clearNotesCascade(i, j, x);
                 ++solvedCount;
