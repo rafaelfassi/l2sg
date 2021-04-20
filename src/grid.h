@@ -48,15 +48,14 @@ public:
     bool isFull();
     void fillNotes();
     void clearNotes();
-    void clearNotesCascade(int _nLin, int _nCol, int _nValue);
+    bool clearNotesCascade(int _nLin, int _nCol, int _nValue);
     void clearRowNotes(int _row, int _val, const std::function<bool(int)> &_clear);
     void clearColNotes(int _col, int _val, const std::function<bool(int)> &_clear);
     std::string getNotesSignature();
+    void forAllTypes(const std::function<bool(int,int,int)> &_callback);
 
 protected:
     std::array<Cell, 9 * 9> m_cells;
-    int m_nSize;
-    int m_dumpCount;
 };
 
 #endif // GRID_H

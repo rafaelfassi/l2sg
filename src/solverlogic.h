@@ -12,16 +12,20 @@ public:
         LEV_EASY,
         LEV_MEDIUM,
         LEV_HARD,
-        LEV_GUESS
+        LEV_GUESS,
+        LEV_BF
     };
 
     SolverLogic(Grid &_pGrid);
     virtual void solve();
     int getResultLevel() { return m_level; }
-    int solveSolitaryCandidate();
-    int solveUniquePossibility();
-    void solveCandidatesOnlyInBlockLineOrCol();
-    void solveNumCellsEqualNumCandidates(int maxCells = 0);
+    int solveSolitaryCandidate(Grid &pGrid, bool *ok = nullptr);
+    int solveUniquePossibility(Grid &pGrid, bool *ok = nullptr);
+    int solveUniquePossibility_1(Grid &pGrid);
+    int solveUniquePossibilityOld(Grid &pGrid);
+    void solveCandidatesOnlyInBlockLineOrCol(Grid &pGrid);
+    void solveNumCellsEqualNumCandidates(Grid &pGrid, int maxCells = 0);
+    int solveBruteForce(int maxSolution = 1);
 
 private:
     int m_level;

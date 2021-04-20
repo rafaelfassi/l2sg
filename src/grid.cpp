@@ -3,7 +3,7 @@
 #include <iostream>
 #include <unordered_set>
 
-Grid::Grid() : m_dumpCount(0)
+Grid::Grid()
 {
 }
 
@@ -54,7 +54,7 @@ std::pair<int, int> Grid::getBlockStartCoordinates(int _b)
 
 int Grid::getBlockNumber(int _l, int _c)
 {
-    return (_c/3) + (_l/3)*3;
+    return (_c / 3) + (_l / 3) * 3;
 }
 
 void Grid::setValues(int *_pValues)
@@ -134,8 +134,6 @@ bool Grid::compareValues(const Grid &_grid)
 void Grid::dump(int _dumpFlags, const std::string &_null, const std::string &_numSep,
                 const std::string &_lineSep, const std::string &_colSep)
 {
-    std::cout << "Dump:" << ++m_dumpCount << std::endl;
-
     std::cout << "Values:" << std::endl;
     for (int i = 0; i < 9; ++i)
     {
@@ -250,7 +248,7 @@ bool Grid::isAllowedValue(int _nLin, int _nCol, int _nVal)
 
 bool Grid::hasEmptyNoteForNotSetValue()
 {
-    for (int i = 0; i < 9*9; ++i)
+    for (int i = 0; i < 9 * 9; ++i)
     {
         if ((m_cells[i].getValue() == 0) && (m_cells[i].getNotes() == 0))
         {
@@ -295,28 +293,44 @@ void Grid::clearNotes()
             getCell(i, j).setNotes(0);
 }
 
-void Grid::clearNotesCascade(int _nLin, int _nCol, int _nValue)
+bool Grid::clearNotesCascade(int _nLin, int _nCol, int _nValue)
 {
     int lr = _nLin / 3;
     int cr = _nCol / 3;
 
-    Cell &cell = getCell(_nLin, _nCol);
-    cell.clearNotes();
+    {
+        Cell &cell = getCell(_nLin, _nCol);
+        cell.clearNotes();
+    }
 
     for (int l = 0; l < 9; ++l)
     {
         if (l == _nLin)
             continue;
-        if (getNoteVisible(l, _nCol, _nValue))
-            setNoteVisible(l, _nCol, _nValue, false);
+        Cell &cell = getCell(l, _nCol);
+        if (cell.getNoteVisible(_nValue))
+        {
+            cell.setNoteVisible(_nValue, false);
+            if (cell.getNotes() == 0)
+            {
+                return false;
+            }
+        }
     }
 
     for (int c = 0; c < 9; ++c)
     {
         if (c == _nCol)
             continue;
-        if (getNoteVisible(_nLin, c, _nValue))
-            setNoteVisible(_nLin, c, _nValue, false);
+        Cell &cell = getCell(_nLin, c);
+        if (cell.getNoteVisible(_nValue))
+        {
+            cell.setNoteVisible(_nValue, false);
+            if (cell.getNotes() == 0)
+            {
+                return false;
+            }
+        }
     }
 
     for (int l = lr * 3; l < (lr + 1) * 3; ++l)
@@ -325,10 +339,19 @@ void Grid::clearNotesCascade(int _nLin, int _nCol, int _nValue)
         {
             if ((l == _nLin) && (c == _nCol))
                 continue;
-            if (getNoteVisible(l, c, _nValue))
-                setNoteVisible(l, c, _nValue, false);
+            Cell &cell = getCell(l, c);
+            if (cell.getNoteVisible(_nValue))
+            {
+                cell.setNoteVisible(_nValue, false);
+                if (cell.getNotes() == 0)
+                {
+                    return false;
+                }
+            }
         }
     }
+
+    return true;
 }
 
 void Grid::clearRowNotes(int _row, int _val, const std::function<bool(int)> &_clear)
@@ -362,4 +385,18 @@ std::string Grid::getNotesSignature()
     }
 
     return result;
+}
+
+void Grid::forAllTypes(const std::function<bool(int, int, int)> &_callback)
+{
+    for (int l = 0; l < 9; ++l)
+    {
+        for (int c = 0; c < 9; ++c)
+        {
+            if (!_callback(l, c, (c / 3) + (l / 3) * 3))
+            {
+                return;
+            }
+        }
+    }
 }
