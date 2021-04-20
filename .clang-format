@@ -5,7 +5,7 @@ IndentCaseLabels: true
 IndentWidth: 4
 UseTab: Never
 AllowShortFunctionsOnASingleLine: InlineOnly
-AllowShortLoopsOnASingleLine: true
+AllowShortLoopsOnASingleLine: false
 PointerAlignment: Right
 AccessModifierOffset: -4
 

@@ -24,17 +24,17 @@ int g_rowCol2BlockNumber[9][9] = {
 // l = (j / 3) + (i / 3) * 3;
 // c = (j % 3) + ((i - (l / 3) * 3) * 3);
 std::pair<int, int> g_blockElem2RowCol[9][9] = {
-    {std::make_pair(0, 0) ,std::make_pair(0, 1), std::make_pair(0, 2),   std::make_pair(1, 0), std::make_pair(1, 1), std::make_pair(1, 2),   std::make_pair(2, 0), std::make_pair(2, 1), std::make_pair(2, 2)},
-    {std::make_pair(0, 3) ,std::make_pair(0, 4), std::make_pair(0, 5),   std::make_pair(1, 3), std::make_pair(1, 4), std::make_pair(1, 5),   std::make_pair(2, 3), std::make_pair(2, 4), std::make_pair(2, 5)},
-    {std::make_pair(0, 6) ,std::make_pair(0, 7), std::make_pair(0, 8),   std::make_pair(1, 6), std::make_pair(1, 7), std::make_pair(1, 8),   std::make_pair(2, 6), std::make_pair(2, 7), std::make_pair(2, 8)},
+    {{0, 0} ,{0, 1}, {0, 2},   {1, 0}, {1, 1}, {1, 2},   {2, 0}, {2, 1}, {2, 2}},
+    {{0, 3} ,{0, 4}, {0, 5},   {1, 3}, {1, 4}, {1, 5},   {2, 3}, {2, 4}, {2, 5}},
+    {{0, 6} ,{0, 7}, {0, 8},   {1, 6}, {1, 7}, {1, 8},   {2, 6}, {2, 7}, {2, 8}},
 
-    {std::make_pair(3, 0) ,std::make_pair(3, 1), std::make_pair(3, 2),   std::make_pair(4, 0), std::make_pair(4, 1), std::make_pair(4, 2),   std::make_pair(5, 0), std::make_pair(5, 1), std::make_pair(5, 2)},
-    {std::make_pair(3, 3) ,std::make_pair(3, 4), std::make_pair(3, 5),   std::make_pair(4, 3), std::make_pair(4, 4), std::make_pair(4, 5),   std::make_pair(5, 3), std::make_pair(5, 4), std::make_pair(5, 5)},
-    {std::make_pair(3, 6) ,std::make_pair(3, 7), std::make_pair(3, 8),   std::make_pair(4, 6), std::make_pair(4, 7), std::make_pair(4, 8),   std::make_pair(5, 6), std::make_pair(5, 7), std::make_pair(5, 8)},
+    {{3, 0} ,{3, 1}, {3, 2},   {4, 0}, {4, 1}, {4, 2},   {5, 0}, {5, 1}, {5, 2}},
+    {{3, 3} ,{3, 4}, {3, 5},   {4, 3}, {4, 4}, {4, 5},   {5, 3}, {5, 4}, {5, 5}},
+    {{3, 6} ,{3, 7}, {3, 8},   {4, 6}, {4, 7}, {4, 8},   {5, 6}, {5, 7}, {5, 8}},
 
-    {std::make_pair(6, 0) ,std::make_pair(6, 1), std::make_pair(6, 2),   std::make_pair(7, 0), std::make_pair(7, 1), std::make_pair(7, 2),   std::make_pair(8, 0), std::make_pair(8, 1), std::make_pair(8, 2)},
-    {std::make_pair(6, 3) ,std::make_pair(6, 4), std::make_pair(6, 5),   std::make_pair(7, 3), std::make_pair(7, 4), std::make_pair(7, 5),   std::make_pair(8, 3), std::make_pair(8, 4), std::make_pair(8, 5)},
-    {std::make_pair(6, 6) ,std::make_pair(6, 7), std::make_pair(6, 8),   std::make_pair(7, 6), std::make_pair(7, 7), std::make_pair(7, 8),   std::make_pair(8, 6), std::make_pair(8, 7), std::make_pair(8, 8)}};
+    {{6, 0} ,{6, 1}, {6, 2},   {7, 0}, {7, 1}, {7, 2},   {8, 0}, {8, 1}, {8, 2}},
+    {{6, 3} ,{6, 4}, {6, 5},   {7, 3}, {7, 4}, {7, 5},   {8, 3}, {8, 4}, {8, 5}},
+    {{6, 6} ,{6, 7}, {6, 8},   {7, 6}, {7, 7}, {7, 8},   {8, 6}, {8, 7}, {8, 8}}};
 
 // clang-format on
 
@@ -189,7 +189,7 @@ void Grid::dump(int _dumpFlags, const std::string &_null, const std::string &_nu
                     else
                         std::cout << ".";
                 }
-                std::cout << " ";
+                std::cout << "  ";
                 if (j % 3 == 2)
                     std::cout << "  ";
             }
@@ -411,7 +411,7 @@ std::string Grid::getNotesSignature()
     return result;
 }
 
-void Grid::forAllTypes(const std::function<bool(int, int, int)> &_callback)
+void Grid::forAllCells(const std::function<bool(int, int, int)> &_callback)
 {
     for (int l = 0; l < 9; ++l)
     {

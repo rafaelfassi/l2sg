@@ -37,13 +37,10 @@ bool test(const std::string &unitName, int level, const std::string &puzzle,
         return false;
     }
 
-    if (expectedResultArr)
+    if (!grid.compareValues(expectedResultArr))
     {
-        if (!grid.compareValues(expectedResultArr))
-        {
-            printMsg(unitName, "Solution error");
-            return false;
-        }
+        printMsg(unitName, "Solution error");
+        return false;
     }
 
     if (solverLogic.getResultLevel() != level)

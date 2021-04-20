@@ -52,7 +52,7 @@ public:
     void clearRowNotes(int _row, int _val, const std::function<bool(int)> &_clear);
     void clearColNotes(int _col, int _val, const std::function<bool(int)> &_clear);
     std::string getNotesSignature();
-    void forAllTypes(const std::function<bool(int,int,int)> &_callback);
+    void forAllCells(const std::function<bool(int,int,int)> &_callback);
 
 protected:
     Cell m_cells[9][9];
