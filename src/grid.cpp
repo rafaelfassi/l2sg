@@ -3,13 +3,43 @@
 #include <iostream>
 #include <unordered_set>
 
+// clang-format off
+
+// Table from:
+// b = (c / 3) + (l / 3) * 3
+int g_rowCol2BlockNumber[9][9] = {
+    {0 ,0, 0,   1, 1, 1,   2, 2, 2},
+    {0 ,0, 0,   1, 1, 1,   2, 2, 2},
+    {0 ,0, 0,   1, 1, 1,   2, 2, 2},
+
+    {3 ,3, 3,   4, 4, 4,   5, 5, 5},
+    {3 ,3, 3,   4, 4, 4,   5, 5, 5},
+    {3 ,3, 3,   4, 4, 4,   5, 5, 5},
+
+    {6 ,6, 6,   7, 7, 7,   8, 8, 8},
+    {6 ,6, 6,   7, 7, 7,   8, 8, 8},
+    {6 ,6, 6,   7, 7, 7,   8, 8, 8}};
+
+// Table from:
+// l = (j / 3) + (i / 3) * 3;
+// c = (j % 3) + ((i - (l / 3) * 3) * 3);
+std::pair<int, int> g_blockElem2RowCol[9][9] = {
+    {std::make_pair(0, 0) ,std::make_pair(0, 1), std::make_pair(0, 2),   std::make_pair(1, 0), std::make_pair(1, 1), std::make_pair(1, 2),   std::make_pair(2, 0), std::make_pair(2, 1), std::make_pair(2, 2)},
+    {std::make_pair(0, 3) ,std::make_pair(0, 4), std::make_pair(0, 5),   std::make_pair(1, 3), std::make_pair(1, 4), std::make_pair(1, 5),   std::make_pair(2, 3), std::make_pair(2, 4), std::make_pair(2, 5)},
+    {std::make_pair(0, 6) ,std::make_pair(0, 7), std::make_pair(0, 8),   std::make_pair(1, 6), std::make_pair(1, 7), std::make_pair(1, 8),   std::make_pair(2, 6), std::make_pair(2, 7), std::make_pair(2, 8)},
+
+    {std::make_pair(3, 0) ,std::make_pair(3, 1), std::make_pair(3, 2),   std::make_pair(4, 0), std::make_pair(4, 1), std::make_pair(4, 2),   std::make_pair(5, 0), std::make_pair(5, 1), std::make_pair(5, 2)},
+    {std::make_pair(3, 3) ,std::make_pair(3, 4), std::make_pair(3, 5),   std::make_pair(4, 3), std::make_pair(4, 4), std::make_pair(4, 5),   std::make_pair(5, 3), std::make_pair(5, 4), std::make_pair(5, 5)},
+    {std::make_pair(3, 6) ,std::make_pair(3, 7), std::make_pair(3, 8),   std::make_pair(4, 6), std::make_pair(4, 7), std::make_pair(4, 8),   std::make_pair(5, 6), std::make_pair(5, 7), std::make_pair(5, 8)},
+
+    {std::make_pair(6, 0) ,std::make_pair(6, 1), std::make_pair(6, 2),   std::make_pair(7, 0), std::make_pair(7, 1), std::make_pair(7, 2),   std::make_pair(8, 0), std::make_pair(8, 1), std::make_pair(8, 2)},
+    {std::make_pair(6, 3) ,std::make_pair(6, 4), std::make_pair(6, 5),   std::make_pair(7, 3), std::make_pair(7, 4), std::make_pair(7, 5),   std::make_pair(8, 3), std::make_pair(8, 4), std::make_pair(8, 5)},
+    {std::make_pair(6, 6) ,std::make_pair(6, 7), std::make_pair(6, 8),   std::make_pair(7, 6), std::make_pair(7, 7), std::make_pair(7, 8),   std::make_pair(8, 6), std::make_pair(8, 7), std::make_pair(8, 8)}};
+
+// clang-format on
+
 Grid::Grid()
 {
-}
-
-Cell &Grid::getCell(int _nLin, int _nCol)
-{
-    return m_cells[_nCol + (_nLin * 9)];
 }
 
 Cell &Grid::getTranslatedCell(int _i, int _j, int type)
@@ -32,8 +62,11 @@ void Grid::translateCoordinates(int _i, int _j, int &_l, int &_c, int type)
             _c = _i;
             break;
         case T_BLOCK:
-            _l = (_j / 3) + (_i / 3) * 3;
-            _c = (_j % 3) + ((_i - (_l / 3) * 3) * 3);
+            const auto &rowCol = g_blockElem2RowCol[_i][_j];
+            _l = rowCol.first;
+            _c = rowCol.second;
+            // _l = (_j / 3) + (_i / 3) * 3;
+            // _c = (_j % 3) + ((_i - (_l / 3) * 3) * 3);
             break;
     }
 }
@@ -52,9 +85,10 @@ std::pair<int, int> Grid::getBlockStartCoordinates(int _b)
     return std::make_pair(l, c);
 }
 
-int Grid::getBlockNumber(int _l, int _c)
+int Grid::getBlockNumber(int _l, int _c) const
 {
-    return (_c / 3) + (_l / 3) * 3;
+    return g_rowCol2BlockNumber[_l][_c];
+    // return (_c / 3) + (_l / 3) * 3;
 }
 
 void Grid::setValues(int *_pValues)
@@ -91,26 +125,6 @@ bool Grid::fillArrayFormString(const std::string &values, int *array)
     }
 
     return (x == 9 * 9);
-}
-
-int Grid::getValue(int _nLin, int _nCol) const
-{
-    return m_cells[_nCol + (_nLin * 9)].getValue();
-}
-
-void Grid::setValue(int _nLin, int _nCol, int _nVal)
-{
-    m_cells[_nCol + (_nLin * 9)].setValue(_nVal);
-}
-
-bool Grid::getNoteVisible(int _nLin, int _nCol, int _nVal)
-{
-    return m_cells[_nCol + (_nLin * 9)].getNoteVisible(_nVal);
-}
-
-void Grid::setNoteVisible(int _nLin, int _nCol, int _nVal, bool _bVisible)
-{
-    m_cells[_nCol + (_nLin * 9)].setNoteVisible(_nVal, _bVisible);
 }
 
 bool Grid::compareValues(int *_pValues)
@@ -233,12 +247,19 @@ bool Grid::isAllowedValue(int _nLin, int _nCol, int _nVal)
     /*
       Testa se vai existir replicação no quadrante.
     */
-    lr = _nLin / 3;
-    cr = _nCol / 3;
-    for (l = lr * 3; l < (lr + 1) * 3; ++l)
-        for (c = cr * 3; c < (cr + 1) * 3; ++c)
-            if (getValue(l, c) == _nVal)
-                return false;
+    const auto b = g_rowCol2BlockNumber[_nLin][_nCol];
+    for (int e = 0; e < 9; ++e)
+    {
+        const auto &rowCol = g_blockElem2RowCol[b][e];
+        if (getValue(rowCol.first, rowCol.second) == _nVal)
+            return false;
+    }
+    // lr = _nLin / 3;
+    // cr = _nCol / 3;
+    // for (l = lr * 3; l < (lr + 1) * 3; ++l)
+    //     for (c = cr * 3; c < (cr + 1) * 3; ++c)
+    //         if (getValue(l, c) == _nVal)
+    //             return false;
 
     /*
       A posicao esta vazia, e atribuindo o valor testano na posicao informada nao causa nenhuma violacao.
@@ -248,11 +269,14 @@ bool Grid::isAllowedValue(int _nLin, int _nCol, int _nVal)
 
 bool Grid::hasEmptyNoteForNotSetValue()
 {
-    for (int i = 0; i < 9 * 9; ++i)
+    for (int i = 0; i < 9; ++i)
     {
-        if ((m_cells[i].getValue() == 0) && (m_cells[i].getNotes() == 0))
+        for (int j = 0; j < 9; ++j)
         {
-            return true;
+            if ((m_cells[i][j].getValue() == 0) && (m_cells[i][j].getNotes() == 0))
+            {
+                return true;
+            }
         }
     }
 
@@ -393,7 +417,7 @@ void Grid::forAllTypes(const std::function<bool(int, int, int)> &_callback)
     {
         for (int c = 0; c < 9; ++c)
         {
-            if (!_callback(l, c, (c / 3) + (l / 3) * 3))
+            if (!_callback(l, c, g_rowCol2BlockNumber[l][c]))
             {
                 return;
             }

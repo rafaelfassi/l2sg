@@ -21,8 +21,6 @@ public:
     int getResultLevel() { return m_level; }
     int solveSolitaryCandidate(Grid &pGrid, bool *ok = nullptr);
     int solveUniquePossibility(Grid &pGrid, bool *ok = nullptr);
-    int solveUniquePossibility_1(Grid &pGrid);
-    int solveUniquePossibilityOld(Grid &pGrid);
     void solveCandidatesOnlyInBlockLineOrCol(Grid &pGrid);
     void solveNumCellsEqualNumCandidates(Grid &pGrid, int maxCells = 0);
     int solveBruteForce(int maxSolution = 1);

@@ -69,9 +69,36 @@ void Cell::clearNotes()
     m_nNotes = 0;
 }
 
-std::vector<int> Cell::getVisibleNotesLst() const
+void Cell::getVisibleNotesLst(std::vector<int> &list) const
 {
-    return getVisibleNotesLst(m_nNotes);
+    list.reserve(9);
+
+    if (m_nNotes & NOTE_1)
+        list.push_back(1);
+
+    if (m_nNotes & NOTE_2)
+        list.push_back(2);
+
+    if (m_nNotes & NOTE_3)
+        list.push_back(3);
+
+    if (m_nNotes & NOTE_4)
+        list.push_back(4);
+
+    if (m_nNotes & NOTE_5)
+        list.push_back(5);
+
+    if (m_nNotes & NOTE_6)
+        list.push_back(6);
+
+    if (m_nNotes & NOTE_7)
+        list.push_back(7);
+
+    if (m_nNotes & NOTE_8)
+        list.push_back(8);
+
+    if (m_nNotes & NOTE_9)
+        list.push_back(9);
 }
 
 bool Cell::getNoteVisible(int _nNoteVal, int _nNotes)
@@ -99,39 +126,4 @@ bool Cell::getNoteVisible(int _nNoteVal, int _nNotes)
         default:
             return false;
     }
-}
-
-std::vector<int> Cell::getVisibleNotesLst(int _nNotes)
-{
-    std::vector<int> lst;
-    lst.reserve(9);
-
-    if(_nNotes & NOTE_1)
-         lst.push_back(1);
-
-    if(_nNotes & NOTE_2)
-         lst.push_back(2);
-
-    if(_nNotes & NOTE_3)
-         lst.push_back(3);
-
-    if(_nNotes & NOTE_4)
-         lst.push_back(4);
-
-    if(_nNotes & NOTE_5)
-         lst.push_back(5);
-
-    if(_nNotes & NOTE_6)
-         lst.push_back(6);
-
-    if(_nNotes & NOTE_7)
-         lst.push_back(7);
-
-    if(_nNotes & NOTE_8)
-         lst.push_back(8);
-
-    if(_nNotes & NOTE_9)
-         lst.push_back(9);
-
-    return lst;
 }

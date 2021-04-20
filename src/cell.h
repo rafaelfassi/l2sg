@@ -28,11 +28,10 @@ public:
     void setNoteVisible(int _nNoteVal, bool _bVisible);
     size_t notesCount() const;
     void clearNotes();
-    std::vector<int> getVisibleNotesLst() const;
+    void getVisibleNotesLst(std::vector<int>& list) const;
 
     static size_t notesCount(int _nNotes);
     static bool getNoteVisible(int _nNoteVal, int _nNotes);
-    static std::vector<int> getVisibleNotesLst(int _nNotes);
 
 private:
     int m_nValue;
