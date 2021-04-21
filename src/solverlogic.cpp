@@ -1,6 +1,7 @@
 #include "solverlogic.h"
 #include "combination.h"
 #include <iostream>
+#include <map>
 #include <optional>
 #include <string>
 #include <unordered_map>
@@ -451,22 +452,24 @@ void SolverLogic::solveNumCellsEqualNumCandidates(Grid &pGrid, int maxCells)
 
 int SolverLogic::solveByGuess(Grid &pGrid, int maxSolution)
 {
+    using GuessesRank = std::multimap<int, std::pair<int, int>>;
     std::vector<Grid> solutions;
+    GuessesRank guessesRank;
     Grid grid = pGrid;
 
-    const std::function<void(int, int)> resolve = [&](const int lin, const int col) {
+    const std::function<void(GuessesRank::const_iterator)> resolve = [&](GuessesRank::const_iterator it) {
         if (solutions.size() >= maxSolution)
             return;
 
-        if (lin != 9)
+        if (it != guessesRank.end())
         {
+            const int lin = it->second.first;
+            const int col = it->second.second;
             const auto &cell = grid.getCell(lin, col);
+            ++it;
             if (cell.getValue() > 0)
             {
-                if (col < 8)
-                    resolve(lin, col + 1);
-                else
-                    resolve(lin + 1, 0);
+                resolve(it);
             }
             else
             {
@@ -478,7 +481,7 @@ int SolverLogic::solveByGuess(Grid &pGrid, int maxSolution)
                     grid.setValue(lin, col, condidate);
                     if (grid.clearNotesCascade(lin, col, condidate))
                     {
-                        bool noConflicts;
+                        bool noConflicts(true);
                         solveSolitaryCandidate(grid, &noConflicts);
                         if (noConflicts)
                         {
@@ -490,10 +493,10 @@ int SolverLogic::solveByGuess(Grid &pGrid, int maxSolution)
                             {
                                 if (!grid.hasEmptyNoteForNotSetValue())
                                 {
-                                    if (col < 8)
-                                        resolve(lin, col + 1);
-                                    else
-                                        resolve(lin + 1, 0);
+                                    resolve(it);
+                                    // This may avoid an extra iteration of the for loop.
+                                    if (solutions.size() >= maxSolution)
+                                        break;
                                 }
                             }
                         }
@@ -512,7 +515,20 @@ int SolverLogic::solveByGuess(Grid &pGrid, int maxSolution)
         }
     };
 
-    resolve(0, 0);
+    for (int l = 0; l < 9; ++l)
+    {
+        for (int c = 0; c < 9; ++c)
+        {
+            const auto &cell = grid.getCell(l, c);
+            if (cell.hasNote())
+            {
+                // Order by the ones with less candidates
+                guessesRank.insert(std::make_pair(cell.notesCount(), std::make_pair(l, c)));
+            }
+        }
+    }
+
+    resolve(guessesRank.begin());
 
     if (!solutions.empty())
     {
