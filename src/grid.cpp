@@ -357,20 +357,19 @@ bool Grid::clearNotesCascade(int _nLin, int _nCol, int _nValue)
         }
     }
 
-    for (int l = lr * 3; l < (lr + 1) * 3; ++l)
+    const auto b = g_rowCol2BlockNumber[_nLin][_nCol];
+    for (int e = 0; e < 9; ++e)
     {
-        for (int c = cr * 3; c < (cr + 1) * 3; ++c)
-        {
-            if ((l == _nLin) && (c == _nCol))
+        const auto &rowCol = g_blockElem2RowCol[b][e];
+        if ((rowCol.first == _nLin) && (rowCol.second == _nCol))
                 continue;
-            Cell &cell = getCell(l, c);
-            if (cell.getNoteVisible(_nValue))
+        Cell &cell = getCell(rowCol.first, rowCol.second);
+        if (cell.getNoteVisible(_nValue))
+        {
+            cell.setNoteVisible(_nValue, false);
+            if (!cell.hasNote())
             {
-                cell.setNoteVisible(_nValue, false);
-                if (!cell.hasNote())
-                {
-                    return false;
-                }
+                return false;
             }
         }
     }
