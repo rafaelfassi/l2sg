@@ -4,8 +4,6 @@ project(sudoku_solver LANGUAGES CXX)
 enable_testing()
 
 SET(CMAKE_CXX_FLAGS "-std=c++17")
-SET(CMAKE_CXX_FLAGS_DEBUG "-g -O0")
-SET(CMAKE_CXX_FLAGS_RELEASE "-O3 -s")
 
 add_library(sudoku_solver_lib STATIC
     cell.cpp

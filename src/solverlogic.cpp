@@ -82,7 +82,7 @@ void SolverLogic::solveSolitaryCandidate(Grid &pGrid, bool *check)
                 auto &cell = pGrid.getCell(i, j);
                 if (cell.notesCount() == 1)
                 {
-                    int x(0);
+                    int x(1);
                     while (!cell.getNoteVisible(x))
                         ++x;
                     if (check)
@@ -194,7 +194,7 @@ void SolverLogic::solveUniquePossibility(Grid &pGrid, bool *check)
                 {
                     const auto c = sols[i][vIdx];
                     auto &cell = pGrid.getCell(i, c);
-                    if (cell.getNotes() != 0)
+                    if (cell.hasNote())
                     {
                         if (check)
                         {
@@ -214,7 +214,7 @@ void SolverLogic::solveUniquePossibility(Grid &pGrid, bool *check)
                 {
                     const auto c = rows[i][vIdx];
                     auto &cell = pGrid.getCell(i, c);
-                    if (cell.getNotes() != 0)
+                    if (cell.hasNote())
                     {
                         if (check)
                         {
@@ -234,7 +234,7 @@ void SolverLogic::solveUniquePossibility(Grid &pGrid, bool *check)
                 {
                     const auto l = cols[i][vIdx];
                     auto &cell = pGrid.getCell(l, i);
-                    if (cell.getNotes() != 0)
+                    if (cell.hasNote())
                     {
                         if (check)
                         {
@@ -254,7 +254,7 @@ void SolverLogic::solveUniquePossibility(Grid &pGrid, bool *check)
                 {
                     const auto lc = blks[i][vIdx];
                     auto &cell = pGrid.getCell(lc.first, lc.second);
-                    if (cell.getNotes() != 0)
+                    if (cell.hasNote())
                     {
                         if (check)
                         {
@@ -396,7 +396,7 @@ void SolverLogic::solveNumCellsEqualNumCandidates(Grid &pGrid, int maxCells)
 
                 while (combination.getNextCombination(combLst))
                 {
-                    int cellNotes(0), totalNotes(0);
+                    Cell::Notes cellNotes, totalNotes;
                     std::unordered_set<int> cells;
 
                     for (size_t c = 0; c < combLst.size(); ++c)
@@ -404,7 +404,7 @@ void SolverLogic::solveNumCellsEqualNumCandidates(Grid &pGrid, int maxCells)
                         int j = combLst.at(c);
                         Cell &cell = pGrid.getTranslatedCell(i, j, type);
                         cellNotes = cell.getNotes();
-                        if (cellNotes)
+                        if (cellNotes.any())
                         {
                             totalNotes |= cellNotes;
                             cells.insert(j);
@@ -413,7 +413,7 @@ void SolverLogic::solveNumCellsEqualNumCandidates(Grid &pGrid, int maxCells)
                             break;
                     }
 
-                    if (cellNotes && Cell::notesCount(totalNotes) == cells.size())
+                    if (cellNotes.any() && (totalNotes.count() == cells.size()))
                     {
                         // Limpar todas as ocorrencias contidas em "totalNotes" das celulas que não estajam no
                         // vetor cells.
@@ -425,8 +425,8 @@ void SolverLogic::solveNumCellsEqualNumCandidates(Grid &pGrid, int maxCells)
                                 int l, c;
                                 pGrid.translateCoordinates(i, j, l, c, type);
                                 Cell &cell = pGrid.getCell(l, c);
-                                int notes = cell.getNotes();
-                                int newNotes = notes & ~totalNotes;
+                                Cell::Notes notes = cell.getNotes();
+                                Cell::Notes newNotes = notes & ~totalNotes;
 
                                 if (notes != newNotes)
                                 {

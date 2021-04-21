@@ -273,7 +273,7 @@ bool Grid::hasEmptyNoteForNotSetValue()
     {
         for (int j = 0; j < 9; ++j)
         {
-            if ((m_cells[i][j].getValue() == 0) && (m_cells[i][j].getNotes() == 0))
+            if ((m_cells[i][j].getValue() == 0) && !m_cells[i][j].hasNote())
             {
                 return true;
             }
@@ -335,7 +335,7 @@ bool Grid::clearNotesCascade(int _nLin, int _nCol, int _nValue)
         if (cell.getNoteVisible(_nValue))
         {
             cell.setNoteVisible(_nValue, false);
-            if (cell.getNotes() == 0)
+            if (!cell.hasNote())
             {
                 return false;
             }
@@ -350,7 +350,7 @@ bool Grid::clearNotesCascade(int _nLin, int _nCol, int _nValue)
         if (cell.getNoteVisible(_nValue))
         {
             cell.setNoteVisible(_nValue, false);
-            if (cell.getNotes() == 0)
+            if (!cell.hasNote())
             {
                 return false;
             }
@@ -367,7 +367,7 @@ bool Grid::clearNotesCascade(int _nLin, int _nCol, int _nValue)
             if (cell.getNoteVisible(_nValue))
             {
                 cell.setNoteVisible(_nValue, false);
-                if (cell.getNotes() == 0)
+                if (!cell.hasNote())
                 {
                     return false;
                 }
@@ -404,7 +404,7 @@ std::string Grid::getNotesSignature()
     {
         for (int j = 0; j < 9; ++j)
         {
-            result += std::to_string(getCell(i, j).getNotes());
+            result += getCell(i, j).getNotes().to_string();
         }
     }
 
