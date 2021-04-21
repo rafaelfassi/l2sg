@@ -1,13 +1,12 @@
 #include "grid.h"
 
 #include <iostream>
-#include <unordered_set>
 
 // clang-format off
 
 // Table from:
 // b = (c / 3) + (l / 3) * 3
-int g_rowCol2BlockNumber[9][9] = {
+int g_rowCol2Block[9][9] = {
     {0 ,0, 0,   1, 1, 1,   2, 2, 2},
     {0 ,0, 0,   1, 1, 1,   2, 2, 2},
     {0 ,0, 0,   1, 1, 1,   2, 2, 2},
@@ -87,7 +86,7 @@ std::pair<int, int> Grid::getBlockStartCoordinates(int _b)
 
 int Grid::getBlockNumber(int _l, int _c) const
 {
-    return g_rowCol2BlockNumber[_l][_c];
+    return g_rowCol2Block[_l][_c];
     // return (_c / 3) + (_l / 3) * 3;
 }
 
@@ -202,8 +201,6 @@ void Grid::dump(int _dumpFlags, const std::string &_null, const std::string &_nu
 
 bool Grid::isAllowedValue(int _nLin, int _nCol, int _nVal)
 {
-    int l, c, lr, cr;
-
     /*
       Se a posicao possui o numero que esta sendo testado.
       O numero testado nunca sera zero, pois zero significa que a posicao esta vazia.
@@ -231,7 +228,7 @@ bool Grid::isAllowedValue(int _nLin, int _nCol, int _nVal)
       Se a coluna possuir o valor que esta sendo testado para uma posicao, significa que ele e invalido para a
       posicao, pois iria causar replicacao na coluna.
     */
-    for (c = 0; c < 9; ++c)
+    for (int c = 0; c < 9; ++c)
         if (getValue(_nLin, c) == _nVal)
             return false;
 
@@ -240,14 +237,14 @@ bool Grid::isAllowedValue(int _nLin, int _nCol, int _nVal)
       Se a linha possuir o valor que esta sendo testado para uma posicao, significa que ele e invalido para a
       posicao, pois iria causar replicacao na linha.
     */
-    for (l = 0; l < 9; ++l)
+    for (int l = 0; l < 9; ++l)
         if (getValue(l, _nCol) == _nVal)
             return false;
 
     /*
       Testa se vai existir replicação no quadrante.
     */
-    const auto b = g_rowCol2BlockNumber[_nLin][_nCol];
+    const auto b = g_rowCol2Block[_nLin][_nCol];
     for (int e = 0; e < 9; ++e)
     {
         const auto &rowCol = g_blockElem2RowCol[b][e];
@@ -314,14 +311,11 @@ void Grid::clearNotes()
 {
     for (int i = 0; i < 9; ++i)
         for (int j = 0; j < 9; ++j)
-            getCell(i, j).setNotes(0);
+            getCell(i, j).clearNotes();
 }
 
 bool Grid::clearNotesCascade(int _nLin, int _nCol, int _nValue)
 {
-    int lr = _nLin / 3;
-    int cr = _nCol / 3;
-
     {
         Cell &cell = getCell(_nLin, _nCol);
         cell.clearNotes();
@@ -357,7 +351,7 @@ bool Grid::clearNotesCascade(int _nLin, int _nCol, int _nValue)
         }
     }
 
-    const auto b = g_rowCol2BlockNumber[_nLin][_nCol];
+    const auto b = g_rowCol2Block[_nLin][_nCol];
     for (int e = 0; e < 9; ++e)
     {
         const auto &rowCol = g_blockElem2RowCol[b][e];
@@ -416,7 +410,7 @@ void Grid::forAllCells(const std::function<bool(int, int, int)> &_callback)
     {
         for (int c = 0; c < 9; ++c)
         {
-            if (!_callback(l, c, g_rowCol2BlockNumber[l][c]))
+            if (!_callback(l, c, g_rowCol2Block[l][c]))
             {
                 return;
             }

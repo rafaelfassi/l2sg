@@ -82,19 +82,22 @@ void SolverLogic::solveSolitaryCandidate(Grid &pGrid, bool *check)
                 auto &cell = pGrid.getCell(i, j);
                 if (cell.notesCount() == 1)
                 {
-                    int x(1);
-                    while (!cell.getNoteVisible(x))
-                        ++x;
+                    std::vector<int> notes;
+                    cell.getVisibleNotesLst(notes);
                     if (check)
                     {
-                        if (!pGrid.isAllowedValue(i, j, x))
+                        if (!pGrid.isAllowedValue(i, j, notes.front()))
                         {
                             *check = false;
                             return;
                         }
                     }
-                    cell.setValue(x);
-                    pGrid.clearNotesCascade(i, j, x);
+                    cell.setValue(notes.front());
+                    if (!pGrid.clearNotesCascade(i, j, notes.front()) && check)
+                    {
+                        *check = false;
+                        return;
+                    }
                     changed = true;
                     // std::cout << "Solitary >> Lin: " << i+1 << " - Col: " << j+1 << " - Num: " << x <<
                     // std::endl; pGrid.dump();
