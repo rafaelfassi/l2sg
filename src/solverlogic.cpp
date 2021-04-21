@@ -175,6 +175,26 @@ void SolverLogic::solveUniquePossibility(Grid &pGrid, bool *check)
         return true;
     };
 
+    const auto applyDataFunc = [&pGrid, &check](int l, int c, int v) -> bool {
+        auto &cell = pGrid.getCell(l, c);
+        if (cell.hasNote())
+        {
+            if (check && !pGrid.isAllowedValue(l, c, v))
+            {
+                *check = false;
+                return false;
+            }
+            cell.setValue(v);
+            if (!pGrid.clearNotesCascade(l, c, v) && check)
+            {
+                *check = false;
+                return false;
+            }
+            return true;
+        }
+        return false;
+    };
+
     do
     {
         changed = false;
@@ -193,81 +213,33 @@ void SolverLogic::solveUniquePossibility(Grid &pGrid, bool *check)
                 if (sols[i][vIdx] > -1)
                 {
                     const auto c = sols[i][vIdx];
-                    auto &cell = pGrid.getCell(i, c);
-                    if (cell.hasNote())
-                    {
-                        if (check)
-                        {
-                            if (!pGrid.isAllowedValue(i, c, v))
-                            {
-                                *check = false;
-                                return;
-                            }
-                        }
-                        changed = true;
-                        cell.setValue(v);
-                        pGrid.clearNotesCascade(i, c, v);
-                    }
+                    changed |= applyDataFunc(i, c, v);
+                    if (check && !(*check))
+                        return;
                 }
 
                 if (rows[i][vIdx] > -1)
                 {
                     const auto c = rows[i][vIdx];
-                    auto &cell = pGrid.getCell(i, c);
-                    if (cell.hasNote())
-                    {
-                        if (check)
-                        {
-                            if (!pGrid.isAllowedValue(i, c, v))
-                            {
-                                *check = false;
-                                return;
-                            }
-                        }
-                        changed = true;
-                        cell.setValue(v);
-                        pGrid.clearNotesCascade(i, c, v);
-                    }
+                    changed |= applyDataFunc(i, c, v);
+                    if (check && !(*check))
+                        return;
                 }
 
                 if (cols[i][vIdx] > -1)
                 {
                     const auto l = cols[i][vIdx];
-                    auto &cell = pGrid.getCell(l, i);
-                    if (cell.hasNote())
-                    {
-                        if (check)
-                        {
-                            if (!pGrid.isAllowedValue(l, i, v))
-                            {
-                                *check = false;
-                                return;
-                            }
-                        }
-                        changed = true;
-                        cell.setValue(v);
-                        pGrid.clearNotesCascade(l, i, v);
-                    }
+                    changed |= applyDataFunc(l, i, v);
+                    if (check && !(*check))
+                        return;
                 }
 
                 if (blks[i][vIdx].second > -1)
                 {
                     const auto lc = blks[i][vIdx];
-                    auto &cell = pGrid.getCell(lc.first, lc.second);
-                    if (cell.hasNote())
-                    {
-                        if (check)
-                        {
-                            if (!pGrid.isAllowedValue(lc.first, lc.second, v))
-                            {
-                                *check = false;
-                                return;
-                            }
-                        }
-                        changed = true;
-                        cell.setValue(v);
-                        pGrid.clearNotesCascade(lc.first, lc.second, v);
-                    }
+                    changed |= applyDataFunc(lc.first, lc.second, v);
+                    if (check && !(*check))
+                        return;
                 }
             }
         }
