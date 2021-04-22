@@ -19,7 +19,38 @@ public:
     size_t notesCount() const { return m_nNotes.count(); };
     bool hasNote() const { return m_nNotes.any(); }
     void clearNotes() { m_nNotes.reset(); }
-    void getVisibleNotesLst(std::vector<int> &list) const;
+    void getVisibleNotesLst(std::vector<int> &list) const { getVisibleNotesLst(m_nNotes, list); }
+    static void getVisibleNotesLst(const Notes &_nNotes, std::vector<int> &list)
+    {
+        list.reserve(9);
+
+        if (_nNotes.test(0))
+            list.push_back(1);
+
+        if (_nNotes.test(1))
+            list.push_back(2);
+
+        if (_nNotes.test(2))
+            list.push_back(3);
+
+        if (_nNotes.test(3))
+            list.push_back(4);
+
+        if (_nNotes.test(4))
+            list.push_back(5);
+
+        if (_nNotes.test(5))
+            list.push_back(6);
+
+        if (_nNotes.test(6))
+            list.push_back(7);
+
+        if (_nNotes.test(7))
+            list.push_back(8);
+
+        if (_nNotes.test(8))
+            list.push_back(9);
+    }
 
 private:
     int m_nValue;

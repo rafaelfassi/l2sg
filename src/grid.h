@@ -26,8 +26,8 @@ public:
     };
 
     Cell &getCell(int _nLin, int _nCol) { return m_cells[_nLin][_nCol]; }
-    Cell &getTranslatedCell(int _i, int _j, int type = T_LINE);
-    void translateCoordinates(int _i, int _j, int &_l, int &_c, int type = T_LINE);
+    Cell &getTranslatedCell(int _i, int _j, int type);
+    void translateCoordinates(int _i, int _j, int &_l, int &_c, int type);
     std::pair<int, int> getCellCoordinates(int _cellNum);
     std::pair<int, int> getBlockStartCoordinates(int _b);
     int getBlockNumber(int _l, int _c) const;

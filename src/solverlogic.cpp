@@ -3,6 +3,7 @@
 #include <iostream>
 #include <map>
 #include <optional>
+#include <set>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
@@ -33,11 +34,11 @@ void SolverLogic::solve()
         if (m_level >= LEV_HARD)
         {
             solveCandidatesOnlyInBlockLineOrCol(m_pGrid);
-            solveNumCellsEqualNumCandidates(m_pGrid);
+            reduceNotesByFindingChains(m_pGrid);
         }
         else if (m_level >= LEV_MEDIUM)
         {
-            solveNumCellsEqualNumCandidates(m_pGrid, 2);
+            reduceNotesByFindingChains(m_pGrid, 2);
         }
 
         // solveSolitaryCandidate(m_pGrid);
@@ -340,110 +341,150 @@ void SolverLogic::solveCandidatesOnlyInBlockLineOrCol(Grid &pGrid)
     }
 }
 
-/*
-    Sendo p o número total de possibilidades diferentes em n células, no caso de p = n podemos remover essas
-    possibilidades das celulas que não pertencem a n.
-    Domínio: (Linha ou Coluna ou Bloco)
-    Ex:
-        XXXX5X78X  XXXXXXXXX  XXXX5X789  XXXXXXXXX  1XX4XXXXX  XXX4X6XXX  XXXX5XX89  1XXX56XXX  1XXX56XXX
-        Neste caso os números 1, 4, 5 e 6 são todas as possibilidades para as células 5, 6, 8 e 9.
-        Então:
-        p = count(1,4,5,6) = 4
-        n = count(5,6,8,9) = 4
-        Podemos remover as possibilidades 1,4,5 e 6 de todas as células diferentes de 5,6,8 e 9.
-        XXXXXX78X  XXXXXXXXX  XXXXXX789  XXXXXXXXX  1XX4XXXXX  XXX4X6XXX  XXXXXXX89  1XXX56XXX  1XXX56XXX
+// /*
+//     Sendo p o número total de possibilidades diferentes em n células, no caso de p = n podemos remover
+//     essas possibilidades das celulas que não pertencem a n. Domínio: (Linha ou Coluna ou Bloco) Ex:
+//         XXXX5X78X  XXXXXXXXX  XXXX5X789  XXXXXXXXX  1XX4XXXXX  XXX4X6XXX  XXXX5XX89  1XXX56XXX  1XXX56XXX
+//         Neste caso os números 1, 4, 5 e 6 são todas as possibilidades para as células 5, 6, 8 e 9.
+//         Então:
+//         p = count(1,4,5,6) = 4
+//         n = count(5,6,8,9) = 4
+//         Podemos remover as possibilidades 1,4,5 e 6 de todas as células diferentes de 5,6,8 e 9.
+//         XXXXXX78X  XXXXXXXXX  XXXXXX789  XXXXXXXXX  1XX4XXXXX  XXX4X6XXX  XXXXXXX89  1XXX56XXX  1XXX56XXX
+// */
 
-*/
-void SolverLogic::solveNumCellsEqualNumCandidates(Grid &pGrid, int maxCells)
+void SolverLogic::reduceNotesByFindingChains(Grid &pGrid, int maxChainSize)
 {
+    constexpr int n(9);
     Combination combination;
+    std::vector<int> combLst;
 
-    const int n = 9;
-    const int maxCellsComb = maxCells ? maxCells : n - 1;
+    if (!maxChainSize)
+        maxChainSize = n - 1;
+    combLst.reserve(maxChainSize);
 
+    // For each type
     for (int type = Grid::T_LINE; type <= Grid::T_BLOCK; ++type)
     {
+        // All the below comments assume (type == T_LINE), but the same logic is applicable
+        // for T_COLUMN and T_BLOCK
+        // For each row
         for (int i = 0; i < n; ++i)
         {
-            for (int nCellsComb = 2; nCellsComb <= maxCellsComb; ++nCellsComb)
+            bool found(false);
+            // For each size of combination's chain. (from 2 columns to maxChainSize)
+            for (int chainSize = 2; (!found && (chainSize <= maxChainSize)); ++chainSize)
             {
-                std::vector<int> combLst;
-                combination.reset(n, nCellsComb);
+                combLst.clear();
+                combination.reset(n, chainSize);
 
+                // For each possible combination of columns according to the size of the current chain
                 while (combination.getNextCombination(combLst))
                 {
                     Cell::Notes cellNotes, totalNotes;
-                    std::unordered_set<int> cells;
+                    std::bitset<9> cells;
 
-                    for (size_t c = 0; c < combLst.size(); ++c)
+                    // Iterate over the current combination of cols and
+                    // set all found notes into "totalNotes".
+                    // Set into "cells" the columns where the notes were found.
+                    for (size_t comb = 0; comb < combLst.size(); ++comb)
                     {
-                        int j = combLst.at(c);
-                        Cell &cell = pGrid.getTranslatedCell(i, j, type);
+                        const int j = combLst.at(comb);
+                        const Cell &cell = pGrid.getTranslatedCell(i, j, type);
                         cellNotes = cell.getNotes();
                         if (cellNotes.any())
                         {
                             totalNotes |= cellNotes;
-                            cells.insert(j);
+                            cells.set(j);
                         }
                         else
                             break;
                     }
 
-                    if (cellNotes.any() && (totalNotes.count() == cells.size()))
+                    // The quantity of notes equals to the number of cols they were found?
+                    if (cellNotes.any() && (cells.count() == totalNotes.count()))
                     {
-                        // Limpar todas as ocorrencias contidas em "totalNotes" das celulas que não estajam no
-                        // vetor cells.
-                        bool first(true);
-                        for (int j = 0; j < 9; ++j)
+                        // For each columns
+                        for (int pos = 0; pos < cells.size(); ++pos)
                         {
-                            if (cells.find(j) == cells.end())
+                            // If the col is not one of the columns of the found chain
+                            if (!cells.test(pos))
                             {
-                                int l, c;
-                                pGrid.translateCoordinates(i, j, l, c, type);
-                                Cell &cell = pGrid.getCell(l, c);
-                                Cell::Notes notes = cell.getNotes();
-                                Cell::Notes newNotes = notes & ~totalNotes;
-
-                                if (notes != newNotes)
+                                auto &cell = pGrid.getTranslatedCell(i, pos, type);
+                                const auto &notes = cell.getNotes();
+                                // The col contains one of the notes that should be removed?
+                                if (notes.any() && ((notes & ~totalNotes) != notes))
                                 {
-                                    cell.setNotes(newNotes);
-
-                                    // if(first)
-                                    // {
-                                    //     std::cout
-                                    //             << "Numero de possibilidades igual ao número de células
-                                    //             para "
-                                    //             << (type == Grid::T_LINE ? "Linha" : (type ==
-                                    //             Grid::T_COLUMN ? "Coluna" : "Bloco"))
-                                    //             << std::endl;
-                                    //     std::cout << "Células:" << std::endl;
-                                    //     for (const auto j1 : cells)
-                                    //     {
-                                    //         int l1, c1;
-                                    //         pGrid.translateCoordinates(i, j1, l1, c1, type);
-                                    //         std::cout  << "Lin: " << l1+1 << " - Col: " << c1+1 <<
-                                    //         std::endl;
-                                    //     }
-
-                                    //     std::cout << "Removendo ocorrencias de ";
-                                    //     std::vector<int> lst = Cell::getVisibleNotesLst(totalNotes);
-                                    //     for (const auto oc : lst) { std::cout << oc << " "; }
-                                    //     std::cout << "nas células:" << std::endl;
-                                    // }
-
-                                    // std::cout  << "Lin: " << l+1 << " - Col: " << c+1 << std::endl;
-                                    first = false;
+                                    // Remove the notes
+                                    cell.setNotes(cell.getNotes() & ~totalNotes);
+                                    found = true;
                                 }
                             }
                         }
-
-                        if (!first)
-                        {
-                            // std::cout << std::endl;
-                            // pGrid.dump();
-                            return;
-                        }
                     }
+
+                    // // The total number of notes is the same as the number of cells in the chain?
+                    // if (cellNotes.any() && (totalNotes.count() == cells.size()))
+                    // {
+                    //     // Got a chain!!! :)
+                    //     // Limpar todas as ocorrencias contidas em "totalNotes" das celulas que não estajam
+                    //     no
+                    //     // vetor cells.
+                    //     bool first(true);
+                    //     for (int j = 0; j < 9; ++j)
+                    //     {
+                    //         if (cells.find(j) == cells.end())
+                    //         {
+                    //             int l, c;
+                    //             pGrid.translateCoordinates(i, j, l, c, type);
+                    //             Cell &cell = pGrid.getCell(l, c);
+                    //             Cell::Notes notes = cell.getNotes();
+                    //             Cell::Notes newNotes = notes & ~totalNotes;
+
+                    //             if (notes != newNotes)
+                    //             {
+                    //                 cell.setNotes(newNotes);
+
+                    //                 if (first)
+                    //                 {
+                    //                     std::cout
+                    //                         << "Numero de possibilidades igual ao número de células para "
+                    //                         << (type == Grid::T_LINE
+                    //                                 ? "Linha"
+                    //                                 : (type == Grid::T_COLUMN ? "Coluna" : "Bloco"))
+                    //                         << std::endl;
+                    //                     std::cout << "Células:" << std::endl;
+                    //                     for (const auto j1 : cells)
+                    //                     {
+                    //                         int l1, c1;
+                    //                         pGrid.translateCoordinates(i, j1, l1, c1, type);
+                    //                         std::cout << "Lin: " << l1 + 1 << " - Col: " << c1 + 1
+                    //                                   << std::endl;
+                    //                     }
+
+                    //                     std::cout << "Removendo ocorrencias de ";
+                    //                     std::vector<int> lst;
+                    //                     Cell::getVisibleNotesLst(totalNotes, lst);
+                    //                     for (const auto oc : lst)
+                    //                     {
+                    //                         std::cout << oc << " ";
+                    //                     }
+                    //                     std::cout << "nas células:" << std::endl;
+                    //                 }
+
+                    //                 std::cout << "Lin: " << l + 1 << " - Col: " << c + 1 << std::endl;
+                    //                 first = false;
+                    //             }
+                    //         }
+                    //     }
+
+                    //     if (!first)
+                    //     {
+                    //         // std::cout << std::endl;
+                    //         // pGrid.dump();
+                    //         return;
+                    //     }
+                    // }
                 }
             }
         }

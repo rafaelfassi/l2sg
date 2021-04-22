@@ -22,7 +22,7 @@ public:
     static void solveSolitaryCandidate(Grid &pGrid, bool *check = nullptr);
     static void solveUniquePossibility(Grid &pGrid, bool *check = nullptr);
     static void solveCandidatesOnlyInBlockLineOrCol(Grid &pGrid);
-    static void solveNumCellsEqualNumCandidates(Grid &pGrid, int maxCells = 0);
+    static void reduceNotesByFindingChains(Grid &pGrid, int maxChainSize = 0);
     static int solveByGuess(Grid &pGrid, int maxSolution = 1);
 
 private:
