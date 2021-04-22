@@ -41,7 +41,6 @@ void SolverLogic::solve()
             reduceNotesByFindingChains(m_pGrid, 2);
         }
 
-        // solveSolitaryCandidate(m_pGrid);
         solveUniquePossibility(m_pGrid);
 
         if (m_pGrid.isFull())
@@ -58,7 +57,7 @@ void SolverLogic::solve()
 
             if (m_level == LEV_GUESS)
             {
-                solveByGuess(m_pGrid);
+                solveByGuesses(m_pGrid);
                 loop = false;
             }
             else
@@ -70,7 +69,7 @@ void SolverLogic::solve()
     } while (loop);
 }
 
-void SolverLogic::solveSolitaryCandidate(Grid &pGrid, bool *check)
+void SolverLogic::solveCellsWithOnlyOneCandidate(Grid &pGrid, bool *check)
 {
     bool changed;
     do
@@ -81,8 +80,7 @@ void SolverLogic::solveSolitaryCandidate(Grid &pGrid, bool *check)
         {
             for (int j = 0; j < 9; ++j)
             {
-                auto &cell = pGrid.getCell(i, j);
-                if (cell.notesCount() == 1)
+                if (auto &cell = pGrid.getCell(i, j); cell.notesCount() == 1)
                 {
                     std::vector<int> notes;
                     cell.getVisibleNotesLst(notes);
@@ -355,12 +353,8 @@ void SolverLogic::solveCandidatesOnlyInBlockLineOrCol(Grid &pGrid)
 
 void SolverLogic::reduceNotesByFindingChains(Grid &pGrid, int maxChainSize)
 {
-    constexpr int n(9);
     Combination combination;
     std::vector<int> combLst;
-
-    if (!maxChainSize)
-        maxChainSize = n - 1;
     combLst.reserve(maxChainSize);
 
     // For each type
@@ -369,14 +363,14 @@ void SolverLogic::reduceNotesByFindingChains(Grid &pGrid, int maxChainSize)
         // All the below comments assume (type == T_LINE), but the same logic is applicable
         // for T_COLUMN and T_BLOCK
         // For each row
-        for (int i = 0; i < n; ++i)
+        for (int i = 0; i < 9; ++i)
         {
-            bool found(false);
             // For each size of combination's chain. (from 2 columns to maxChainSize)
-            for (int chainSize = 2; (!found && (chainSize <= maxChainSize)); ++chainSize)
+            for (int chainSize = 2; (chainSize <= maxChainSize); ++chainSize)
             {
+                // chainSize possible combinations for 9 cols
+                combination.reset(9, chainSize);
                 combLst.clear();
-                combination.reset(n, chainSize);
 
                 // For each possible combination of columns according to the size of the current chain
                 while (combination.getNextCombination(combLst))
@@ -392,16 +386,14 @@ void SolverLogic::reduceNotesByFindingChains(Grid &pGrid, int maxChainSize)
                         const int j = combLst.at(comb);
                         const Cell &cell = pGrid.getTranslatedCell(i, j, type);
                         cellNotes = cell.getNotes();
-                        if (cellNotes.any())
-                        {
-                            totalNotes |= cellNotes;
-                            cells.set(j);
-                        }
-                        else
+                        if (!cellNotes.any())
                             break;
+                        totalNotes |= cellNotes;
+                        cells.set(j);
                     }
 
                     // The quantity of notes equals to the number of cols they were found?
+                    // Notice: If cellNotes is empty, the above loop has break, meaning the col has value.
                     if (cellNotes.any() && (cells.count() == totalNotes.count()))
                     {
                         // For each columns
@@ -417,7 +409,6 @@ void SolverLogic::reduceNotesByFindingChains(Grid &pGrid, int maxChainSize)
                                 {
                                     // Remove the notes
                                     cell.setNotes(cell.getNotes() & ~totalNotes);
-                                    found = true;
                                 }
                             }
                         }
@@ -491,7 +482,7 @@ void SolverLogic::reduceNotesByFindingChains(Grid &pGrid, int maxChainSize)
     }
 }
 
-int SolverLogic::solveByGuess(Grid &pGrid, int maxSolution)
+int SolverLogic::solveByGuesses(Grid &pGrid, int maxSolutions)
 {
     using GuessesRank = std::multimap<int, std::pair<int, int>>;
     std::vector<Grid> solutions;
@@ -499,7 +490,7 @@ int SolverLogic::solveByGuess(Grid &pGrid, int maxSolution)
     Grid grid = pGrid;
 
     const std::function<void(GuessesRank::const_iterator)> resolve = [&](GuessesRank::const_iterator it) {
-        if (solutions.size() >= maxSolution)
+        if (solutions.size() >= maxSolutions)
             return;
 
         if (it != guessesRank.end())
@@ -523,12 +514,12 @@ int SolverLogic::solveByGuess(Grid &pGrid, int maxSolution)
                     if (grid.clearNotesCascade(lin, col, condidate))
                     {
                         bool noConflicts(true);
-                        solveSolitaryCandidate(grid, &noConflicts);
+                        solveCellsWithOnlyOneCandidate(grid, &noConflicts);
                         if (noConflicts)
                         {
                             // This function can also detect the solitary candidates, but calling
-                            // solveSolitaryCandidate first improves a little bit the performance, as the
-                            // function is more light weight and may detect a conflict first.
+                            // solveCellsWithOnlyOneCandidate first improves a little bit the performance,
+                            // as the function is more light weight and may detect a conflict first.
                             solveUniquePossibility(grid, &noConflicts);
                             if (noConflicts)
                             {
@@ -536,7 +527,7 @@ int SolverLogic::solveByGuess(Grid &pGrid, int maxSolution)
                                 {
                                     resolve(it);
                                     // This may avoid an extra iteration of the for loop.
-                                    if (solutions.size() >= maxSolution)
+                                    if (solutions.size() >= maxSolutions)
                                         break;
                                 }
                             }
