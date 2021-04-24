@@ -1,13 +1,13 @@
-#ifndef COMBINATION_H
-#define COMBINATION_H
+#ifndef COMBINATION_GEN_H
+#define COMBINATION_GEN_H
 
 #include <vector>
 
-class Combination
+class CombinationsGen
 {
 public:
-    Combination(int n = 0, int r = 0);
-    ~Combination();
+    CombinationsGen(int n = 0, int r = 0);
+    ~CombinationsGen() = default;
     void reset(int n, int r);
     bool getNextCombination(std::vector<int> &combination);
 
@@ -18,4 +18,4 @@ private:
     bool m_hasNext;
 };
 
-#endif // COMBINATION_H
+#endif // COMBINATION_GEN_H

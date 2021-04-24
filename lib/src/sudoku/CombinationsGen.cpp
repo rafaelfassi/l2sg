@@ -1,17 +1,13 @@
-#include "combination.h"
+#include "CombinationsGen.h"
 #include <algorithm>
 
-Combination::Combination(int n, int r) : m_hasNext(true)
+CombinationsGen::CombinationsGen(int n, int r) : m_hasNext(true)
 {
     if (n && r)
         reset(n, r);
 }
 
-Combination::~Combination()
-{
-}
-
-void Combination::reset(int n, int r)
+void CombinationsGen::reset(int n, int r)
 {
     m_n = n;
     m_r = r;
@@ -22,7 +18,7 @@ void Combination::reset(int n, int r)
     std::fill(m_v.begin() + m_r, m_v.end(), true);
 }
 
-bool Combination::getNextCombination(std::vector<int> &combination)
+bool CombinationsGen::getNextCombination(std::vector<int> &combination)
 {
     combination.clear();
 

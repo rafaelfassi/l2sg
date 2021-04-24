@@ -1,5 +1,5 @@
-#include "solverlogic.h"
-#include "combination.h"
+#include "Solver.h"
+#include "CombinationsGen.h"
 #include <iostream>
 #include <map>
 #include <optional>
@@ -13,63 +13,10 @@
 // X2XXXXXX9 XXXXXXXXX X2XX567XX   XXXX5XXX9 XXXXXXXXX XXXXXXXXX   X2XX5XXXX XXXXXXXXX XXXXX67XX
 // The 6 and 7 can be placed only in two cells, therefore we can cleanup X2XX567XX, keeping only 6 and 7.
 
-SolverLogic::SolverLogic(Grid &_pGrid) : AbstractSolver(_pGrid), m_level(LEV_EASY)
+namespace sudoku
 {
-}
 
-void SolverLogic::solve()
-{
-    std::string notesSignature;
-    std::string newNotesSignature;
-    int maxLevel(LEV_GUESS);
-    bool loop(true);
-
-    do
-    {
-        if (newNotesSignature.empty())
-            notesSignature = m_pGrid.getNotesSignature();
-        else
-            notesSignature = newNotesSignature;
-
-        if (m_level >= LEV_HARD)
-        {
-            solveCandidatesOnlyInBlockLineOrCol(m_pGrid);
-            reduceNotesByFindingChains(m_pGrid);
-        }
-        else if (m_level >= LEV_MEDIUM)
-        {
-            reduceNotesByFindingChains(m_pGrid, 2);
-        }
-
-        solveUniquePossibility(m_pGrid);
-
-        if (m_pGrid.isFull())
-            break;
-
-        newNotesSignature = m_pGrid.getNotesSignature();
-
-        if (newNotesSignature == notesSignature)
-        {
-            if (m_level < maxLevel)
-            {
-                ++m_level;
-            }
-
-            if (m_level == LEV_GUESS)
-            {
-                solveByGuesses(m_pGrid);
-                loop = false;
-            }
-            else
-            {
-                loop = (m_level < maxLevel);
-            }
-        }
-
-    } while (loop);
-}
-
-void SolverLogic::solveCellsWithOnlyOneCandidate(Grid &pGrid, bool *check)
+void Solver::resolveCellsWithOnlyOneCandidate(Grid &pGrid, bool *check)
 {
     bool changed;
     do
@@ -83,7 +30,7 @@ void SolverLogic::solveCellsWithOnlyOneCandidate(Grid &pGrid, bool *check)
                 if (auto &cell = pGrid.getCell(i, j); cell.notesCount() == 1)
                 {
                     std::vector<int> notes;
-                    cell.getVisibleNotesLst(notes);
+                    cell.getNotesLst(notes);
                     if (check)
                     {
                         if (!pGrid.isAllowedValue(i, j, notes.front()))
@@ -113,21 +60,24 @@ void SolverLogic::solveCellsWithOnlyOneCandidate(Grid &pGrid, bool *check)
     }
 }
 
-void SolverLogic::solveUniquePossibility(Grid &pGrid, bool *check)
+void Solver::resolveUniquePossibility(Grid &pGrid, bool *check)
 {
+    constexpr int emptyVal(-1);
+    constexpr int duplicatedVal(-2);
     int changed;
-    int sols[9][9];
-    int rows[9][9];
-    int cols[9][9];
-    std::pair<int, int> blks[9][9];
+    int sols[9][9];                 // col = sols[row,cand-1] - Cells that has only one candidate
+    int rows[9][9];                 // col = rows[row,cand-1] - Cells with the unique candidate for a row
+    int cols[9][9];                 // row = cols[col,cand-1] - Cells with the unique candidate for a row
+    std::pair<int, int> blks[9][9]; // {row,col} = blks[blk,cand-1] - Cells with unique candidate for a block
     std::vector<int> notes;
     constexpr int sz = sizeof(rows) / sizeof(int);
 
+    // Fills the arrays sols, rows, cols, blks for the provided position at once.
     const std::function<bool(int, int, int)> fillDataFunc = [&](int l, int c, int b) -> bool {
         Cell &cell = pGrid.getCell(l, c);
 
         notes.clear();
-        cell.getVisibleNotesLst(notes);
+        cell.getNotesLst(notes);
 
         if (notes.size() == 1)
         {
@@ -140,37 +90,37 @@ void SolverLogic::solveUniquePossibility(Grid &pGrid, bool *check)
             {
                 switch (rows[l][noteIdx])
                 {
-                    case -1:
+                    case emptyVal:
                         rows[l][noteIdx] = c;
                         break;
-                    case -2:
+                    case duplicatedVal:
                         break;
                     default:
-                        rows[l][noteIdx] = -2;
+                        rows[l][noteIdx] = duplicatedVal;
                 }
             }
             {
                 switch (cols[c][noteIdx])
                 {
-                    case -1:
+                    case emptyVal:
                         cols[c][noteIdx] = l;
                         break;
-                    case -2:
+                    case duplicatedVal:
                         break;
                     default:
-                        cols[c][noteIdx] = -2;
+                        cols[c][noteIdx] = duplicatedVal;
                 }
             }
             {
                 switch (blks[b][noteIdx].second)
                 {
-                    case -1:
+                    case emptyVal:
                         blks[b][noteIdx] = std::make_pair(l, c);
                         break;
-                    case -2:
+                    case duplicatedVal:
                         break;
                     default:
-                        blks[b][noteIdx] = std::make_pair(0, -2);
+                        blks[b][noteIdx] = std::make_pair(0, duplicatedVal);
                 }
             }
         }
@@ -178,9 +128,12 @@ void SolverLogic::solveUniquePossibility(Grid &pGrid, bool *check)
         return true;
     };
 
+    // Apply the value to solve the cell
     const auto applyDataFunc = [&pGrid, &check](int l, int c, int v) -> bool {
         auto &cell = pGrid.getCell(l, c);
-        if (cell.hasNote())
+        // As the unique candidates for row, col and block are being processed at once, the value
+        // may be already solved. So that, this check is needed to avoid setting the value again.
+        if (cell.hasAnyNote())
         {
             if (check && !pGrid.isAllowedValue(l, c, v))
             {
@@ -201,10 +154,10 @@ void SolverLogic::solveUniquePossibility(Grid &pGrid, bool *check)
     do
     {
         changed = false;
-        std::fill(&sols[0][0], &sols[0][0] + sz, -1);
-        std::fill(&rows[0][0], &rows[0][0] + sz, -1);
-        std::fill(&cols[0][0], &cols[0][0] + sz, -1);
-        std::fill(&blks[0][0], &blks[0][0] + sz, std::make_pair(0, -1));
+        std::fill(&sols[0][0], &sols[0][0] + sz, emptyVal);
+        std::fill(&rows[0][0], &rows[0][0] + sz, emptyVal);
+        std::fill(&cols[0][0], &cols[0][0] + sz, emptyVal);
+        std::fill(&blks[0][0], &blks[0][0] + sz, std::make_pair(0, emptyVal));
         pGrid.forAllCells(fillDataFunc);
 
         for (int i = 0; i < 9; ++i)
@@ -213,7 +166,7 @@ void SolverLogic::solveUniquePossibility(Grid &pGrid, bool *check)
             {
                 const int vIdx = v - 1;
 
-                if (sols[i][vIdx] > -1)
+                if (sols[i][vIdx] > emptyVal)
                 {
                     const auto c = sols[i][vIdx];
                     changed |= applyDataFunc(i, c, v);
@@ -221,7 +174,7 @@ void SolverLogic::solveUniquePossibility(Grid &pGrid, bool *check)
                         return;
                 }
 
-                if (rows[i][vIdx] > -1)
+                if (rows[i][vIdx] > emptyVal)
                 {
                     const auto c = rows[i][vIdx];
                     changed |= applyDataFunc(i, c, v);
@@ -229,7 +182,7 @@ void SolverLogic::solveUniquePossibility(Grid &pGrid, bool *check)
                         return;
                 }
 
-                if (cols[i][vIdx] > -1)
+                if (cols[i][vIdx] > emptyVal)
                 {
                     const auto l = cols[i][vIdx];
                     changed |= applyDataFunc(l, i, v);
@@ -237,7 +190,7 @@ void SolverLogic::solveUniquePossibility(Grid &pGrid, bool *check)
                         return;
                 }
 
-                if (blks[i][vIdx].second > -1)
+                if (blks[i][vIdx].second > emptyVal)
                 {
                     const auto lc = blks[i][vIdx];
                     changed |= applyDataFunc(lc.first, lc.second, v);
@@ -256,15 +209,15 @@ void SolverLogic::solveUniquePossibility(Grid &pGrid, bool *check)
 
 // Solves the case where only one row or column of the block has a specific candidate.
 // Example:
-// 1.....789  12....7.9  .........    12.45.7..  12..5....  .........    ......78.  ...4..78.  ...45....
-// .........  .........  1.3......    .........  1....6...  .....67..    .........  ..3...7..  .........
-// ......78.  .23...7..  .23....8.    .2.45.7..  .2..5....  .........    .........  .........  ..345....
-// The last block has 8 only in the first line, therefore the 8 can be removed from the first line of the
-// first block.
+//    1.....789  12....7.9  .........    12.45.7..  12..5....  .........    ......78.  ...4..78.  ...45....
+//    ........  .........  1.3......    .........  1....6...  .....67..    .........  ..3...7..  .........
+//    ......78.  .23...7..  .23....8.    .2.45.7..  .2..5....  .........    .........  .........  ..345....
+//    The last block has 8 only in the first line, therefore the 8 can be removed from the first line of the
+//    first block.
 // Source puzzle: ..6..3...54.8..2.9.....961.....81...4...9.168.8..345....437....2679483513.....4..
 // TODO: The same 8 of (0,0) could also be eliminated by looking that the line 2 has 8 only in the first
 // block.
-void SolverLogic::solveCandidatesOnlyInBlockLineOrCol(Grid &pGrid)
+void Solver::reduceCandidatesOnlyInBlockLineOrCol(Grid &pGrid)
 {
     std::vector<int> notes;
 
@@ -281,7 +234,7 @@ void SolverLogic::solveCandidatesOnlyInBlockLineOrCol(Grid &pGrid)
             pGrid.translateCoordinates(i, j, l, c, Grid::T_BLOCK);
             Cell &cell = pGrid.getCell(l, c);
             notes.clear();
-            cell.getVisibleNotesLst(notes);
+            cell.getNotesLst(notes);
 
             rows[l].insert(notes.begin(), notes.end());
             cols[c].insert(notes.begin(), notes.end());
@@ -339,21 +292,20 @@ void SolverLogic::solveCandidatesOnlyInBlockLineOrCol(Grid &pGrid)
     }
 }
 
-// /*
-//     Sendo p o número total de possibilidades diferentes em n células, no caso de p = n podemos remover
-//     essas possibilidades das celulas que não pertencem a n. Domínio: (Linha ou Coluna ou Bloco) Ex:
-//         XXXX5X78X  XXXXXXXXX  XXXX5X789  XXXXXXXXX  1XX4XXXXX  XXX4X6XXX  XXXX5XX89  1XXX56XXX  1XXX56XXX
-//         Neste caso os números 1, 4, 5 e 6 são todas as possibilidades para as células 5, 6, 8 e 9.
-//         Então:
-//         p = count(1,4,5,6) = 4
-//         n = count(5,6,8,9) = 4
-//         Podemos remover as possibilidades 1,4,5 e 6 de todas as células diferentes de 5,6,8 e 9.
-//         XXXXXX78X  XXXXXXXXX  XXXXXX789  XXXXXXXXX  1XX4XXXXX  XXX4X6XXX  XXXXXXX89  1XXX56XXX  1XXX56XXX
-// */
-
-void SolverLogic::reduceNotesByFindingChains(Grid &pGrid, int maxChainSize)
+// This function tries to find chains to reduce the number of candidates.
+// Being "P" the number of different candidates that can be found in "N" number of cells for a line, column,
+// or block, if (P == N) all "P" candidates can be removed from the cells that are not part of "N".
+// Example:
+//    ......789  ...4..7.9  ...4...89    1..45.78.  1..45.78.  .........    .........  ...4..7.9  .........
+//    The numbers 4, 7, 8, 9 are all possible candiadates for the cells 0, 1, 2, 7.
+//    P == size(4,7,8,9) == 4
+//    N == size(0,1,2,7) == 4
+//    The P candidates (4,7,8,9) can be removed from all other cells that are not one of the N !(0,1,2,7).
+//    ......789  ...4..7.9  ...4...89    1...5....  1...5....  .........    .........  ...4..7.9  .........
+// Source puzzle: 1....8..64...3..81.8............26.32359.61....13......12..536.......7525.726381.
+void Solver::reduceCandidatesByFindingChains(Grid &pGrid, int maxChainSize)
 {
-    Combination combination;
+    CombinationsGen combination;
     std::vector<int> combLst;
     combLst.reserve(maxChainSize);
 
@@ -414,7 +366,6 @@ void SolverLogic::reduceNotesByFindingChains(Grid &pGrid, int maxChainSize)
                         }
                     }
 
-                    // // The total number of notes is the same as the number of cells in the chain?
                     // if (cellNotes.any() && (totalNotes.count() == cells.size()))
                     // {
                     //     // Got a chain!!! :)
@@ -455,7 +406,7 @@ void SolverLogic::reduceNotesByFindingChains(Grid &pGrid, int maxChainSize)
 
                     //                     std::cout << "Removendo ocorrencias de ";
                     //                     std::vector<int> lst;
-                    //                     Cell::getVisibleNotesLst(totalNotes, lst);
+                    //                     Cell::getNotesLst(totalNotes, lst);
                     //                     for (const auto oc : lst)
                     //                     {
                     //                         std::cout << oc << " ";
@@ -482,7 +433,65 @@ void SolverLogic::reduceNotesByFindingChains(Grid &pGrid, int maxChainSize)
     }
 }
 
-int SolverLogic::solveByGuesses(Grid &pGrid, int maxSolutions)
+Level Solver::solveLevel(Grid &pGrid, Level maxLevel)
+{
+    int level(LEV_0_LOGIC);
+    std::string notesSignature;
+    std::string newNotesSignature;
+    bool loop(true);
+
+    do
+    {
+        if (newNotesSignature.empty())
+            notesSignature = pGrid.getNotesSignature();
+        else
+            notesSignature = newNotesSignature;
+
+        if (level >= LEV_2_LOGIC)
+        {
+            reduceCandidatesByFindingChains(pGrid);
+        }
+        else if (level >= LEV_1_LOGIC)
+        {
+            reduceCandidatesOnlyInBlockLineOrCol(pGrid);
+            reduceCandidatesByFindingChains(pGrid, 2);
+        }
+
+        resolveUniquePossibility(pGrid);
+
+        if (pGrid.isFull())
+            break;
+
+        newNotesSignature = pGrid.getNotesSignature();
+
+        if (newNotesSignature == notesSignature)
+        {
+            loop = (level < maxLevel);
+            if (loop)
+            {
+                ++level;
+            }
+
+            if (level == LEV_3_GUESS)
+            {
+                loop = false;
+                if (solveByGuesses(pGrid) != 1)
+                {
+                    level = LEV_UNKNOWN;
+                }
+            }
+            else if (!loop)
+            {
+                level = LEV_UNKNOWN;
+            }
+        }
+
+    } while (loop);
+
+    return static_cast<Level>(level);
+}
+
+int Solver::solveByGuesses(Grid &pGrid, int maxSolutions)
 {
     using GuessesRank = std::multimap<int, std::pair<int, int>>;
     std::vector<Grid> solutions;
@@ -506,7 +515,7 @@ int SolverLogic::solveByGuesses(Grid &pGrid, int maxSolutions)
             else
             {
                 std::vector<int> candidates;
-                cell.getVisibleNotesLst(candidates);
+                cell.getNotesLst(candidates);
                 for (const int condidate : candidates)
                 {
                     Grid savedPoint = grid;
@@ -514,13 +523,13 @@ int SolverLogic::solveByGuesses(Grid &pGrid, int maxSolutions)
                     if (grid.clearNotesCascade(lin, col, condidate))
                     {
                         bool noConflicts(true);
-                        solveCellsWithOnlyOneCandidate(grid, &noConflicts);
+                        resolveCellsWithOnlyOneCandidate(grid, &noConflicts);
                         if (noConflicts)
                         {
                             // This function can also detect the solitary candidates, but calling
-                            // solveCellsWithOnlyOneCandidate first improves a little bit the performance,
+                            // resolveCellsWithOnlyOneCandidate first improves a little bit the performance,
                             // as the function is more light weight and may detect a conflict first.
-                            solveUniquePossibility(grid, &noConflicts);
+                            resolveUniquePossibility(grid, &noConflicts);
                             if (noConflicts)
                             {
                                 if (!grid.hasEmptyNoteForNotSetValue())
@@ -552,7 +561,7 @@ int SolverLogic::solveByGuesses(Grid &pGrid, int maxSolutions)
         for (int c = 0; c < 9; ++c)
         {
             const auto &cell = grid.getCell(l, c);
-            if (cell.hasNote())
+            if (cell.hasAnyNote())
             {
                 // Order by the ones with less candidates
                 guessesRank.insert(std::make_pair(cell.notesCount(), std::make_pair(l, c)));
@@ -569,3 +578,5 @@ int SolverLogic::solveByGuesses(Grid &pGrid, int maxSolutions)
 
     return solutions.size();
 }
+
+} // namespace sudoku
