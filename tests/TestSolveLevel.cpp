@@ -16,7 +16,7 @@ void printMsg(const std::string &puzzle, const std::string &msg)
 bool test(int expectedLevel, const std::string &puzzle, const std::string &expectedResult)
 {
     Grid grid;
-    grid.setValues(puzzle);
+    grid.fillValues(puzzle);
     grid.fillNotes();
 
     auto resultLevel = Solver::solveLevel(grid);
@@ -28,7 +28,7 @@ bool test(int expectedLevel, const std::string &puzzle, const std::string &expec
     }
 
     int expectedResultArr[9 * 9];
-    if (!grid.fillArrayFormString(expectedResult, expectedResultArr))
+    if (!grid.fillValuesArrayFormString(expectedResult, expectedResultArr))
     {
         printMsg(puzzle, "The provided expectedResult is snot valid");
         return false;
@@ -109,6 +109,17 @@ bool testHard()
               ".3.961.8.16...8.299847..1...2.3.....61.875.42.4...9.7..91.876..47.1...98.5..9....",
               "732961485165438729984752163827346951619875342543219876291587634476123598358694217"))
         return false;
+
+    if (!test(level, //
+              "8.1.7..........62....5....7........1.6..43.7......9....94....5.12.8.......7....3.",
+              "841276593759431628236598417372685941968143275415729386694317852123854769587962134"))
+        return false;
+
+    // TODO - Solve this by logic - Needs Swordfish implementation
+    // if (!test(level, //
+    //           "8.......5.16...79..9.4.1.3...25.96......3......18.79...4.7.8.1..68...37.9.......8",
+    //           "834972165216385794795461832372549681489136527651827943543798216168254379927613458"))
+    //     return false;
 
     return true;
 }

@@ -3,13 +3,11 @@ project(sudoku LANGUAGES CXX)
 
 SET(CMAKE_CXX_FLAGS "-std=c++17")
 
-add_executable(all_tests
-    TestSolveLevel.cpp
-)
+function(add_to_test _name _sources)
+    add_executable(${_name} ${_sources})
+    target_link_libraries(${_name} PRIVATE sudoku_lib)
+    add_test(NAME ${_name} COMMAND ${_name})
+endfunction()
 
-target_link_libraries(all_tests PRIVATE
-    sudoku_lib
-)
-
-add_test(NAME all_tests COMMAND all_tests)
-
+add_to_test(test_levels TestSolveLevel.cpp)
+add_to_test(test_xwing TestXWing.cpp)

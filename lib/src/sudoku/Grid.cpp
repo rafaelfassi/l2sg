@@ -88,21 +88,47 @@ int Grid::getBlockNumber(int _l, int _c) const
     return g_rowCol2Block[_l][_c];
 }
 
-void Grid::setValues(int *_pValues)
+void Grid::fillValues(int *_pValues)
 {
     for (int i = 0; i < 9; ++i)
         for (int j = 0; j < 9; ++j)
             setValue(i, j, _pValues[j + (i * 9)]);
 }
 
-void Grid::setValues(const std::string &values)
+void Grid::fillValues(const std::string &values)
 {
     int arr[9 * 9];
-    if (fillArrayFormString(values, arr))
-        setValues(arr);
+    if (fillValuesArrayFormString(values, arr))
+        fillValues(arr);
 }
 
-bool Grid::fillArrayFormString(const std::string &values, int *array)
+void Grid::fillNotes(const std::string &notes)
+{
+    int l = 0;
+    int c = 0;
+    for (size_t i = 0; i < notes.size(); ++i)
+    {
+        const auto ch = notes[i];
+        if (std::isspace(ch))
+            continue;
+
+        if (std::isdigit(ch) && (ch > '0'))
+        {
+            setNote(l, c, (ch - '0'), true);
+        }
+        else if(ch == '|')
+        {
+            if (++c == 9)
+            {
+                c = 0;
+                if (++l == 9)
+                    break;
+            }
+        }
+    }
+}
+
+bool Grid::fillValuesArrayFormString(const std::string &values, int *array)
 {
     int x(0);
     for (size_t i = 0; i < values.size(); ++i)
@@ -333,37 +359,48 @@ bool Grid::compareValues(const Grid &_grid)
     return true;
 }
 
+bool Grid::compareNotes(const Grid &_grid)
+{
+    for (int i = 0; i < 9; ++i)
+        for (int j = 0; j < 9; ++j)
+            if (getNotes(i, j) != _grid.getNotes(i, j))
+                return false;
+    return true;
+}
+
 void Grid::dump(int _dumpFlags, const std::string &_null, const std::string &_numSep,
                 const std::string &_lineSep, const std::string &_colSep)
 {
-    std::cout << "Values:" << std::endl;
-    for (int i = 0; i < 9; ++i)
+    if (_dumpFlags & D_VALUES)
     {
-        for (int j = 0; j < 9; ++j)
+        std::cout << "Values:" << std::endl;
+        for (int i = 0; i < 9; ++i)
         {
-            bool lastOfCol((j % 3) == 2);
-            int val = getValue(i, j);
-            if (val)
-                std::cout << val << (lastOfCol ? _colSep : _numSep);
-            else
-                std::cout << _null << (lastOfCol ? _colSep : _numSep);
-        }
-
-        if (i < 9 - 1)
-        {
-            std::cout << _lineSep;
-            if (!(_dumpFlags & D_ONE_LINE))
+            for (int j = 0; j < 9; ++j)
             {
-                std::cout << std::endl;
-                if (i % 3 == 2)
+                bool lastOfCol((j % 3) == 2);
+                int val = getValue(i, j);
+                if (val)
+                    std::cout << val << (lastOfCol ? _colSep : _numSep);
+                else
+                    std::cout << _null << (lastOfCol ? _colSep : _numSep);
+            }
+
+            if (i < 9 - 1)
+            {
+                std::cout << _lineSep;
+                if (!(_dumpFlags & D_ONE_LINE))
+                {
                     std::cout << std::endl;
+                    if (i % 3 == 2)
+                        std::cout << std::endl;
+                }
             }
         }
+        std::cout << std::endl;
     }
 
-    std::cout << std::endl;
-
-    if (_dumpFlags & D_ANNOTATION)
+    if (_dumpFlags & D_NOTES)
     {
         std::cout << "Notes:" << std::endl;
         for (int i = 0; i < 9; ++i)
@@ -375,16 +412,24 @@ void Grid::dump(int _dumpFlags, const std::string &_null, const std::string &_nu
                     if (hasNote(i, j, x))
                         std::cout << x;
                     else
-                        std::cout << ".";
+                        std::cout << _null;
                 }
-                std::cout << "  ";
+
                 if (j % 3 == 2)
-                    std::cout << "  ";
+                    std::cout << _colSep;
+                else
+                    std::cout << _numSep;
             }
-            std::cout << std::endl;
-            if (i % 3 == 2)
+
+            std::cout << _lineSep;
+            if (!(_dumpFlags & D_ONE_LINE))
+            {
                 std::cout << std::endl;
+                if (i % 3 == 2)
+                    std::cout << std::endl;
+            }
         }
+        std::cout << std::endl;
     }
 }
 

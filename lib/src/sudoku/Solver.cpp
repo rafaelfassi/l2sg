@@ -16,7 +16,7 @@
 namespace sudoku
 {
 
-void Solver::resolveCellsWithOnlyOneCandidate(Grid &pGrid, bool *check)
+void Solver::resolveNakedSingles(Grid &pGrid, bool *check)
 {
     bool changed;
     do
@@ -60,7 +60,7 @@ void Solver::resolveCellsWithOnlyOneCandidate(Grid &pGrid, bool *check)
     }
 }
 
-void Solver::resolveUniquePossibility(Grid &pGrid, bool *check)
+void Solver::resolveHiddenSingles(Grid &pGrid, bool *check)
 {
     constexpr int emptyVal(-1);
     constexpr int duplicatedVal(-2);
@@ -216,8 +216,10 @@ void Solver::resolveUniquePossibility(Grid &pGrid, bool *check)
 //    first block.
 // Source puzzle: ..6..3...54.8..2.9.....961.....81...4...9.168.8..345....437....2679483513.....4..
 // TODO: The same 8 of (0,0) could also be eliminated by looking that the line 2 has 8 only in the first
-// block.
-void Solver::reduceCandidatesOnlyInBlockLineOrCol(Grid &pGrid)
+// block. The Locked Candidates Type 2 must be implemented to solve it:
+// http://hodoku.sourceforge.net/en/tech_intersections.php
+
+void Solver::reduceCandidatesByLockedCandidates(Grid &pGrid)
 {
     std::vector<int> notes;
 
@@ -290,6 +292,79 @@ void Solver::reduceCandidatesOnlyInBlockLineOrCol(Grid &pGrid)
             }
         }
     }
+}
+
+void Solver::reduceCandidatesByXWing(Grid &pGrid)
+{
+    std::bitset<9> rows[9][9];
+    std::bitset<9> cols[9][9];
+    std::vector<int> notes;
+    constexpr int sz = sizeof(rows) / sizeof(int);
+
+    const std::function<bool(int, int, int)> fillDataFunc = [&](int l, int c, int b) -> bool {
+        Cell &cell = pGrid.getCell(l, c);
+
+        notes.clear();
+        cell.getNotesLst(notes);
+
+        for (const auto note : notes)
+        {
+            const int noteIdx = note - 1;
+            rows[l][noteIdx].set(c, true);
+            cols[c][noteIdx].set(l, true);
+        }
+
+        return true;
+    };
+
+    pGrid.forAllCells(fillDataFunc);
+
+    for (int i = 0; i < 9; ++i)
+    {
+        for (int v = 1; v < 10; ++v)
+        {
+            const int vIdx = v - 1;
+
+            if (rows[i][vIdx].count() == 2)
+            {
+                bool foundPair(false);
+                for (int i2 = i+1; !foundPair && i2 < 9; ++i2)
+                {
+                    if (rows[i][vIdx] == rows[i2][vIdx])
+                    {
+                        for (int j = 0; j < 9; ++j)
+                        {
+                            if (rows[i][vIdx].test(j))
+                            {
+                                pGrid.clearColNotes(j, v, [i, i2](int r){ return (r != i) && (r != i2); });
+                                foundPair = true;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (cols[i][vIdx].count() == 2)
+            {
+                bool foundPair(false);
+                for (int i2 = i+1; !foundPair && i2 < 9; ++i2)
+                {
+                    if (cols[i][vIdx] == cols[i2][vIdx])
+                    {
+                        for (int j = 0; j < 9; ++j)
+                        {
+                            if (cols[i][vIdx].test(j))
+                            {
+                                pGrid.clearRowNotes(j, v, [i, i2](int c){ return (c != i) && (c != i2); });
+                                foundPair = true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
 }
 
 // This function tries to find chains to reduce the number of candidates.
@@ -450,14 +525,16 @@ Level Solver::solveLevel(Grid &pGrid, Level maxLevel)
         if (level >= LEV_2_LOGIC)
         {
             reduceCandidatesByFindingChains(pGrid);
+            reduceCandidatesByXWing(pGrid);
+            reduceCandidatesByLockedCandidates(pGrid);
         }
         else if (level >= LEV_1_LOGIC)
         {
-            reduceCandidatesOnlyInBlockLineOrCol(pGrid);
+            reduceCandidatesByLockedCandidates(pGrid);
             reduceCandidatesByFindingChains(pGrid, 2);
         }
 
-        resolveUniquePossibility(pGrid);
+        resolveHiddenSingles(pGrid);
 
         if (pGrid.isFull())
             break;
@@ -523,13 +600,13 @@ int Solver::solveByGuesses(Grid &pGrid, int maxSolutions)
                     if (grid.clearNotesCascade(lin, col, condidate))
                     {
                         bool noConflicts(true);
-                        resolveCellsWithOnlyOneCandidate(grid, &noConflicts);
+                        resolveNakedSingles(grid, &noConflicts);
                         if (noConflicts)
                         {
                             // This function can also detect the solitary candidates, but calling
-                            // resolveCellsWithOnlyOneCandidate first improves a little bit the performance,
+                            // resolveNakedSingles first improves a little bit the performance,
                             // as the function is more light weight and may detect a conflict first.
-                            resolveUniquePossibility(grid, &noConflicts);
+                            resolveHiddenSingles(grid, &noConflicts);
                             if (noConflicts)
                             {
                                 if (!grid.hasEmptyNoteForNotSetValue())
