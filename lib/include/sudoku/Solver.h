@@ -22,6 +22,7 @@ public:
     static void resolveHiddenSingles(Grid &pGrid, bool *check = nullptr);
     static void reduceCandidatesByLockedCandidates(Grid &pGrid);
     static void reduceCandidatesByXWing(Grid &pGrid);
+    static void reduceCandidatesBySwordfish(Grid &pGrid);
     static void reduceCandidatesByFindingChains(Grid &pGrid, int maxChainSize = 7);
 
     static Level solveLevel(Grid &pGrid, Level maxLevel = LEV_3_GUESS);

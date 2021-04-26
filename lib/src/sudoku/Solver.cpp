@@ -325,10 +325,12 @@ void Solver::reduceCandidatesByXWing(Grid &pGrid)
         {
             const int vIdx = v - 1;
 
+            // A number was found only 2 times in a row?
             if (rows[i][vIdx].count() == 2)
             {
                 bool foundPair(false);
-                for (int i2 = i+1; !foundPair && i2 < 9; ++i2)
+                // Try to find another row in which the same number appers 2 and in the same columns.
+                for (int i2 = i + 1; !foundPair && i2 < 9; ++i2)
                 {
                     if (rows[i][vIdx] == rows[i2][vIdx])
                     {
@@ -336,7 +338,7 @@ void Solver::reduceCandidatesByXWing(Grid &pGrid)
                         {
                             if (rows[i][vIdx].test(j))
                             {
-                                pGrid.clearColNotes(j, v, [i, i2](int r){ return (r != i) && (r != i2); });
+                                pGrid.clearColNotes(j, v, [i, i2](int r) { return (r != i) && (r != i2); });
                                 foundPair = true;
                             }
                         }
@@ -347,7 +349,7 @@ void Solver::reduceCandidatesByXWing(Grid &pGrid)
             if (cols[i][vIdx].count() == 2)
             {
                 bool foundPair(false);
-                for (int i2 = i+1; !foundPair && i2 < 9; ++i2)
+                for (int i2 = i + 1; !foundPair && i2 < 9; ++i2)
                 {
                     if (cols[i][vIdx] == cols[i2][vIdx])
                     {
@@ -355,7 +357,7 @@ void Solver::reduceCandidatesByXWing(Grid &pGrid)
                         {
                             if (cols[i][vIdx].test(j))
                             {
-                                pGrid.clearRowNotes(j, v, [i, i2](int c){ return (c != i) && (c != i2); });
+                                pGrid.clearRowNotes(j, v, [i, i2](int c) { return (c != i) && (c != i2); });
                                 foundPair = true;
                             }
                         }
@@ -364,7 +366,110 @@ void Solver::reduceCandidatesByXWing(Grid &pGrid)
             }
         }
     }
+}
 
+void Solver::reduceCandidatesBySwordfish(Grid &pGrid)
+{
+    std::bitset<9> rows[9][9];
+    std::bitset<9> cols[9][9];
+    std::vector<int> candidateRows[9];
+    std::vector<int> candidateCols[9];
+    std::vector<int> notes;
+    std::vector<int> combLst;
+    CombinationsGen combination;
+
+    const std::function<bool(int, int, int)> fillDataFunc = [&](int l, int c, int b) -> bool {
+        Cell &cell = pGrid.getCell(l, c);
+
+        notes.clear();
+        cell.getNotesLst(notes);
+
+        for (const auto note : notes)
+        {
+            const int noteIdx = note - 1;
+            rows[l][noteIdx].set(c, true);
+            cols[c][noteIdx].set(l, true);
+        }
+
+        return true;
+    };
+
+    pGrid.forAllCells(fillDataFunc);
+
+    for (int i = 0; i < 9; ++i)
+    {
+        for (int v = 1; v < 10; ++v)
+        {
+            const int noteIdx = v - 1;
+            const int count = rows[i][noteIdx].count();
+            if (count == 2 || count == 3)
+                candidateRows[noteIdx].push_back(i);
+        }
+    }
+
+    for (int v = 1; v < 10; ++v)
+    {
+        const int vIdx = v - 1;
+
+        if (candidateRows[vIdx].size() >= 3)
+        {
+            combination.reset(candidateRows[vIdx].size(), 3);
+            combLst.clear();
+            while (combination.getNextCombination(combLst))
+            {
+                int sumCols[9] = {};
+                for (auto comb : combLst)
+                {
+                    int row = candidateRows[vIdx][comb];
+                    for (int j = 0; j < 9; ++j)
+                    {
+                        if (rows[row][vIdx].test(j))
+                        {
+                            ++sumCols[j];
+                        }
+                    }
+                }
+
+                bool bad(false);
+                int colCount(0);
+                for (int c = 0; c < 9; ++c)
+                {
+                    if (sumCols[c] == 1)
+                    {
+                        // Column doesn't intercept any other column.
+                        bad = true;
+                        break;
+                    }
+                    else if (sumCols[c] > 1)
+                    {
+                        ++colCount;
+                    }
+                }
+
+                // Has 3 columns where each column intercepts at least one other column?
+                if (colCount == 3 && !bad)
+                {
+                    std::cout << "Num: " << v << std::endl;
+                    for (auto comb : combLst)
+                        std::cout << candidateRows[vIdx][comb] << " ";
+                    std::cout << std::endl;
+                    for (int c = 0; c < 9; ++c)
+                    {
+                        if (sumCols[c] == 2 || sumCols[c] == 3)
+                        {
+                            pGrid.clearColNotes(c, v, [vIdx, &combLst, &candidateRows](int r) { 
+                                for (auto comb : combLst)
+                                    if (r == candidateRows[vIdx][comb])
+                                        return false;
+                                return true;
+                            });
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+    }
 }
 
 // This function tries to find chains to reduce the number of candidates.
@@ -525,7 +630,11 @@ Level Solver::solveLevel(Grid &pGrid, Level maxLevel)
         if (level >= LEV_2_LOGIC)
         {
             reduceCandidatesByFindingChains(pGrid);
+            resolveHiddenSingles(pGrid);
             reduceCandidatesByXWing(pGrid);
+            resolveHiddenSingles(pGrid);
+            reduceCandidatesBySwordfish(pGrid);
+            resolveHiddenSingles(pGrid);
             reduceCandidatesByLockedCandidates(pGrid);
         }
         else if (level >= LEV_1_LOGIC)
