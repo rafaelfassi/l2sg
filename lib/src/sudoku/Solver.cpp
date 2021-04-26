@@ -9,10 +9,6 @@
 #include <unordered_set>
 #include <vector>
 
-// Improvement:
-// X2XXXXXX9 XXXXXXXXX X2XX567XX   XXXX5XXX9 XXXXXXXXX XXXXXXXXX   X2XX5XXXX XXXXXXXXX XXXXX67XX
-// The 6 and 7 can be placed only in two cells, therefore we can cleanup X2XX567XX, keeping only 6 and 7.
-
 namespace sudoku
 {
 
@@ -60,7 +56,7 @@ void Solver::resolveNakedSingles(Grid &pGrid, bool *check)
     }
 }
 
-void Solver::resolveHiddenSingles(Grid &pGrid, bool *check)
+void Solver::resolveHiddenAndNakedSingles(Grid &pGrid, bool *check)
 {
     constexpr int emptyVal(-1);
     constexpr int duplicatedVal(-2);
@@ -294,7 +290,7 @@ void Solver::reduceCandidatesByLockedCandidates(Grid &pGrid)
     }
 }
 
-void Solver::reduceCandidatesByXWing(Grid &pGrid)
+void Solver::reduceCandidatesByXWings(Grid &pGrid)
 {
     std::bitset<9> rows[9][9];
     std::bitset<9> cols[9][9];
@@ -394,81 +390,112 @@ void Solver::reduceCandidatesBySwordfish(Grid &pGrid)
         return true;
     };
 
-    pGrid.forAllCells(fillDataFunc);
-
-    for (int i = 0; i < 9; ++i)
-    {
-        for (int v = 1; v < 10; ++v)
-        {
-            const int noteIdx = v - 1;
-            const int count = rows[i][noteIdx].count();
-            if (count == 2 || count == 3)
-                candidateRows[noteIdx].push_back(i);
-        }
-    }
-
-    for (int v = 1; v < 10; ++v)
-    {
+    const auto processSets = [&combination, &combLst, &pGrid](int type, int v, auto &iSet,
+                                                              auto &iCandidatesSet) {
         const int vIdx = v - 1;
 
-        if (candidateRows[vIdx].size() >= 3)
+        // If there are three or more rows that are valid candidates (has the same value only 2 or 3 times)
+        if (iCandidatesSet[vIdx].size() >= 3)
         {
-            combination.reset(candidateRows[vIdx].size(), 3);
+            // Make combinations of 3 rows
+            combination.reset(iCandidatesSet[vIdx].size(), 3);
             combLst.clear();
+            // For each combination
             while (combination.getNextCombination(combLst))
             {
-                int sumCols[9] = {};
+                // Count how many times the value appears for each column in the current combination.
+                int jValueCount[9] = {};
                 for (auto comb : combLst)
                 {
-                    int row = candidateRows[vIdx][comb];
+                    // Get the row number
+                    int i = iCandidatesSet[vIdx][comb];
                     for (int j = 0; j < 9; ++j)
                     {
-                        if (rows[row][vIdx].test(j))
+                        if (iSet[i][vIdx].test(j))
                         {
-                            ++sumCols[j];
+                            ++jValueCount[j];
                         }
                     }
                 }
 
-                bool bad(false);
-                int colCount(0);
-                for (int c = 0; c < 9; ++c)
+                // Check if all rows are fully connected to each other by common columns.
+                // For that, the value must appear in at least two rows at the same column, as follow:
+                // 1 0 1 0 0
+                // 1 0 0 1 0
+                // 0 0 1 1 0
+                // ---------
+                // 2 0 2 2 0
+                int connectedCount(0);
+                for (int j = 0; j < 9; ++j)
                 {
-                    if (sumCols[c] == 1)
+                    if (jValueCount[j] == 1)
                     {
-                        // Column doesn't intercept any other column.
-                        bad = true;
+                        // Column only intersects one row, therefore the rows are not fully connected.
+                        connectedCount = 0;
                         break;
                     }
-                    else if (sumCols[c] > 1)
+                    else if (jValueCount[j] > 1)
                     {
-                        ++colCount;
+                        ++connectedCount;
                     }
                 }
 
-                // Has 3 columns where each column intercepts at least one other column?
-                if (colCount == 3 && !bad)
+                // Has 3 fully connected rows?
+                if (connectedCount == 3)
                 {
-                    std::cout << "Num: " << v << std::endl;
-                    for (auto comb : combLst)
-                        std::cout << candidateRows[vIdx][comb] << " ";
-                    std::cout << std::endl;
-                    for (int c = 0; c < 9; ++c)
+                    for (int j = 0; j < 9; ++j)
                     {
-                        if (sumCols[c] == 2 || sumCols[c] == 3)
+                        if (jValueCount[j] == 2 || jValueCount[j] == 3)
                         {
-                            pGrid.clearColNotes(c, v, [vIdx, &combLst, &candidateRows](int r) { 
-                                for (auto comb : combLst)
-                                    if (r == candidateRows[vIdx][comb])
-                                        return false;
-                                return true;
-                            });
+                            if (type == Grid::T_LINE)
+                            {
+                                pGrid.clearColNotes(j, v, [vIdx, &combLst, &iCandidatesSet](int r) {
+                                    for (auto comb : combLst)
+                                        if (r == iCandidatesSet[vIdx][comb])
+                                            return false;
+                                    return true;
+                                });
+                            }
+                            else if (type == Grid::T_COLUMN)
+                            {
+                                pGrid.clearRowNotes(j, v, [vIdx, &combLst, &iCandidatesSet](int c) {
+                                    for (auto comb : combLst)
+                                        if (c == iCandidatesSet[vIdx][comb])
+                                            return false;
+                                    return true;
+                                });
+                            }
                         }
                     }
                     break;
                 }
             }
         }
+    };
+
+    pGrid.forAllCells(fillDataFunc);
+
+    // Make sets of candidates rows and cols, where a value appears two or three times.
+    for (int i = 0; i < 9; ++i)
+    {
+        for (int v = 1; v < 10; ++v)
+        {
+            const int noteIdx = v - 1;
+
+            const int countByRow = rows[i][noteIdx].count();
+            if (countByRow == 2 || countByRow == 3)
+                candidateRows[noteIdx].push_back(i);
+
+            const int countByCol = cols[i][noteIdx].count();
+            if (countByCol == 2 || countByCol == 3)
+                candidateCols[noteIdx].push_back(i);
+        }
+    }
+
+    for (int v = 1; v < 10; ++v)
+    {
+        processSets(Grid::T_LINE, v, rows, candidateRows);
+        processSets(Grid::T_COLUMN, v, cols, candidateCols);
     }
 }
 
@@ -483,11 +510,14 @@ void Solver::reduceCandidatesBySwordfish(Grid &pGrid)
 //    The P candidates (4,7,8,9) can be removed from all other cells that are not one of the N !(0,1,2,7).
 //    ......789  ...4..7.9  ...4...89    1...5....  1...5....  .........    .........  ...4..7.9  .........
 // Source puzzle: 1....8..64...3..81.8............26.32359.61....13......12..536.......7525.726381.
-void Solver::reduceCandidatesByFindingChains(Grid &pGrid, int maxChainSize)
+// Improvement: Implemnet Hidden Pairs/Triples/... as follow.
+// .2......9 ......... .2..567..   ....5...9 ......... .........   .2..5.... ......... .....67..
+// The 6 and 7 can be placed only in two cells, therefore we can cleanup .2..567.., keeping only 6 and 7.
+void Solver::reduceCandidatesByNakedMultiples(Grid &pGrid, int maxMultiples)
 {
     CombinationsGen combination;
     std::vector<int> combLst;
-    combLst.reserve(maxChainSize);
+    combLst.reserve(maxMultiples);
 
     // For each type
     for (int type = Grid::T_LINE; type <= Grid::T_BLOCK; ++type)
@@ -497,8 +527,8 @@ void Solver::reduceCandidatesByFindingChains(Grid &pGrid, int maxChainSize)
         // For each row
         for (int i = 0; i < 9; ++i)
         {
-            // For each size of combination's chain. (from 2 columns to maxChainSize)
-            for (int chainSize = 2; (chainSize <= maxChainSize); ++chainSize)
+            // For each size of combination's chain. (from 2 columns to maxMultiples)
+            for (int chainSize = 2; (chainSize <= maxMultiples); ++chainSize)
             {
                 // chainSize possible combinations for 9 cols
                 combination.reset(9, chainSize);
@@ -536,7 +566,7 @@ void Solver::reduceCandidatesByFindingChains(Grid &pGrid, int maxChainSize)
                             {
                                 auto &cell = pGrid.getTranslatedCell(i, pos, type);
                                 const auto &notes = cell.getNotes();
-                                // The col contains one of the notes that should be removed?
+                                // The col contains one of the notes that must be removed?
                                 if (notes.any() && ((notes & ~totalNotes) != notes))
                                 {
                                     // Remove the notes
@@ -545,68 +575,6 @@ void Solver::reduceCandidatesByFindingChains(Grid &pGrid, int maxChainSize)
                             }
                         }
                     }
-
-                    // if (cellNotes.any() && (totalNotes.count() == cells.size()))
-                    // {
-                    //     // Got a chain!!! :)
-                    //     // Limpar todas as ocorrencias contidas em "totalNotes" das celulas que não estajam
-                    //     no
-                    //     // vetor cells.
-                    //     bool first(true);
-                    //     for (int j = 0; j < 9; ++j)
-                    //     {
-                    //         if (cells.find(j) == cells.end())
-                    //         {
-                    //             int l, c;
-                    //             pGrid.translateCoordinates(i, j, l, c, type);
-                    //             Cell &cell = pGrid.getCell(l, c);
-                    //             Cell::Notes notes = cell.getNotes();
-                    //             Cell::Notes newNotes = notes & ~totalNotes;
-
-                    //             if (notes != newNotes)
-                    //             {
-                    //                 cell.setNotes(newNotes);
-
-                    //                 if (first)
-                    //                 {
-                    //                     std::cout
-                    //                         << "Numero de possibilidades igual ao número de células para "
-                    //                         << (type == Grid::T_LINE
-                    //                                 ? "Linha"
-                    //                                 : (type == Grid::T_COLUMN ? "Coluna" : "Bloco"))
-                    //                         << std::endl;
-                    //                     std::cout << "Células:" << std::endl;
-                    //                     for (const auto j1 : cells)
-                    //                     {
-                    //                         int l1, c1;
-                    //                         pGrid.translateCoordinates(i, j1, l1, c1, type);
-                    //                         std::cout << "Lin: " << l1 + 1 << " - Col: " << c1 + 1
-                    //                                   << std::endl;
-                    //                     }
-
-                    //                     std::cout << "Removendo ocorrencias de ";
-                    //                     std::vector<int> lst;
-                    //                     Cell::getNotesLst(totalNotes, lst);
-                    //                     for (const auto oc : lst)
-                    //                     {
-                    //                         std::cout << oc << " ";
-                    //                     }
-                    //                     std::cout << "nas células:" << std::endl;
-                    //                 }
-
-                    //                 std::cout << "Lin: " << l + 1 << " - Col: " << c + 1 << std::endl;
-                    //                 first = false;
-                    //             }
-                    //         }
-                    //     }
-
-                    //     if (!first)
-                    //     {
-                    //         // std::cout << std::endl;
-                    //         // pGrid.dump();
-                    //         return;
-                    //     }
-                    // }
                 }
             }
         }
@@ -629,21 +597,21 @@ Level Solver::solveLevel(Grid &pGrid, Level maxLevel)
 
         if (level >= LEV_2_LOGIC)
         {
-            reduceCandidatesByFindingChains(pGrid);
-            resolveHiddenSingles(pGrid);
-            reduceCandidatesByXWing(pGrid);
-            resolveHiddenSingles(pGrid);
+            reduceCandidatesByNakedMultiples(pGrid);
+            resolveHiddenAndNakedSingles(pGrid);
+            reduceCandidatesByXWings(pGrid);
+            resolveHiddenAndNakedSingles(pGrid);
             reduceCandidatesBySwordfish(pGrid);
-            resolveHiddenSingles(pGrid);
+            resolveHiddenAndNakedSingles(pGrid);
             reduceCandidatesByLockedCandidates(pGrid);
         }
         else if (level >= LEV_1_LOGIC)
         {
             reduceCandidatesByLockedCandidates(pGrid);
-            reduceCandidatesByFindingChains(pGrid, 2);
+            reduceCandidatesByNakedMultiples(pGrid, 2);
         }
 
-        resolveHiddenSingles(pGrid);
+        resolveHiddenAndNakedSingles(pGrid);
 
         if (pGrid.isFull())
             break;
@@ -715,7 +683,7 @@ int Solver::solveByGuesses(Grid &pGrid, int maxSolutions)
                             // This function can also detect the solitary candidates, but calling
                             // resolveNakedSingles first improves a little bit the performance,
                             // as the function is more light weight and may detect a conflict first.
-                            resolveHiddenSingles(grid, &noConflicts);
+                            resolveHiddenAndNakedSingles(grid, &noConflicts);
                             if (noConflicts)
                             {
                                 if (!grid.hasEmptyNoteForNotSetValue())

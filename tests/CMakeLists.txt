@@ -10,5 +10,5 @@ function(add_to_test _name _sources)
 endfunction()
 
 add_to_test(test_levels TestSolveLevel.cpp)
-add_to_test(test_xwing TestXWing.cpp)
+add_to_test(test_xwings TestXWings.cpp)
 add_to_test(test_swordfish TestSwordfish.cpp)
