@@ -499,14 +499,14 @@ void Solver::reduceCandidatesBySwordfish(Grid &pGrid)
     }
 }
 
-void Solver::reduceCandidatesByHiddenMultiples(Grid &pGrid, int maxMultiples)
+void Solver::reduceCandidatesByHiddenMulti(Grid &pGrid, int maxHidden)
 {
     CombinationsGen combination;
     std::vector<int> combLst;
-    combLst.reserve(maxMultiples);
+    combLst.reserve(maxHidden);
 
-    // For each size of combination's chain. (from 2 values to maxMultiples)
-    for (int chainSize = 2; (chainSize <= maxMultiples); ++chainSize)
+    // For each size of combination's chain. (from 2 values to maxHidden)
+    for (int chainSize = 2; (chainSize <= maxHidden); ++chainSize)
     {
         // chainSize possible combinations for 9 values
         combination.reset(9, chainSize);
@@ -517,35 +517,42 @@ void Solver::reduceCandidatesByHiddenMultiples(Grid &pGrid, int maxMultiples)
         {
             for (int i = 0; i < 9; ++i)
             {
-                std::bitset<9> cells;
-                std::bitset<9> values;
-                for (int j=0; j < 9; ++j)
+                for (int type = Grid::T_LINE; type <= Grid::T_BLOCK; ++type)
                 {
-                    for (const int v : combLst)
+                    std::bitset<9> cells;
+                    Cell::Notes foundNotes;
+                    Cell::Notes totalNotes;
+
+                    for (int j=0; j < 9; ++j)
                     {
-                        if (pGrid.hasNote(i, j, v+1))
+                        for (const int v : combLst)
                         {
-                            cells.set(j, true);
-                            values.set(v, true);
+                            auto &cell = pGrid.getTranslatedCell(i, j, type);
+                            if (cell.hasNote(v+1))
+                            {
+                                cells.set(j, true);
+                                foundNotes.set(v, true);
+                                totalNotes |= cell.getNotes();
+                            }
                         }
                     }
-                }
 
-                if ((cells.count() == chainSize) && (values.count() == chainSize))
-                {
-                    std::cout << "Found hidden for n " << chainSize << " at i: " << i << " - {";
-                    for (const int v : combLst)
+                    if ((cells.count() == chainSize) && (foundNotes.count() == chainSize) && (totalNotes.count() > chainSize))
                     {
-                        std::cout << v+1 << ",";
-                    }
-                    std::cout << "}" << std::endl;
+                        // std::cout << "Found hidden for n " << chainSize << " type: " << type  << " at i: " << i << " - {";
+                        // for (const int v : combLst)
+                        // {
+                        //     std::cout << v+1 << ",";
+                        // }
+                        // std::cout << "}" << std::endl;
 
-                    for (int j = 0; j < 9; ++j)
-                    {
-                        if (cells.test(j))
+                        for (int j = 0; j < 9; ++j)
                         {
-                            auto& cell = pGrid.getCell(i, j);
-                            cell.setNotes(cell.getNotes() & values);
+                            if (cells.test(j))
+                            {
+                                auto& cell = pGrid.getTranslatedCell(i, j, type);
+                                cell.setNotes(cell.getNotes() & foundNotes);
+                            }
                         }
                     }
                 }
@@ -565,14 +572,11 @@ void Solver::reduceCandidatesByHiddenMultiples(Grid &pGrid, int maxMultiples)
 //    The P candidates (4,7,8,9) can be removed from all other cells that are not one of the N !(0,1,2,7).
 //    ......789  ...4..7.9  ...4...89    1...5....  1...5....  .........    .........  ...4..7.9  .........
 // Source puzzle: 1....8..64...3..81.8............26.32359.61....13......12..536.......7525.726381.
-// Improvement: Implemnet Hidden Pairs/Triples/... as follow.
-// .2......9 ......... .2..567..   ....5...9 ......... .........   .2..5.... ......... .....67..
-// The 6 and 7 can be placed only in two cells, therefore we can cleanup .2..567.., keeping only 6 and 7.
-void Solver::reduceCandidatesByNakedMultiples(Grid &pGrid, int maxMultiples)
+void Solver::reduceCandidatesByNakedMulti(Grid &pGrid, int maxNaked)
 {
     CombinationsGen combination;
     std::vector<int> combLst;
-    combLst.reserve(maxMultiples);
+    combLst.reserve(maxNaked);
 
     // For each type
     for (int type = Grid::T_LINE; type <= Grid::T_BLOCK; ++type)
@@ -582,8 +586,8 @@ void Solver::reduceCandidatesByNakedMultiples(Grid &pGrid, int maxMultiples)
         // For each row
         for (int i = 0; i < 9; ++i)
         {
-            // For each size of combination's chain. (from 2 columns to maxMultiples)
-            for (int chainSize = 2; (chainSize <= maxMultiples); ++chainSize)
+            // For each size of combination's chain. (from 2 columns to maxNaked)
+            for (int chainSize = 2; (chainSize <= maxNaked); ++chainSize)
             {
                 // chainSize possible combinations for 9 cols
                 combination.reset(9, chainSize);
@@ -652,18 +656,24 @@ Level Solver::solveLevel(Grid &pGrid, Level maxLevel)
 
         if (level >= LEV_2_LOGIC)
         {
-            reduceCandidatesByNakedMultiples(pGrid);
+            reduceCandidatesByHiddenMulti(pGrid);
             resolveHiddenAndNakedSingles(pGrid);
+
+            reduceCandidatesByNakedMulti(pGrid);
+            resolveHiddenAndNakedSingles(pGrid);
+
             reduceCandidatesByXWings(pGrid);
             resolveHiddenAndNakedSingles(pGrid);
+
             reduceCandidatesBySwordfish(pGrid);
             resolveHiddenAndNakedSingles(pGrid);
+
             reduceCandidatesByLockedCandidates(pGrid);
         }
         else if (level >= LEV_1_LOGIC)
         {
             reduceCandidatesByLockedCandidates(pGrid);
-            reduceCandidatesByNakedMultiples(pGrid, 2);
+            reduceCandidatesByNakedMulti(pGrid, 2);
         }
 
         resolveHiddenAndNakedSingles(pGrid);

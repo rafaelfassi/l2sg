@@ -23,8 +23,8 @@ public:
     static void reduceCandidatesByLockedCandidates(Grid &pGrid);
     static void reduceCandidatesByXWings(Grid &pGrid);
     static void reduceCandidatesBySwordfish(Grid &pGrid);
-    static void reduceCandidatesByHiddenMultiples(Grid &pGrid, int maxMultiples = 7);
-    static void reduceCandidatesByNakedMultiples(Grid &pGrid, int maxMultiples = 7);
+    static void reduceCandidatesByHiddenMulti(Grid &pGrid, int maxHidden = 7);
+    static void reduceCandidatesByNakedMulti(Grid &pGrid, int maxNaked = 7);
 
     static Level solveLevel(Grid &pGrid, Level maxLevel = LEV_3_GUESS);
     static int solveByGuesses(Grid &pGrid, int maxSolutions = 1);
