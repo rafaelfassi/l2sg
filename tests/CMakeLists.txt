@@ -11,4 +11,4 @@ endfunction()
 
 add_to_test(test_levels TestSolveLevel.cpp)
 add_to_test(test_xwings TestXWings.cpp)
-add_to_test(test_swordfish TestSwordfish.cpp)
+add_to_test(test_hidden_multi TestHiddenMultiples.cpp)

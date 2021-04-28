@@ -499,6 +499,61 @@ void Solver::reduceCandidatesBySwordfish(Grid &pGrid)
     }
 }
 
+void Solver::reduceCandidatesByHiddenMultiples(Grid &pGrid, int maxMultiples)
+{
+    CombinationsGen combination;
+    std::vector<int> combLst;
+    combLst.reserve(maxMultiples);
+
+    // For each size of combination's chain. (from 2 values to maxMultiples)
+    for (int chainSize = 2; (chainSize <= maxMultiples); ++chainSize)
+    {
+        // chainSize possible combinations for 9 values
+        combination.reset(9, chainSize);
+        combLst.clear();
+
+        // For each possible combination of values according to the size of the current chain
+        while (combination.getNextCombination(combLst))
+        {
+            for (int i = 0; i < 9; ++i)
+            {
+                std::bitset<9> cells;
+                std::bitset<9> values;
+                for (int j=0; j < 9; ++j)
+                {
+                    for (const int v : combLst)
+                    {
+                        if (pGrid.hasNote(i, j, v+1))
+                        {
+                            cells.set(j, true);
+                            values.set(v, true);
+                        }
+                    }
+                }
+
+                if ((cells.count() == chainSize) && (values.count() == chainSize))
+                {
+                    std::cout << "Found hidden for n " << chainSize << " at i: " << i << " - {";
+                    for (const int v : combLst)
+                    {
+                        std::cout << v+1 << ",";
+                    }
+                    std::cout << "}" << std::endl;
+
+                    for (int j = 0; j < 9; ++j)
+                    {
+                        if (cells.test(j))
+                        {
+                            auto& cell = pGrid.getCell(i, j);
+                            cell.setNotes(cell.getNotes() & values);
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 // This function tries to find chains to reduce the number of candidates.
 // Being "P" the number of different candidates that can be found in "N" number of cells for a line, column,
 // or block, if (P == N) all "P" candidates can be removed from the cells that are not part of "N".
@@ -570,7 +625,7 @@ void Solver::reduceCandidatesByNakedMultiples(Grid &pGrid, int maxMultiples)
                                 if (notes.any() && ((notes & ~totalNotes) != notes))
                                 {
                                     // Remove the notes
-                                    cell.setNotes(cell.getNotes() & ~totalNotes);
+                                    cell.setNotes(notes & ~totalNotes);
                                 }
                             }
                         }
