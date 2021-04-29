@@ -1,17 +1,5 @@
-#include "sudoku/Solver.h"
-#include <iostream>
+#include "Test.h"
 #include <sstream>
-
-using namespace sudoku;
-
-void printMsg(const std::string &puzzle, const std::string &msg)
-{
-    std::cout << std::endl;
-    std::cout << std::string(9 * 9, '*') << std::endl;
-    std::cout << puzzle << std::endl << msg << std::endl;
-    std::cout << std::string(9 * 9, '*') << std::endl;
-    std::cout << std::endl;
-}
 
 bool test(int expectedLevel, const std::string &puzzle, const std::string &expectedResult)
 {
@@ -27,29 +15,18 @@ bool test(int expectedLevel, const std::string &puzzle, const std::string &expec
         return false;
     }
 
-    int expectedResultArr[9 * 9];
-    if (!grid.fillValuesArrayFormString(expectedResult, expectedResultArr))
-    {
-        printMsg(puzzle, "The provided expectedResult is snot valid");
-        return false;
-    }
+    bool ok = checkValues(grid, puzzle, expectedResult);
 
-    if (!grid.compareValues(expectedResultArr))
-    {
-        printMsg(puzzle, "Solution error");
-        return false;
-    }
-
-    if (resultLevel != expectedLevel)
+    if (ok && (resultLevel != expectedLevel))
     {
         std::stringstream ss;
         ss << "Level Error. Expected: " << std::to_string(expectedLevel)
            << " Result: " << std::to_string(resultLevel);
         printMsg(puzzle, ss.str());
-        return false;
+        ok = false;
     }
 
-    return true;
+    return ok;
 }
 
 bool testEasy()
@@ -159,18 +136,16 @@ bool testGuesses()
 int main(int, char **)
 {
     if (!testEasy())
-        return 1;
+        return failed();
 
     if (!testMedium())
-        return 1;
+        return failed();
 
     if (!testHard())
-        return 1;
+        return failed();
 
     if (!testGuesses())
-        return 1;
+        return failed();
 
-    std::cout << "All tests passed!!!" << std::endl;
-
-    return 0;
+    return passed();
 }

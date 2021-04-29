@@ -1,8 +1,4 @@
-#include "sudoku/Solver.h"
-#include <iostream>
-#include <sstream>
-
-using namespace sudoku;
+#include "Test.h"
 
 bool test(int maxHidden, const std::string &puzzle, const std::string &notes,
           const std::string &expectedNotes)
@@ -13,27 +9,7 @@ bool test(int maxHidden, const std::string &puzzle, const std::string &notes,
 
     solver::techniques::hiddenMulti(grid, maxHidden);
 
-    Grid gridExpectedNotes;
-    gridExpectedNotes.fillNotes(expectedNotes);
-    if (!grid.compareNotes(gridExpectedNotes))
-    {
-        std::cout << std::string(9 * 9, '*') << std::endl;
-        std::cout << puzzle << std::endl;
-        std::cout << "The notes don't match the expected notes." << std::endl;
-        std::cout << std::endl;
-        std::cout << "Initial:" << std::endl;
-        Grid gridIn;
-        gridIn.fillNotes(notes);
-        gridIn.dump(Grid::D_NOTES);
-        std::cout << "Actual:" << std::endl;
-        grid.dump(Grid::D_NOTES);
-        std::cout << "Expected:" << std::endl;
-        gridExpectedNotes.dump(Grid::D_NOTES);
-        std::cout << std::string(9 * 9, '*') << std::endl;
-        return false;
-    }
-
-    return true;
+    return checkNotes(grid, puzzle, notes, expectedNotes);
 }
 
 int main(int, char **)
@@ -68,7 +44,7 @@ int main(int, char **)
                 .........|.........|.........|  .........|.........|.........|  .........|.........|.........|
                 .........|.........|.........|  .........|.........|.........|  .2....7..|.2....78.|.2....78.|
               )"))
-        return 1;
+        return failed();
 
     // Hidden pair row for values 4, 7 at:
     // (0,0) (0,1)
@@ -99,7 +75,7 @@ int main(int, char **)
                 ..34....9|.........|..3.....9|  ..345...9|.........|..345...9|  .........|.........|.........|
                 .23...78.|.23...78.|.........|  .23..6...|.........|..3...7..|  ..3..6...|.........|.........|
               )"))
-        return 1;
+        return failed();
 
     // Hidden triple block for values 2, 4, 5 at:
     // (7,1) .....
@@ -131,7 +107,7 @@ int main(int, char **)
                 .....67..|...45....|.........|  ...4.6...|....567..|.........|  .........|.........|.........|
                 1....6...|.2.45....|.2..5....|  1..4.6...|.........|1...56...|  .........|.........|.........|
               )"))
-        return 1;
+        return failed();
 
     // Hidden triple column for values 2, 5, 6 at:
     // (3,5)
@@ -164,7 +140,7 @@ int main(int, char **)
                 1234.....|1..45...9|123.5...9|  1234.....|1.34.6.8.|.2...6...|  .........|1..456.89|1..4.6.89|
                 .........|.........|1.3.....9|  .........|.........|1.34.....|  1.34....9|1..4....9|.........|
               )"))
-        return 1;
+        return failed();
 
     // Hidden pair column for values 4, 6 at:
     // (6,6)
@@ -199,7 +175,7 @@ int main(int, char **)
                 .........|.........|.........|  .....6..9|.2.45....|.2.45....|  ...4.6...|.........|....5...9|
                 .........|.........|.........|  1.3...7.9|1.3......|1.....7..|  ..3.....9|.........|.........|
               )"))
-        return 1;
+        return failed();
 
     // Hidden quadruple column for values 5,6,7,9 at:
     // (0,0)
@@ -238,9 +214,7 @@ int main(int, char **)
                 1.3....8.|1..4...8.|1.34.....|  .........|1.3..6...|.........|  .23..6.8.|..3.56.8.|.2..5....|
                 1.3....8.|.........|.........|  .23....8.|1.3..6...|12.......|  .........|.........|..3..6.8.|
               )"))
-        return 1;
+        return failed();
 
-    std::cout << "All tests passed!!!" << std::endl;
-
-    return 0;
+    return passed();
 }

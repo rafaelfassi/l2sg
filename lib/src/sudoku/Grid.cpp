@@ -386,7 +386,7 @@ void Grid::dump(int _dumpFlags, const std::string &_null, const std::string &_nu
                     std::cout << _null << (lastOfCol ? _colSep : _numSep);
             }
 
-            if (i < 9 - 1)
+            if (i < 8)
             {
                 std::cout << _lineSep;
                 if (!(_dumpFlags & D_ONE_LINE))
@@ -421,12 +421,15 @@ void Grid::dump(int _dumpFlags, const std::string &_null, const std::string &_nu
                     std::cout << _numSep;
             }
 
-            std::cout << _lineSep;
-            if (!(_dumpFlags & D_ONE_LINE))
+            if (i < 8)
             {
-                std::cout << std::endl;
-                if (i % 3 == 2)
+                std::cout << _lineSep;
+                if (!(_dumpFlags & D_ONE_LINE))
+                {
                     std::cout << std::endl;
+                    if (i % 3 == 2)
+                        std::cout << std::endl;
+                }
             }
         }
         std::cout << std::endl;

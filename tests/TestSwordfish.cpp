@@ -1,8 +1,4 @@
-#include "sudoku/Solver.h"
-#include <iostream>
-#include <sstream>
-
-using namespace sudoku;
+#include "Test.h"
 
 bool test(const std::string &puzzle, const std::string &notes, const std::string &expectedNotes)
 {
@@ -12,27 +8,7 @@ bool test(const std::string &puzzle, const std::string &notes, const std::string
 
     solver::techniques::swordfish(grid);
 
-    Grid gridExpectedNotes;
-    gridExpectedNotes.fillNotes(expectedNotes);
-    if (!grid.compareNotes(gridExpectedNotes))
-    {
-        std::cout << std::string(9 * 9, '*') << std::endl;
-        std::cout << puzzle << std::endl;
-        std::cout << "The notes don't match the expected notes." << std::endl;
-        std::cout << std::endl;
-        std::cout << "Initial:" << std::endl;
-        Grid gridIn;
-        gridIn.fillNotes(notes);
-        gridIn.dump(Grid::D_NOTES);
-        std::cout << "Actual:" << std::endl;
-        grid.dump(Grid::D_NOTES);
-        std::cout << "Expected:" << std::endl;
-        gridExpectedNotes.dump(Grid::D_NOTES);
-        std::cout << std::string(9 * 9, '*') << std::endl;
-        return false;
-    }
-
-    return true;
+    return checkNotes(grid, puzzle, notes, expectedNotes);
 }
 
 int main(int, char **)
@@ -68,7 +44,7 @@ int main(int, char **)
                 .........|.........|.........|  .2......9|.........|.........|  .........|.........|.2......9|
                 .........|.2....7..|....5.7..|  1.3..6...|12.......|.23..6...|  .2.45....|.2.456...|.........|
               )"))
-        return 1;
+        return failed();
 
     // Swordfish column for value 7 at:
     // (0,1) (0,4) .....
@@ -101,7 +77,7 @@ int main(int, char **)
                 ....5...9|1.3....8.|.........|  1.34...89|.........|1.34...89|  .........|1...5....|1..45...9|
                 ....5...9|.........|1.3......|  .........|..3...7..|1.34....9|  .........|1...5.7..|1..45...9|
               )"))
-        return 1;
+        return failed();
 
     // Swordfish row for value 2 at:
     // (1,0) (1,4) .....
@@ -138,7 +114,7 @@ int main(int, char **)
                 .........|...45...9|.2.4....9|  .2....7..|.........|....5...9|  ......7.9|.........|.........|
                 .2.....89|.......89|.........|  .........|.........|.........|  .........|.2.....89|.........|
               )"))
-        return 1;
+        return failed();
 
     // Swordfish row for value 4 at:
     // (1,1) (1,2) (1,4)
@@ -175,9 +151,7 @@ int main(int, char **)
                 .2.4.67..|123.567..|123..67..|  1........|1.3.5...9|1.34....9|  .........|.2.4.....|....567..|
                 .2.4.6...|123.56...|123..6...|  .........|.........|1.34.....|  .........|.2.4.....|....56...|
               )"))
-        return 1;
+        return failed();
 
-    std::cout << "All tests passed!!!" << std::endl;
-
-    return 0;
+    return passed();
 }

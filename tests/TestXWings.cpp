@@ -1,8 +1,4 @@
-#include "sudoku/Solver.h"
-#include <iostream>
-#include <sstream>
-
-using namespace sudoku;
+#include "Test.h"
 
 bool test(const std::string &puzzle, const std::string &notes, const std::string &expectedNotes)
 {
@@ -12,27 +8,7 @@ bool test(const std::string &puzzle, const std::string &notes, const std::string
 
     solver::techniques::xWings(grid);
 
-    Grid gridExpectedNotes;
-    gridExpectedNotes.fillNotes(expectedNotes);
-    if (!grid.compareNotes(gridExpectedNotes))
-    {
-        std::cout << std::string(9 * 9, '*') << std::endl;
-        std::cout << puzzle << std::endl;
-        std::cout << "The notes don't match the expected notes." << std::endl;
-        std::cout << std::endl;
-        std::cout << "Initial:" << std::endl;
-        Grid gridIn;
-        gridIn.fillNotes(notes);
-        gridIn.dump(Grid::D_NOTES);
-        std::cout << "Actual:" << std::endl;
-        grid.dump(Grid::D_NOTES);
-        std::cout << "Expected:" << std::endl;
-        gridExpectedNotes.dump(Grid::D_NOTES);
-        std::cout << std::string(9 * 9, '*') << std::endl;
-        return false;
-    }
-
-    return true;
+    return checkNotes(grid, puzzle, notes, expectedNotes);
 }
 
 int main(int, char **)
@@ -67,7 +43,7 @@ int main(int, char **)
                 .........|.........|.........|  .2......9|...45....|...45....|  .........|.........|.2......9|
                 .........|.2....7..|....5.7..|  123..6...|12.......|.23..6...|  .2.45....|.2.456...|.........|
               )"))
-        return 1;
+        return failed();
 
 
     // X-Wings column for value 3 at:
@@ -100,9 +76,7 @@ int main(int, char **)
                 12.....8.|12..5..8.|.........|  12.....8.|123.5..8.|.........|  1...5.7..|1.3.5.7..|.........|
                 123....89|123.5..89|123....8.|  12.....8.|.........|.........|  1...5....|.........|.2.....8.|
               )"))
-        return 1;
+        return failed();
 
-    std::cout << "All tests passed!!!" << std::endl;
-
-    return 0;
+    return passed();
 }
