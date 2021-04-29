@@ -15,20 +15,26 @@ enum Level
     LEV_UNKNOWN
 };
 
-class Solver
+namespace solver
 {
-public:
-    static void resolveNakedSingles(Grid &pGrid, bool *check = nullptr);
-    static void resolveHiddenAndNakedSingles(Grid &pGrid, bool *check = nullptr);
-    static void reduceCandidatesByLockedCandidates(Grid &pGrid);
-    static void reduceCandidatesByXWings(Grid &pGrid);
-    static void reduceCandidatesBySwordfish(Grid &pGrid);
-    static void reduceCandidatesByHiddenMulti(Grid &pGrid, int maxHidden = 7);
-    static void reduceCandidatesByNakedMulti(Grid &pGrid, int maxNaked = 7);
 
-    static Level solveLevel(Grid &pGrid, Level maxLevel = LEV_3_GUESS);
-    static int solveByGuesses(Grid &pGrid, int maxSolutions = 1);
-};
+namespace techniques
+{
+
+void nakedSingles(Grid &pGrid, bool *check = nullptr);
+void hiddenAndNakedSingles(Grid &pGrid, bool *check = nullptr);
+void lockedCandidates(Grid &pGrid);
+void xWings(Grid &pGrid);
+void swordfish(Grid &pGrid);
+void hiddenMulti(Grid &pGrid, int maxHidden = 7);
+void nakedMulti(Grid &pGrid, int maxNaked = 7);
+
+} // namespace techniques
+
+Level solveLevel(Grid &pGrid, Level maxLevel = LEV_3_GUESS);
+int solveByGuesses(Grid &pGrid, int maxSolutions = 1);
+
+} // namespace solver
 
 } // namespace sudoku
 

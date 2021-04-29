@@ -10,7 +10,7 @@ bool test(const std::string &puzzle, const std::string &notes, const std::string
     grid.fillValues(puzzle);
     grid.fillNotes(notes);
 
-    Solver::reduceCandidatesByXWings(grid);
+    solver::techniques::xWings(grid);
 
     Grid gridExpectedNotes;
     gridExpectedNotes.fillNotes(expectedNotes);

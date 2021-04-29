@@ -1,5 +1,5 @@
-#ifndef COMBINATION_GEN_H
-#define COMBINATION_GEN_H
+#ifndef SUDOKU_COMBINATION_GEN_H
+#define SUDOKU_COMBINATION_GEN_H
 
 #include <vector>
 
@@ -18,4 +18,4 @@ private:
     bool m_hasNext;
 };
 
-#endif // COMBINATION_GEN_H
+#endif // SUDOKU_COMBINATION_GEN_H

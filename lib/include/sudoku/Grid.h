@@ -1,5 +1,5 @@
-#ifndef GRID_H
-#define GRID_H
+#ifndef SUDOKU_GRID_H
+#define SUDOKU_GRID_H
 
 #include "Cell.h"
 #include <functional>
@@ -70,4 +70,4 @@ protected:
 
 } // namespace sudoku
 
-#endif // GRID_H
+#endif // SUDOKU_GRID_H

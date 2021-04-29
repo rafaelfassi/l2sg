@@ -5,17 +5,17 @@
 
 // clang-format off
 
-int grade[9*9] =  {0,0,6,  0,0,3,  0,0,0,
-                   5,4,0,  8,0,0,  2,0,9,
-                   0,0,0,  0,0,9,  6,1,0,
+int grade[9*9] =  {1,0,8,  5,0,0,  2,3,4,
+                   5,0,0,  3,0,2,  1,7,8,
+                   0,0,0,  8,0,0,  5,6,9,
 
-                   0,0,0,  0,8,1,  0,0,0,
-                   4,0,0,  0,9,0,  1,6,8,
-                   0,8,0,  0,3,4,  5,0,0,
+                   8,0,0,  6,0,5,  7,9,3,
+                   0,0,5,  9,0,0,  4,8,1,
+                   3,0,0,  0,0,8,  6,5,2,
 
-                   0,0,4,  3,7,0,  0,0,0,
-                   2,6,7,  9,4,8,  3,5,1,
-                   3,0,0,  0,0,0,  4,0,0};
+                   9,8,0,  2,0,6,  3,1,0,
+                   0,0,0,  0,0,0,  8,0,0,
+                   0,0,0,  7,8,0,  9,0,0};
 
 // clang-format on
 
@@ -46,7 +46,7 @@ void splitFileIntoLevels(const std::string &inFileName, const std::string &outDi
         Grid grid;
         grid.fillValues(puzzle);
         grid.fillNotes();
-        auto resultLevel = Solver::solveLevel(grid);
+        auto resultLevel = solver::solveLevel(grid);
 
         ++levelsCount[resultLevel];
         switch (resultLevel)
@@ -112,11 +112,11 @@ void executeFromFile(
         std::chrono::steady_clock::time_point time_begin = std::chrono::steady_clock::now();
         if (onlyGuesses)
         {
-            solved = (Solver::solveByGuesses(grid) == 1);
+            solved = (solver::solveByGuesses(grid) == 1);
         }
         else
         {
-            resultLevel = Solver::solveLevel(grid);
+            resultLevel = solver::solveLevel(grid);
             solved = (resultLevel != Level::LEV_UNKNOWN);
         }
         std::chrono::steady_clock::time_point time_end = std::chrono::steady_clock::now();
@@ -157,24 +157,20 @@ void solveOne(const std::string &puzzle, const std::string &notes, bool onlyGues
 
     if (onlyGuesses)
     {
-        solved = (Solver::solveByGuesses(grid) == 1);
+        solved = (solver::solveByGuesses(grid) == 1);
     }
     else
     {
-        resultLevel = Solver::solveLevel(grid, maxLevel);
+        resultLevel = solver::solveLevel(grid, maxLevel);
         solved = (resultLevel != Level::LEV_UNKNOWN);
     }
 
-    grid.dump();
+    //grid.dump();
+    grid.dump(Grid::D_VALUES);
     grid.dump(Grid::D_VALUES | Grid::D_ONE_LINE, ".", "", "", "");
     grid.dump(Grid::D_NOTES, ".", "|", "", "|  ");
     std::cout << "Level: " << resultLevel << std::endl;
     std::cout << "Solved: " << solved << std::endl;
-}
-
-void test()
-{
-
 }
 
 int main()
@@ -188,23 +184,23 @@ int main()
         SPLIT_FILE_INTO_LEVELS
     };
 
-    switch (SOLVE_ONE)
+    switch (EXECUTE_FROM_FILE)
     {
         case SOLVE_ONE:
-            solveOne("8.......5.16...79..9.4.1.3...25.96......3......18.79...4.7.8.1..68...37.9.......8",
-                    R"(
-                    .........|.23...7..|.........|  .23..6..9|.2...67.9|.23..6...|  .........|.2...6...|.........|
-                    .23.5....|.........|.........|  .23......|.........|.23.5....|  .........|.........|.........|
-                    .2..5.7..|.........|....5.7..|  .........|.2..567..|.........|  .........|.........|.2...6...|
+            solveOne(R"(
+                    .3. ... .1.
+                    ..8 .9. ...
+                    4.. 6.8 ...
 
-                    ..34..7..|..3...78.|.........|  .........|1..4.....|.........|  .........|...4...8.|1.....7..|
-                    ...4.67..|......78.|.........|  12...6...|.........|.2.4.6...|  .2.45....|.2.45..8.|1.....7..|
-                    ...4.6...|.........|.........|  .........|.2.4.6...|.........|  .........|.2.4.....|.........|
+                    ... 576 94.
+                    ... 983 52.
+                    ... 124 ...
 
-                    .2..5....|.........|.........|  .........|.....6..9|.........|  .2..5....|.........|.....6..9|
-                    .........|.........|.........|  .2......9|...45....|...45....|  .........|.........|.2......9|
-                    .........|.2....7..|....5.7..|  123..6...|12...6...|.23..6...|  .2.45....|.2.456...|.........|
-                    )"
+                    276 ..5 19.
+                    ... 7.9 ...
+                    .95 ... 47.
+                    )",
+                    ""
                      , false, Level::LEV_2_LOGIC);
             break;
         case EXECUTE_FROM_FILE:

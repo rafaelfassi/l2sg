@@ -10,7 +10,7 @@ bool test(const std::string &puzzle, const std::string &notes, const std::string
     grid.fillValues(puzzle);
     grid.fillNotes(notes);
 
-    Solver::reduceCandidatesBySwordfish(grid);
+    solver::techniques::swordfish(grid);
 
     Grid gridExpectedNotes;
     gridExpectedNotes.fillNotes(expectedNotes);

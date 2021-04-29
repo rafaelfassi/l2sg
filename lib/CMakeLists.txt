@@ -4,10 +4,19 @@ project(sudoku LANGUAGES CXX)
 SET(CMAKE_CXX_FLAGS "-std=c++17")
 
 add_library(sudoku_lib STATIC
-# Source and private headers
+# Source
     src/sudoku/Grid.cpp
     src/sudoku/Solver.cpp
     src/sudoku/CombinationsGen.cpp
+    src/sudoku/techniques/NakedSingles.cpp
+    src/sudoku/techniques/HiddenAndNakedSingles.cpp
+    src/sudoku/techniques/LockedCandidates.cpp
+    src/sudoku/techniques/XWings.cpp
+    src/sudoku/techniques/Swordfish.cpp
+    src/sudoku/techniques/HiddenMulti.cpp
+    src/sudoku/techniques/NakedMulti.cpp
+
+# Private headers
     src/sudoku/CombinationsGen.h
 
 # Public headers
@@ -17,6 +26,9 @@ add_library(sudoku_lib STATIC
 )
 
 target_include_directories(sudoku_lib
-    PRIVATE include/sudoku
-    PUBLIC include
+    PRIVATE
+        src/sudoku
+        include/sudoku
+    PUBLIC
+        include
 )

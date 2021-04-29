@@ -11,7 +11,7 @@ bool test(int maxHidden, const std::string &puzzle, const std::string &notes,
     grid.fillValues(puzzle);
     grid.fillNotes(notes);
 
-    Solver::reduceCandidatesByHiddenMulti(grid, maxHidden);
+    solver::techniques::hiddenMulti(grid, maxHidden);
 
     Grid gridExpectedNotes;
     gridExpectedNotes.fillNotes(expectedNotes);

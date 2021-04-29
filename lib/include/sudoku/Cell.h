@@ -1,5 +1,5 @@
-#ifndef CELL_H
-#define CELL_H
+#ifndef SUDOKU_CELL_H
+#define SUDOKU_CELL_H
 
 #include <bitset>
 #include <vector>
@@ -62,4 +62,4 @@ private:
 
 } // namespace sudoku
 
-#endif // CELL_H
+#endif // SUDOKU_CELL_H
