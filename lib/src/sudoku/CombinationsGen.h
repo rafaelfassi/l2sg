@@ -3,6 +3,8 @@
 
 #include <vector>
 
+namespace sudoku
+{
 class CombinationsGen
 {
 public:
@@ -17,5 +19,7 @@ private:
     int m_r;
     bool m_hasNext;
 };
+
+} // namespace sudoku
 
 #endif // SUDOKU_COMBINATION_GEN_H

@@ -17,6 +17,7 @@ add_library(sudoku_lib STATIC
     src/sudoku/techniques/NakedMulti.cpp
 
 # Private headers
+    src/sudoku/Utils.h
     src/sudoku/CombinationsGen.h
 
 # Public headers

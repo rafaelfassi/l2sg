@@ -1,6 +1,9 @@
 #include "CombinationsGen.h"
 #include <algorithm>
 
+namespace sudoku
+{
+
 CombinationsGen::CombinationsGen(int n, int r) : m_hasNext(true)
 {
     if (n && r)
@@ -37,3 +40,5 @@ bool CombinationsGen::getNextCombination(std::vector<int> &combination)
 
     return true;
 }
+
+} // namespace sudoku
