@@ -116,7 +116,7 @@ void Grid::fillNotes(const std::string &notes)
         {
             setNote(l, c, (ch - '0'), true);
         }
-        else if(ch == '|')
+        else if (ch == '|')
         {
             if (++c == 9)
             {
@@ -187,22 +187,6 @@ bool Grid::isAllowedValue(int _nLin, int _nCol, int _nVal)
     return true;
 }
 
-bool Grid::hasEmptyNoteForNotSetValue()
-{
-    for (int i = 0; i < 9; ++i)
-    {
-        for (int j = 0; j < 9; ++j)
-        {
-            if ((m_cells[i][j].getValue() == 0) && !m_cells[i][j].hasAnyNote())
-            {
-                return true;
-            }
-        }
-    }
-
-    return false;
-}
-
 bool Grid::isFull()
 {
     for (int i = 0; i < 9; ++i)
@@ -239,17 +223,13 @@ void Grid::clearNotes()
 
 bool Grid::clearNotesCascade(int _nLin, int _nCol, int _nValue)
 {
-    {
-        Cell &cell = getCell(_nLin, _nCol);
-        cell.clearNotes();
-    }
+    clearNotes(_nLin, _nCol);
 
     for (int l = 0; l < 9; ++l)
     {
         if (l == _nLin)
             continue;
-        Cell &cell = getCell(l, _nCol);
-        if (cell.hasNote(_nValue))
+        if (Cell &cell = getCell(l, _nCol); cell.hasNote(_nValue))
         {
             cell.setNote(_nValue, false);
             if (!cell.hasAnyNote())
@@ -263,8 +243,7 @@ bool Grid::clearNotesCascade(int _nLin, int _nCol, int _nValue)
     {
         if (c == _nCol)
             continue;
-        Cell &cell = getCell(_nLin, c);
-        if (cell.hasNote(_nValue))
+        if (Cell &cell = getCell(_nLin, c); cell.hasNote(_nValue))
         {
             cell.setNote(_nValue, false);
             if (!cell.hasAnyNote())
@@ -278,10 +257,10 @@ bool Grid::clearNotesCascade(int _nLin, int _nCol, int _nValue)
     for (int e = 0; e < 9; ++e)
     {
         const auto &rowCol = g_blockElem2RowCol[b][e];
-        if ((rowCol.first == _nLin) && (rowCol.second == _nCol))
+        // The previous loops have cleaned all the candidates from the row and column already.
+        if ((rowCol.first == _nLin) || (rowCol.second == _nCol))
             continue;
-        Cell &cell = getCell(rowCol.first, rowCol.second);
-        if (cell.hasNote(_nValue))
+        if (Cell &cell = getCell(rowCol.first, rowCol.second); cell.hasNote(_nValue))
         {
             cell.setNote(_nValue, false);
             if (!cell.hasAnyNote())

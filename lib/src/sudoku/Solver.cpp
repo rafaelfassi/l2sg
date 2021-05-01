@@ -81,16 +81,16 @@ Level solver::solveLevel(Grid &pGrid, Level maxLevel)
 
 int solver::solveByGuesses(Grid &pGrid, int maxSolutions)
 {
-    using GuessesRank = std::multimap<int, std::pair<int, int>>;
+    using CellsRank = std::multimap<int, std::pair<int, int>>;
     std::vector<Grid> solutions;
-    GuessesRank guessesRank;
+    CellsRank guessesCellsRank;
     Grid grid = pGrid;
 
-    const std::function<void(GuessesRank::const_iterator)> resolve = [&](GuessesRank::const_iterator it) {
+    const std::function<void(CellsRank::const_iterator)> evalCell = [&](CellsRank::const_iterator it) {
         if (solutions.size() >= maxSolutions)
             return;
 
-        if (it != guessesRank.end())
+        if (it != guessesCellsRank.end())
         {
             const int lin = it->second.first;
             const int col = it->second.second;
@@ -98,36 +98,25 @@ int solver::solveByGuesses(Grid &pGrid, int maxSolutions)
             ++it;
             if (cell.getValue() > 0)
             {
-                resolve(it);
+                evalCell(it);
             }
             else
             {
-                std::vector<int> candidates;
-                cell.getNotesLst(candidates);
-                for (const int condidate : candidates)
+                int candidate(0);
+                while ((candidate = cell.getNextNote(candidate)))
                 {
                     Grid savedPoint = grid;
-                    grid.setValue(lin, col, condidate);
-                    if (grid.clearNotesCascade(lin, col, condidate))
+                    grid.setValue(lin, col, candidate);
+                    if (grid.clearNotesCascade(lin, col, candidate))
                     {
                         bool noConflicts(true);
                         techniques::nakedSingles(grid, &noConflicts);
                         if (noConflicts)
                         {
-                            // This function can also detect the solitary candidates, but calling
-                            // nakedSingles first improves a little bit the performance,
-                            // as the function is more light weight and may detect a conflict first.
-                            techniques::hiddenAndNakedSingles(grid, &noConflicts);
-                            if (noConflicts)
-                            {
-                                if (!grid.hasEmptyNoteForNotSetValue())
-                                {
-                                    resolve(it);
-                                    // This may avoid an extra iteration of the for loop.
-                                    if (solutions.size() >= maxSolutions)
-                                        break;
-                                }
-                            }
+                            evalCell(it);
+                            // This may avoid an extra iteration of the loop.
+                            if (solutions.size() >= maxSolutions)
+                                break;
                         }
                     }
 
@@ -152,12 +141,12 @@ int solver::solveByGuesses(Grid &pGrid, int maxSolutions)
             if (cell.hasAnyNote())
             {
                 // Order by the ones with less candidates
-                guessesRank.insert(std::make_pair(cell.notesCount(), std::make_pair(l, c)));
+                guessesCellsRank.insert(std::make_pair(cell.notesCount(), std::make_pair(l, c)));
             }
         }
     }
 
-    resolve(guessesRank.begin());
+    evalCell(guessesCellsRank.begin());
 
     if (!solutions.empty())
     {

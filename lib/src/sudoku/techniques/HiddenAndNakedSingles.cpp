@@ -12,22 +12,19 @@ void hiddenAndNakedSingles(Grid &pGrid, bool *check)
     int rows[9][9];                 // col = rows[row,cand-1] - Cells with the unique candidate for a row
     int cols[9][9];                 // row = cols[col,cand-1] - Cells with the unique candidate for a row
     std::pair<int, int> blks[9][9]; // {row,col} = blks[blk,cand-1] - Cells with unique candidate for a block
-    std::vector<int> notes;
     constexpr int sz = sizeof(rows) / sizeof(int);
 
     // Fills the arrays sols, rows, cols, blks for the provided position at once.
     const std::function<bool(int, int, int)> fillDataFunc = [&](int l, int c, int b) -> bool {
         Cell &cell = pGrid.getCell(l, c);
 
-        notes.clear();
-        cell.getNotesLst(notes);
-
-        if (notes.size() == 1)
+        if (cell.notesCount() == 1)
         {
-            sols[l][notes.front() - 1] = c;
+            sols[l][cell.getNextNote(0) - 1] = c;
         }
 
-        for (const auto note : notes)
+        int note(0);
+        while ((note = cell.getNextNote(note)))
         {
             const int noteIdx = note - 1;
             {

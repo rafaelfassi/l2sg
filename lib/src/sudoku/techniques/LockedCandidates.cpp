@@ -66,18 +66,18 @@ void lockedCandidates(Grid &pGrid)
                 }
             }
 
-            // Keep in the found set only the block where the value was found in one line only
+            // Keep in the foundSet only the block where the value was found in one line only
             // Example:
-            // 0 1 1 Merged set for the other rows
-            // 1 0 1 The set of the found row
+            // 0 1 1 Merged set of the other rows
+            // 1 0 1 The set of the found row (if a row was found, it contains two or three blocks)
             // ----- AND operation
             // 0 0 1
             // 1 0 1 The set of the found row
             // ----- XOR operation
             // 1 0 0
             foundSetType1 = (foundSetType1 & othersSetType1) ^ foundSetType1;
-            // Now the count of the found set must be 1
-            if (iFoundType1.has_value() && foundSetType1.count() == 1)
+            // Now, if foundSet is valid, its count must be 1 (the block with the candidate only in one line)
+            if (iFoundType1.has_value() && (foundSetType1.count() == 1))
             {
                 // Gets the starting column of the block
                 const int j = utils::getFirst(foundSetType1) * 3;
@@ -93,10 +93,18 @@ void lockedCandidates(Grid &pGrid)
                 }
             }
             // If Type 1 (Pointing) was not found, let's try Type 2 (Claiming)
-            // As the foundSet has only one block, let's use it as a mask to check
+            // As the foundSet has only one block, it is used as a mask to check
             // whether there are candidates to be removed.
+            // Example:
+            // 1 0 1 Merged set of the other rows
+            // 1 0 0 The set of the found row (if a row was found, it contains only one block)
+            // ----- AND operation
+            // 1 0 0
+            // If the are no candidates to remove, the result is (0 0 0), otherwise it contains only
+            // one block for sure. Using any() is more efficient than (count()==1).
             else if (iFoundType2.has_value() && (foundSetType2 & othersSetType2).any())
             {
+                // Gets the starting column of the block
                 const int j = utils::getFirst(foundSetType2) * 3;
                 if (type == Grid::T_LINE)
                 {

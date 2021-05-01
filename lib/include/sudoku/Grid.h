@@ -41,6 +41,7 @@ public:
     bool fillValuesArrayFormString(const std::string &values, int *array);
     inline int getValue(int _nLin, int _nCol) const { return m_cells[_nLin][_nCol].getValue(); }
     inline void setValue(int _nLin, int _nCol, int _nVal) { m_cells[_nLin][_nCol].setValue(_nVal); }
+    inline void clearNotes(int _nLin, int _nCol) { return m_cells[_nLin][_nCol].clearNotes(); }
     inline Cell::Notes getNotes(int _nLin, int _nCol) const { return m_cells[_nLin][_nCol].getNotes(); }
     inline bool hasNote(int _nLin, int _nCol, int _nVal) { return m_cells[_nLin][_nCol].hasNote(_nVal); }
     inline void setNote(int _nLin, int _nCol, int _nVal, bool _bActive)
@@ -48,7 +49,6 @@ public:
         m_cells[_nLin][_nCol].setNote(_nVal, _bActive);
     }
     bool isAllowedValue(int _nLin, int _nCol, int _nVal);
-    bool hasEmptyNoteForNotSetValue();
     bool isFull();
     void fillNotes();
     void clearNotes();

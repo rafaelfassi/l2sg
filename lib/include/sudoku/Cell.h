@@ -22,37 +22,23 @@ public:
     inline size_t notesCount() const { return m_nNotes.count(); };
     inline bool hasAnyNote() const { return m_nNotes.any(); }
     inline void clearNotes() { m_nNotes.reset(); }
-    inline void getNotesLst(std::vector<int> &list) const { getNotesLst(m_nNotes, list); }
-    static inline void getNotesLst(const Notes &_nNotes, std::vector<int> &list)
+    inline int getNextNote(int note) const
+    {
+        for (int i = note; i < m_nNotes.size(); ++i)
+        {
+            if (m_nNotes.test(i))
+                return i + 1;
+        }
+        return 0;
+    }
+    inline void getNotesList(std::vector<int> &list)
     {
         list.reserve(9);
-
-        if (_nNotes.test(0))
-            list.push_back(1);
-
-        if (_nNotes.test(1))
-            list.push_back(2);
-
-        if (_nNotes.test(2))
-            list.push_back(3);
-
-        if (_nNotes.test(3))
-            list.push_back(4);
-
-        if (_nNotes.test(4))
-            list.push_back(5);
-
-        if (_nNotes.test(5))
-            list.push_back(6);
-
-        if (_nNotes.test(6))
-            list.push_back(7);
-
-        if (_nNotes.test(7))
-            list.push_back(8);
-
-        if (_nNotes.test(8))
-            list.push_back(9);
+        for (int i = 0; i < m_nNotes.size(); ++i)
+        {
+            if (m_nNotes.test(i))
+                list.push_back(i+1);
+        }
     }
 
 private:

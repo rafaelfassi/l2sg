@@ -1,4 +1,5 @@
 #include "Grid.h"
+#include "Utils.h"
 
 namespace sudoku::solver::techniques
 {
@@ -16,25 +17,14 @@ void nakedSingles(Grid &pGrid, bool *check)
             {
                 if (auto &cell = pGrid.getCell(i, j); cell.notesCount() == 1)
                 {
-                    std::vector<int> notes;
-                    cell.getNotesLst(notes);
-                    if (check)
-                    {
-                        if (!pGrid.isAllowedValue(i, j, notes.front()))
-                        {
-                            *check = false;
-                            return;
-                        }
-                    }
-                    cell.setValue(notes.front());
-                    if (!pGrid.clearNotesCascade(i, j, notes.front()) && check)
+                    const auto note = cell.getNextNote(0);
+                    cell.setValue(note);
+                    if (!pGrid.clearNotesCascade(i, j, note) && check)
                     {
                         *check = false;
                         return;
                     }
                     changed = true;
-                    // std::cout << "Solitary >> Lin: " << i+1 << " - Col: " << j+1 << " - Num: " << x <<
-                    // std::endl; pGrid.dump();
                 }
             }
         }

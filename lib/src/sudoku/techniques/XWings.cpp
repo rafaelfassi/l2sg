@@ -7,22 +7,17 @@ void xWings(Grid &pGrid)
 {
     std::bitset<9> rows[9][9];
     std::bitset<9> cols[9][9];
-    std::vector<int> notes;
     constexpr int sz = sizeof(rows) / sizeof(int);
 
     const std::function<bool(int, int, int)> fillDataFunc = [&](int l, int c, int b) -> bool {
         Cell &cell = pGrid.getCell(l, c);
-
-        notes.clear();
-        cell.getNotesLst(notes);
-
-        for (const auto note : notes)
+        int note(0);
+        while ((note = cell.getNextNote(note)))
         {
             const int noteIdx = note - 1;
             rows[l][noteIdx].set(c, true);
             cols[c][noteIdx].set(l, true);
         }
-
         return true;
     };
 
