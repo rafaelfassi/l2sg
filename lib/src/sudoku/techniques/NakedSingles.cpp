@@ -4,6 +4,7 @@
 namespace sudoku::solver::techniques
 {
 
+// Encompasses Full House/Last Digit
 void nakedSingles(Grid &pGrid, bool *check)
 {
     bool changed;

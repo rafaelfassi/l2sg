@@ -38,6 +38,7 @@ public:
     void fillValues(int *_pValues);
     void fillValues(const std::string &values);
     void fillNotes(const std::string &notes);
+    void fillFromSolutionGrid(const std::string &solutionGrid);
     bool fillValuesArrayFormString(const std::string &values, int *array);
     inline int getValue(int _nLin, int _nCol) const { return m_cells[_nLin][_nCol].getValue(); }
     inline void setValue(int _nLin, int _nCol, int _nVal) { m_cells[_nLin][_nCol].setValue(_nVal); }
@@ -52,6 +53,7 @@ public:
     bool isFull();
     void fillNotes();
     void clearNotes();
+    int countNotes(int _nVal, int _i, int _type);
     bool clearNotesCascade(int _nLin, int _nCol, int _nValue);
     void clearRowNotes(int _row, int _val, const std::function<bool(int)> &_clear);
     void clearColNotes(int _col, int _val, const std::function<bool(int)> &_clear);

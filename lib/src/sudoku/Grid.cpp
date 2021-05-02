@@ -42,6 +42,16 @@ std::pair<int, int> g_blockElem2RowCol[9][9] = {
 namespace sudoku
 {
 
+bool isValidDigit(char ch)
+{
+    return (std::isdigit(ch) && (ch > '0'));
+}
+
+int char2Int(char ch)
+{
+    return ch - '0';
+}
+
 Cell &Grid::getTranslatedCell(int _i, int _j, int type)
 {
     int l, c;
@@ -112,9 +122,9 @@ void Grid::fillNotes(const std::string &notes)
         if (std::isspace(ch))
             continue;
 
-        if (std::isdigit(ch) && (ch > '0'))
+        if (isValidDigit(ch))
         {
-            setNote(l, c, (ch - '0'), true);
+            setNote(l, c, char2Int(ch), true);
         }
         else if (ch == '|')
         {
@@ -123,6 +133,63 @@ void Grid::fillNotes(const std::string &notes)
                 c = 0;
                 if (++l == 9)
                     break;
+            }
+        }
+    }
+}
+
+void Grid::fillFromSolutionGrid(const std::string &solutionGrid)
+{
+    int l(0);
+    int c(0);
+    size_t i(0);
+    while (i < solutionGrid.size())
+    {
+        if (c == 9)
+        {
+            c = 0;
+            if (++l == 9)
+                break;
+        }
+
+        if (!isValidDigit(solutionGrid[i]))
+        {
+            ++i;
+            continue;
+        }
+
+        int notesCount(0);
+        while (i < solutionGrid.size())
+        {
+            const auto noteChar = solutionGrid[i];
+            if (!isValidDigit(noteChar) || (++notesCount > 8))
+                break;
+            setNote(l, c, char2Int(noteChar), true);
+            ++i;
+        }
+
+        if (++c == 9)
+        {
+            c = 0;
+            if (++l == 9)
+                break;
+        }
+    }
+
+    for (int i = 0; i < 9; ++i)
+    {
+        for (int j = 0; j < 9; ++j)
+        {
+            if (auto &cell = getCell(i, j); cell.notesCount() == 1)
+            {
+                int note = cell.getNextNote(0);
+                int b = getBlockNumber(i, j);
+                if ((countNotes(note, i, T_LINE) == 1) && (countNotes(note, j, T_COLUMN) == 1) &&
+                    (countNotes(note, b, T_BLOCK) == 1))
+                {
+                    cell.setValue(note);
+                    clearNotesCascade(i, j, note);
+                }
             }
         }
     }
@@ -141,8 +208,8 @@ bool Grid::fillValuesArrayFormString(const std::string &values, int *array)
         if (x == 9 * 9)
             return false;
 
-        if (std::isdigit(ch) && ch > '0')
-            array[x++] = (ch - '0'); // '0' == 48
+        if (isValidDigit(ch))
+            array[x++] = char2Int(ch);
         else
             array[x++] = 0;
     }
@@ -219,6 +286,36 @@ void Grid::clearNotes()
     for (int i = 0; i < 9; ++i)
         for (int j = 0; j < 9; ++j)
             getCell(i, j).clearNotes();
+}
+
+int Grid::countNotes(int _nVal, int _i, int _type)
+{
+    int count(0);
+
+    if (_type == T_LINE)
+    {
+        for (int c = 0; c < 9; ++c)
+        {
+            count += hasNote(_i, c, _nVal);
+        }
+    }
+    else if (_type == T_COLUMN)
+    {
+        for (int l = 0; l < 9; ++l)
+        {
+            count += hasNote(l, _i, _nVal);
+        }
+    }
+    else if (_type == T_BLOCK)
+    {
+        for (int e = 0; e < 9; ++e)
+        {
+            const auto &rowCol = g_blockElem2RowCol[_i][e];
+            count += hasNote(rowCol.first, rowCol.second, _nVal);
+        }
+    }
+
+    return count;
 }
 
 bool Grid::clearNotesCascade(int _nLin, int _nCol, int _nValue)
