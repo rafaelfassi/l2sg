@@ -8,7 +8,7 @@ bool test(const std::string &puzzle, const std::string &notes, const std::string
 
     solver::techniques::swordfish(grid);
 
-    return checkNotes(grid, puzzle, notes, expectedNotes);
+    return checkNotes(puzzle, grid, notes, expectedNotes);
 }
 
 int main(int, char **)

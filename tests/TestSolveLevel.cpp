@@ -15,7 +15,7 @@ bool test(int expectedLevel, const std::string &puzzle, const std::string &expec
         return false;
     }
 
-    bool ok = checkValues(grid, puzzle, expectedResult);
+    bool ok = checkValues(puzzle, grid, expectedResult);
 
     if (ok && (resultLevel != expectedLevel))
     {

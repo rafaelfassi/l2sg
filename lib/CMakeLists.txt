@@ -9,7 +9,7 @@ add_library(sudoku_lib STATIC
     src/sudoku/Solver.cpp
     src/sudoku/CombinationsGen.cpp
     src/sudoku/techniques/NakedSingles.cpp
-    src/sudoku/techniques/HiddenAndNakedSingles.cpp
+    src/sudoku/techniques/HiddenSingles.cpp
     src/sudoku/techniques/LockedCandidates.cpp
     src/sudoku/techniques/XWings.cpp
     src/sudoku/techniques/Swordfish.cpp

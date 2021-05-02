@@ -26,71 +26,102 @@ void printMsg(const std::string &puzzle, const std::string &msg)
     std::cout << std::endl;
 }
 
-bool checkNotes(Grid &grid, const std::string &puzzle, const std::string &initialNotes,
-                const std::string &expectedNotes)
+bool checkGrid(const std::string &puzzle, Grid &gridIni, Grid &gridSolved, Grid &gridExpected, bool values,
+               bool notes)
 {
-    Grid gridExpectedNotes;
-    gridExpectedNotes.fillNotes(expectedNotes);
-    if (!grid.compareNotes(gridExpectedNotes))
+
+    bool ok(true);
+
+    if (values)
     {
-        std::cout << std::string(9 * 9, '*') << std::endl;
+        if (!gridSolved.compareValues(gridExpected))
+        {
+            std::cout << std::string(9 * 9, '*') << std::endl;
 
-        std::cout << puzzle << std::endl;
-        std::cout << "The notes don't match the expected ones." << std::endl;
-        std::cout << std::endl;
+            std::cout << puzzle << std::endl;
+            std::cout << "The values don't match the expected ones." << std::endl;
+            std::cout << std::endl;
 
-        std::cout << "Initial ";
-        Grid gridIniNotes;
-        gridIniNotes.fillNotes(initialNotes);
-        gridIniNotes.dump(Grid::D_NOTES);
-        std::cout << std::endl;
+            std::cout << "Initial ";
+            gridIni.dump(Grid::D_VALUES);
+            std::cout << std::endl;
 
-        std::cout << "Expected ";
-        gridExpectedNotes.dump(Grid::D_NOTES);
-        std::cout << std::endl;
+            std::cout << "Expected ";
+            gridExpected.dump(Grid::D_VALUES);
+            std::cout << std::endl;
 
-        std::cout << "Actual ";
-        grid.dump(Grid::D_NOTES);
-        std::cout << std::endl;
+            std::cout << "Actual ";
+            gridSolved.dump(Grid::D_VALUES);
+            std::cout << std::endl;
 
-        std::cout << std::string(9 * 9, '*') << std::endl;
-        return false;
+            std::cout << std::string(9 * 9, '*') << std::endl;
+            ok &= false;
+        }
     }
 
-    return true;
+    if (notes)
+    {
+        if (!gridSolved.compareNotes(gridExpected))
+        {
+            std::cout << std::string(9 * 9, '*') << std::endl;
+
+            std::cout << puzzle << std::endl;
+            std::cout << "The notes don't match the expected ones." << std::endl;
+            std::cout << std::endl;
+
+            std::cout << "Initial ";
+            gridIni.dump(Grid::D_NOTES);
+            std::cout << std::endl;
+
+            std::cout << "Expected ";
+            gridExpected.dump(Grid::D_NOTES);
+            std::cout << std::endl;
+
+            std::cout << "Actual ";
+            gridSolved.dump(Grid::D_NOTES);
+            std::cout << std::endl;
+
+            std::cout << std::string(9 * 9, '*') << std::endl;
+            ok &= false;
+        }
+    }
+
+    return ok;
 }
 
-bool checkValues(Grid &grid, const std::string &puzzle, const std::string &expectedValues)
+bool checkValues(const std::string &puzzle, Grid &grid, const std::string &expectedValues)
 {
-    Grid gridExpectedValues;
-    gridExpectedValues.fillValues(expectedValues);
-    if (!grid.compareValues(gridExpectedValues))
-    {
-        std::cout << std::string(9 * 9, '*') << std::endl;
+    Grid gridIni;
+    gridIni.fillValues(puzzle);
 
-        std::cout << puzzle << std::endl;
-        std::cout << "The values don't match the expected ones." << std::endl;
-        std::cout << std::endl;
+    Grid gridExpected;
+    gridExpected.fillValues(expectedValues);
 
-        std::cout << "Initial ";
-        Grid gridIniValues;
-        gridIniValues.fillValues(puzzle);
-        gridIniValues.dump(Grid::D_VALUES);
-        std::cout << std::endl;
+    return checkGrid(puzzle, gridIni, grid, gridExpected, true, false);
+}
 
-        std::cout << "Expected ";
-        gridExpectedValues.dump(Grid::D_VALUES);
-        std::cout << std::endl;
+bool checkNotes(const std::string &puzzle, Grid &grid, const std::string &initialNotes,
+                const std::string &expectedNotes)
+{
+    Grid gridIni;
+    gridIni.fillNotes(initialNotes);
 
-        std::cout << "Actual ";
-        grid.dump(Grid::D_VALUES);
-        std::cout << std::endl;
+    Grid gridExpected;
+    gridExpected.fillNotes(expectedNotes);
 
-        std::cout << std::string(9 * 9, '*') << std::endl;
-        return false;
-    }
+    return checkGrid(puzzle, gridIni, grid, gridExpected, false, true);
+}
 
-    return true;
+bool checkAll(const std::string &puzzle, Grid &grid, const std::string &iniBoard,
+              const std::string &expectedBoard)
+{
+    Grid gridIni;
+    gridIni.fillFromSolutionGrid(iniBoard);
+
+    Grid gridExpected;
+    gridExpected.fillFromSolutionGrid(expectedBoard);
+
+    return checkGrid(puzzle, gridIni, grid, gridExpected, true, true);
 }
 
 #endif // SUDOKU_TEST_H

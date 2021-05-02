@@ -22,12 +22,12 @@ namespace techniques
 {
 
 void nakedSingles(Grid &pGrid, bool *check = nullptr);
-void hiddenAndNakedSingles(Grid &pGrid, bool *check = nullptr);
-void lockedCandidates(Grid &pGrid);
-void xWings(Grid &pGrid);
-void swordfish(Grid &pGrid);
-void hiddenMulti(Grid &pGrid, int maxHidden = 7);
-void nakedMulti(Grid &pGrid, int maxNaked = 7);
+bool hiddenSingles(Grid &pGrid);
+bool lockedCandidates(Grid &pGrid);
+bool xWings(Grid &pGrid);
+bool swordfish(Grid &pGrid);
+bool hiddenMulti(Grid &pGrid, int maxHidden = 7);
+bool nakedMulti(Grid &pGrid, int maxNaked = 7);
 
 } // namespace techniques
 

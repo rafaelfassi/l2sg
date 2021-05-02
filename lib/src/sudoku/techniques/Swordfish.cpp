@@ -4,7 +4,7 @@
 namespace sudoku::solver::techniques
 {
 
-void swordfish(Grid &pGrid)
+bool swordfish(Grid &pGrid)
 {
     std::bitset<9> rows[9][9];
     std::bitset<9> cols[9][9];
@@ -13,7 +13,7 @@ void swordfish(Grid &pGrid)
     std::vector<int> combLst;
     CombinationsGen combination;
 
-    const std::function<bool(int, int, int)> fillDataFunc = [&](int l, int c, int b) -> bool {
+    const auto fillDataFunc = [&](int l, int c, int b, int e) -> bool {
         Cell &cell = pGrid.getCell(l, c);
         int note(0);
         while ((note = cell.getNextNote(note)))
@@ -26,7 +26,7 @@ void swordfish(Grid &pGrid)
     };
 
     const auto processSets = [&combination, &combLst, &pGrid](int type, int v, auto &iSet,
-                                                              auto &iCandidatesSet) {
+                                                              auto &iCandidatesSet) -> bool {
         const int vIdx = v - 1;
 
         // If there are three or more rows that are valid candidates (has the same value only 2 or 3 times)
@@ -78,13 +78,14 @@ void swordfish(Grid &pGrid)
                 // Has 3 fully connected rows?
                 if (connectedCount == 3)
                 {
+                    bool changedCount(0);
                     for (int j = 0; j < 9; ++j)
                     {
                         if (jValueCount[j] == 2 || jValueCount[j] == 3)
                         {
                             if (type == Grid::T_LINE)
                             {
-                                pGrid.clearColNotes(j, v, [vIdx, &combLst, &iCandidatesSet](int r) {
+                                changedCount += pGrid.clearColNotes(j, v, [vIdx, &combLst, &iCandidatesSet](int r) {
                                     for (auto comb : combLst)
                                         if (r == iCandidatesSet[vIdx][comb])
                                             return false;
@@ -93,7 +94,7 @@ void swordfish(Grid &pGrid)
                             }
                             else if (type == Grid::T_COLUMN)
                             {
-                                pGrid.clearRowNotes(j, v, [vIdx, &combLst, &iCandidatesSet](int c) {
+                                changedCount += pGrid.clearRowNotes(j, v, [vIdx, &combLst, &iCandidatesSet](int c) {
                                     for (auto comb : combLst)
                                         if (c == iCandidatesSet[vIdx][comb])
                                             return false;
@@ -102,10 +103,14 @@ void swordfish(Grid &pGrid)
                             }
                         }
                     }
-                    break;
+                    if (changedCount > 0)
+                        return true;
+                    else
+                        break;
                 }
             }
         }
+        return false;
     };
 
     pGrid.forAllCells(fillDataFunc);
@@ -127,11 +132,14 @@ void swordfish(Grid &pGrid)
         }
     }
 
+    bool changed(false);
     for (int v = 1; v < 10; ++v)
     {
-        processSets(Grid::T_LINE, v, rows, candidateRows);
-        processSets(Grid::T_COLUMN, v, cols, candidateCols);
+        changed |= processSets(Grid::T_LINE, v, rows, candidateRows);
+        changed |= processSets(Grid::T_COLUMN, v, cols, candidateCols);
     }
+
+    return changed;
 }
 
 } // namespace sudoku::solver::techniques

@@ -15,7 +15,7 @@ namespace sudoku::solver::techniques
 //    The P candidates (4,7,8,9) can be removed from all other cells that are not one of the N !(0,1,2,7).
 //    ......789  ...4..7.9  ...4...89    1...5....  1...5....  .........    .........  ...4..7.9  .........
 // Source puzzle: 1....8..64...3..81.8............26.32359.61....13......12..536.......7525.726381.
-void nakedMulti(Grid &pGrid, int maxNaked)
+bool nakedMulti(Grid &pGrid, int maxNaked)
 {
     CombinationsGen combination;
     std::vector<int> combLst;
@@ -57,9 +57,10 @@ void nakedMulti(Grid &pGrid, int maxNaked)
                     }
 
                     // The quantity of notes equals to the number of cols they were found?
-                    // Notice: If cellNotes is empty, the above loop has break, meaning the col has value.
+                    // Notice: If cellNotes is empty, the above loop has broke, meaning the col has value.
                     if (cellNotes.any() && (cells.count() == totalNotes.count()))
                     {
+                        bool changed(false);
                         // For each columns
                         for (int pos = 0; pos < cells.size(); ++pos)
                         {
@@ -73,14 +74,19 @@ void nakedMulti(Grid &pGrid, int maxNaked)
                                 {
                                     // Remove the notes
                                     cell.setNotes(notes & ~totalNotes);
+                                    changed = true;
                                 }
                             }
                         }
+                        if (changed)
+                            return true;
                     }
                 }
             }
         }
     }
+
+    return false;
 }
 
 } // namespace sudoku::solver::techniques

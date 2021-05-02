@@ -10,6 +10,8 @@ function(add_to_test _name _source)
 endfunction()
 
 add_to_test(test_levels TestSolveLevel.cpp)
+add_to_test(test_naked_singles TestNakedSingles.cpp)
+add_to_test(test_hidden_singles TestHiddenSingles.cpp)
 add_to_test(test_locked_candidates TestLockedCandidates.cpp)
 add_to_test(test_xwings TestXWings.cpp)
 add_to_test(test_hidden_multi TestHiddenMulti.cpp)

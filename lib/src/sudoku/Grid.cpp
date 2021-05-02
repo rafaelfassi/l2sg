@@ -162,7 +162,7 @@ void Grid::fillFromSolutionGrid(const std::string &solutionGrid)
         while (i < solutionGrid.size())
         {
             const auto noteChar = solutionGrid[i];
-            if (!isValidDigit(noteChar) || (++notesCount > 8))
+            if (!isValidDigit(noteChar) || (++notesCount > 9))
                 break;
             setNote(l, c, char2Int(noteChar), true);
             ++i;
@@ -370,32 +370,47 @@ bool Grid::clearNotesCascade(int _nLin, int _nCol, int _nValue)
     return true;
 }
 
-void Grid::clearRowNotes(int _row, int _val, const std::function<bool(int)> &_clear)
+int Grid::clearRowNotes(int _row, int _val, const std::function<bool(int)> &_clear)
 {
+    int count(0);
     for (int c = 0; c < 9; ++c)
     {
         if (hasNote(_row, c, _val) && _clear(c))
+        {
             setNote(_row, c, _val, false);
+            ++count;
+        }
     }
+    return count;
 }
 
-void Grid::clearColNotes(int _col, int _val, const std::function<bool(int)> &_clear)
+int Grid::clearColNotes(int _col, int _val, const std::function<bool(int)> &_clear)
 {
+    int count(0);
     for (int l = 0; l < 9; ++l)
     {
         if (hasNote(l, _col, _val) && _clear(l))
+        {
             setNote(l, _col, _val, false);
+            ++count;
+        }
     }
+    return count;
 }
 
-void Grid::clearBlockNotes(int _blk, int _val, const std::function<bool(int, int)> &_clear)
+int Grid::clearBlockNotes(int _blk, int _val, const std::function<bool(int, int)> &_clear)
 {
+    int count(0);
     for (int e = 0; e < 9; ++e)
     {
         const auto &rowCol = g_blockElem2RowCol[_blk][e];
         if (hasNote(rowCol.first, rowCol.second, _val) && _clear(rowCol.first, rowCol.second))
+        {
             setNote(rowCol.first, rowCol.second, _val, false);
+            ++count;
+        }
     }
+    return count;
 }
 
 std::string Grid::getNotesSignature()
@@ -413,13 +428,14 @@ std::string Grid::getNotesSignature()
     return result;
 }
 
-void Grid::forAllCells(const std::function<bool(int, int, int)> &_callback)
+void Grid::forAllCells(const std::function<bool(int, int, int, int)> &_callback)
 {
     for (int l = 0; l < 9; ++l)
     {
         for (int c = 0; c < 9; ++c)
         {
-            if (!_callback(l, c, g_rowCol2Block[l][c]))
+            const auto& blockElem = g_blockElem2RowCol[l][c];
+            if (!_callback(l, c, blockElem.first, blockElem.second))
             {
                 return;
             }

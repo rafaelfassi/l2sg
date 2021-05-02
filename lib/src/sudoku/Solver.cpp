@@ -13,68 +13,50 @@ Level solver::solveLevel(Grid &pGrid, Level maxLevel)
     std::string newNotesSignature;
     bool loop(true);
 
-    do
+    while (true)
     {
-        if (newNotesSignature.empty())
-            notesSignature = pGrid.getNotesSignature();
-        else
-            notesSignature = newNotesSignature;
-
-        if (level >= LEV_2_LOGIC)
-        {
-            techniques::hiddenMulti(pGrid);
-            techniques::hiddenAndNakedSingles(pGrid);
-
-            techniques::nakedMulti(pGrid);
-            techniques::hiddenAndNakedSingles(pGrid);
-
-            techniques::xWings(pGrid);
-            techniques::hiddenAndNakedSingles(pGrid);
-
-            techniques::swordfish(pGrid);
-            techniques::hiddenAndNakedSingles(pGrid);
-
-            techniques::lockedCandidates(pGrid);
-        }
-        else if (level >= LEV_1_LOGIC)
-        {
-            techniques::hiddenMulti(pGrid, 2);
-            techniques::hiddenAndNakedSingles(pGrid);
-
-            techniques::lockedCandidates(pGrid);
-            techniques::nakedMulti(pGrid, 2);
-        }
-
-        techniques::hiddenAndNakedSingles(pGrid);
+        techniques::nakedSingles(pGrid);
 
         if (pGrid.isFull())
             break;
 
-        newNotesSignature = pGrid.getNotesSignature();
+        if (techniques::hiddenSingles(pGrid))
+            continue;
 
-        if (newNotesSignature == notesSignature)
+        if (level < LEV_1_LOGIC)
+            level = LEV_1_LOGIC;
+
+        if (techniques::lockedCandidates(pGrid))
+            continue;
+
+        if (techniques::nakedMulti(pGrid, 2))
+            continue;
+
+        if (techniques::hiddenMulti(pGrid, 2))
+            continue;
+
+        if (level < LEV_2_LOGIC)
+            level = LEV_2_LOGIC;
+
+        if (techniques::nakedMulti(pGrid))
+            continue;
+
+        if (techniques::hiddenMulti(pGrid))
+            continue;
+
+        if (techniques::xWings(pGrid))
+            continue;
+
+        if (techniques::swordfish(pGrid))
+            continue;
+
+        level = LEV_3_GUESS;
+        if (solveByGuesses(pGrid) != 1)
         {
-            loop = (level < maxLevel);
-            if (loop)
-            {
-                ++level;
-            }
-
-            if (level == LEV_3_GUESS)
-            {
-                loop = false;
-                if (solveByGuesses(pGrid) != 1)
-                {
-                    level = LEV_UNKNOWN;
-                }
-            }
-            else if (!loop)
-            {
-                level = LEV_UNKNOWN;
-            }
+            level = LEV_UNKNOWN;
         }
-
-    } while (loop);
+        break;
+    }
 
     return static_cast<Level>(level);
 }

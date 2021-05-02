@@ -4,7 +4,7 @@
 namespace sudoku::solver::techniques
 {
 
-void hiddenMulti(Grid &pGrid, int maxHidden)
+bool hiddenMulti(Grid &pGrid, int maxHidden)
 {
     CombinationsGen combination;
     std::vector<int> combLst;
@@ -60,11 +60,14 @@ void hiddenMulti(Grid &pGrid, int maxHidden)
                                 cell.setNotes(cell.getNotes() & foundNotes);
                             }
                         }
+                        return true;
                     }
                 }
             }
         }
     }
+
+    return false;
 }
 
 } // namespace sudoku::solver::techniques

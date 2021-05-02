@@ -42,6 +42,7 @@ public:
     bool fillValuesArrayFormString(const std::string &values, int *array);
     inline int getValue(int _nLin, int _nCol) const { return m_cells[_nLin][_nCol].getValue(); }
     inline void setValue(int _nLin, int _nCol, int _nVal) { m_cells[_nLin][_nCol].setValue(_nVal); }
+    inline size_t notesCount(int _nLin, int _nCol) const { return m_cells[_nLin][_nCol].notesCount(); }
     inline void clearNotes(int _nLin, int _nCol) { return m_cells[_nLin][_nCol].clearNotes(); }
     inline Cell::Notes getNotes(int _nLin, int _nCol) const { return m_cells[_nLin][_nCol].getNotes(); }
     inline bool hasNote(int _nLin, int _nCol, int _nVal) { return m_cells[_nLin][_nCol].hasNote(_nVal); }
@@ -55,11 +56,11 @@ public:
     void clearNotes();
     int countNotes(int _nVal, int _i, int _type);
     bool clearNotesCascade(int _nLin, int _nCol, int _nValue);
-    void clearRowNotes(int _row, int _val, const std::function<bool(int)> &_clear);
-    void clearColNotes(int _col, int _val, const std::function<bool(int)> &_clear);
-    void clearBlockNotes(int _blk, int _val, const std::function<bool(int, int)> &_clear);
+    int clearRowNotes(int _row, int _val, const std::function<bool(int)> &_clear);
+    int clearColNotes(int _col, int _val, const std::function<bool(int)> &_clear);
+    int clearBlockNotes(int _blk, int _val, const std::function<bool(int, int)> &_clear);
     std::string getNotesSignature();
-    void forAllCells(const std::function<bool(int, int, int)> &_callback);
+    void forAllCells(const std::function<bool(int, int, int, int)> &_callback);
     bool compareValues(int *_pValues);
     bool compareValues(const Grid &_grid);
     bool compareNotes(const Grid &_grid);

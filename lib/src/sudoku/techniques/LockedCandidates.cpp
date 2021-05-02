@@ -5,14 +5,14 @@ namespace sudoku::solver::techniques
 {
 
 // Solves Locked Candidates Type 1 (Pointing) and Locked Candidates Type 2 (Claiming)
-void lockedCandidates(Grid &pGrid)
+bool lockedCandidates(Grid &pGrid)
 {
     // Indexes whether the block's parts of the rows/cols contains the candidates.
     std::bitset<3> blocksInRowSet[9][9]; // [Block0, Block1, Block2] = blocksInRowSet[cand-1, row]
     std::bitset<3> blocksInColSet[9][9]; // [Block0, Block1, Block2] = blocksInColSet[cand-1, col]
 
     // Fills the data set indexes.
-    const auto fillDataFunc = [&](int l, int c, int b) -> bool {
+    const auto fillDataFunc = [&](int l, int c, int b, int e) -> bool {
         for (int v = 1; v < 10; ++v)
         {
             if (pGrid.hasNote(l, c, v))
@@ -24,7 +24,7 @@ void lockedCandidates(Grid &pGrid)
         return true;
     };
 
-    const auto processDataFunc = [&pGrid](const int vIdx, const int type, const auto &dataSet) {
+    const auto processDataFunc = [&pGrid](const int vIdx, const int type, const auto &dataSet) -> bool {
         for (int i = 0; i < 9; i += 3)
         {
             // Findings for Type 1 (Pointing)
@@ -91,6 +91,7 @@ void lockedCandidates(Grid &pGrid)
                     pGrid.clearColNotes(*iFoundType1, vIdx + 1,
                                         [j](int r) { return (r < j) || (r > j + 2); });
                 }
+                return true;
             }
             // If Type 1 (Pointing) was not found, let's try Type 2 (Claiming)
             // As the foundSet has only one block, it is used as a mask to check
@@ -118,17 +119,22 @@ void lockedCandidates(Grid &pGrid)
                     pGrid.clearBlockNotes(blk, vIdx + 1,
                                           [&iFoundType2](int, int c) { return (c != iFoundType2); });
                 }
+                return true;
             }
         }
+        return false;
     };
 
     pGrid.forAllCells(fillDataFunc);
 
+    bool changed(false);
     for (int vIdx = 0; vIdx < 9; ++vIdx)
     {
-        processDataFunc(vIdx, Grid::T_LINE, blocksInRowSet);
-        processDataFunc(vIdx, Grid::T_COLUMN, blocksInColSet);
+        changed |= processDataFunc(vIdx, Grid::T_LINE, blocksInRowSet);
+        changed |= processDataFunc(vIdx, Grid::T_COLUMN, blocksInColSet);
     }
+
+    return changed;
 }
 
 } // namespace sudoku::solver::techniques
