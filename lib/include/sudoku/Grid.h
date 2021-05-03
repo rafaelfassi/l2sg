@@ -36,7 +36,7 @@ public:
     std::pair<int, int> getBlockStartCoordinates(int _b);
     int getBlockNumber(int _l, int _c) const;
     void fillValues(int *_pValues);
-    void fillValues(const std::string &values);
+    bool fillValues(const std::string &values);
     void fillNotes(const std::string &notes);
     void fillBoard(const std::string &board);
     bool fillValuesArrayFormString(const std::string &values, int *array);

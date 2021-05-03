@@ -6,3 +6,4 @@ qrc_*
 .directory
 build/*
 .vscode/*
+dev/*

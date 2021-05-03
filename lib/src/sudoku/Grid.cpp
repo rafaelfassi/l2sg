@@ -105,11 +105,15 @@ void Grid::fillValues(int *_pValues)
             setValue(i, j, _pValues[j + (i * 9)]);
 }
 
-void Grid::fillValues(const std::string &values)
+bool Grid::fillValues(const std::string &values)
 {
     int arr[9 * 9];
     if (fillValuesArrayFormString(values, arr))
+    {
         fillValues(arr);
+        return true;
+    }
+    return false;
 }
 
 void Grid::fillNotes(const std::string &notes)
@@ -206,7 +210,7 @@ bool Grid::fillValuesArrayFormString(const std::string &values, int *array)
             continue;
 
         if (x == 9 * 9)
-            return false;
+            break;
 
         if (isValidDigit(ch))
             array[x++] = char2Int(ch);
