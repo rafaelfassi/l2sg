@@ -3,7 +3,7 @@
 bool test(int maxMultiplicity, const std::string &puzzle, const std::string &board, const std::string &expectedBoard)
 {
     Grid grid;
-    grid.fillFromSolutionGrid(board);
+    grid.fillBoard(board);
 
     solver::techniques::nakedMulti(grid, 2, maxMultiplicity);
 

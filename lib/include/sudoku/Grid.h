@@ -38,7 +38,7 @@ public:
     void fillValues(int *_pValues);
     void fillValues(const std::string &values);
     void fillNotes(const std::string &notes);
-    void fillFromSolutionGrid(const std::string &solutionGrid);
+    void fillBoard(const std::string &board);
     bool fillValuesArrayFormString(const std::string &values, int *array);
     inline int getValue(int _nLin, int _nCol) const { return m_cells[_nLin][_nCol].getValue(); }
     inline void setValue(int _nLin, int _nCol, int _nVal) { m_cells[_nLin][_nCol].setValue(_nVal); }

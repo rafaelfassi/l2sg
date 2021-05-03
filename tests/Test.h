@@ -116,10 +116,10 @@ bool checkAll(const std::string &puzzle, Grid &grid, const std::string &iniBoard
               const std::string &expectedBoard)
 {
     Grid gridIni;
-    gridIni.fillFromSolutionGrid(iniBoard);
+    gridIni.fillBoard(iniBoard);
 
     Grid gridExpected;
-    gridExpected.fillFromSolutionGrid(expectedBoard);
+    gridExpected.fillBoard(expectedBoard);
 
     return checkGrid(puzzle, gridIni, grid, gridExpected, true, true);
 }

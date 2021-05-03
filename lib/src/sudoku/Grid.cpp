@@ -138,12 +138,12 @@ void Grid::fillNotes(const std::string &notes)
     }
 }
 
-void Grid::fillFromSolutionGrid(const std::string &solutionGrid)
+void Grid::fillBoard(const std::string &board)
 {
     int l(0);
     int c(0);
     size_t i(0);
-    while (i < solutionGrid.size())
+    while (i < board.size())
     {
         if (c == 9)
         {
@@ -152,16 +152,16 @@ void Grid::fillFromSolutionGrid(const std::string &solutionGrid)
                 break;
         }
 
-        if (!isValidDigit(solutionGrid[i]))
+        if (!isValidDigit(board[i]))
         {
             ++i;
             continue;
         }
 
         int notesCount(0);
-        while (i < solutionGrid.size())
+        while (i < board.size())
         {
-            const auto noteChar = solutionGrid[i];
+            const auto noteChar = board[i];
             if (!isValidDigit(noteChar) || (++notesCount > 9))
                 break;
             setNote(l, c, char2Int(noteChar), true);

@@ -3,7 +3,7 @@
 bool test(const std::string &puzzle, const std::string &board, const std::string &expectedBoard)
 {
     Grid grid;
-    grid.fillFromSolutionGrid(board);
+    grid.fillBoard(board);
 
     solver::techniques::hiddenSingles(grid);
 
