@@ -3,15 +3,21 @@
 #include <map>
 #include <string>
 
+#define SWITCH_LEVEL(p_newLevel, p_level, p_maxLevel)                                                        \
+    if (p_level == p_maxLevel)                                                                               \
+    {                                                                                                        \
+        p_level = LEV_UNKNOWN;                                                                               \
+        break;                                                                                               \
+    }                                                                                                        \
+    if (p_level < p_newLevel)                                                                                \
+        p_level = p_newLevel;
+
 namespace sudoku
 {
 
 Level solver::solveLevel(Grid &pGrid, Level maxLevel)
 {
     int level(LEV_0_LOGIC);
-    std::string notesSignature;
-    std::string newNotesSignature;
-    bool loop(true);
 
     while (true)
     {
@@ -23,8 +29,7 @@ Level solver::solveLevel(Grid &pGrid, Level maxLevel)
         if (techniques::hiddenSingles(pGrid))
             continue;
 
-        if (level < LEV_1_LOGIC)
-            level = LEV_1_LOGIC;
+        SWITCH_LEVEL(LEV_1_LOGIC, level, maxLevel)
 
         if (techniques::lockedCandidates(pGrid))
             continue;
@@ -35,8 +40,7 @@ Level solver::solveLevel(Grid &pGrid, Level maxLevel)
         if (techniques::nakedMulti(pGrid, 2, 2))
             continue;
 
-        if (level < LEV_2_LOGIC)
-            level = LEV_2_LOGIC;
+        SWITCH_LEVEL(LEV_2_LOGIC, level, maxLevel)
 
         if (techniques::hiddenMulti(pGrid, 3))
             continue;
@@ -50,11 +54,12 @@ Level solver::solveLevel(Grid &pGrid, Level maxLevel)
         if (techniques::swordfish(pGrid))
             continue;
 
-        level = LEV_3_GUESS;
-        if (solveByGuesses(pGrid) != 1)
-        {
-            level = LEV_UNKNOWN;
-        }
+        SWITCH_LEVEL(LEV_3_GUESS, level, maxLevel)
+
+        if (solveByGuesses(pGrid) == 1)
+            break;
+
+        level = LEV_UNKNOWN;
         break;
     }
 
