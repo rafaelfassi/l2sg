@@ -111,13 +111,13 @@ bool lockedCandidates(Grid &pGrid)
                 {
                     const int blk = pGrid.getBlockNumber(*iFoundType2, j);
                     pGrid.clearBlockNotes(blk, vIdx + 1,
-                                          [&iFoundType2](int r, int) { return (r != iFoundType2); });
+                                          [&iFoundType2](int, int r, int) { return (r != iFoundType2); });
                 }
                 else if (type == Grid::T_COLUMN)
                 {
                     const int blk = pGrid.getBlockNumber(j, *iFoundType2);
                     pGrid.clearBlockNotes(blk, vIdx + 1,
-                                          [&iFoundType2](int, int c) { return (c != iFoundType2); });
+                                          [&iFoundType2](int, int, int c) { return (c != iFoundType2); });
                 }
                 return true;
             }

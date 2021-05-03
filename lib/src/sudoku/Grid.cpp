@@ -398,13 +398,13 @@ int Grid::clearColNotes(int _col, int _val, const std::function<bool(int)> &_cle
     return count;
 }
 
-int Grid::clearBlockNotes(int _blk, int _val, const std::function<bool(int, int)> &_clear)
+int Grid::clearBlockNotes(int _blk, int _val, const std::function<bool(int, int, int)> &_clear)
 {
     int count(0);
     for (int e = 0; e < 9; ++e)
     {
         const auto &rowCol = g_blockElem2RowCol[_blk][e];
-        if (hasNote(rowCol.first, rowCol.second, _val) && _clear(rowCol.first, rowCol.second))
+        if (hasNote(rowCol.first, rowCol.second, _val) && _clear(e, rowCol.first, rowCol.second))
         {
             setNote(rowCol.first, rowCol.second, _val, false);
             ++count;

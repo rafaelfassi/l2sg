@@ -27,7 +27,7 @@ bool lockedCandidates(Grid &pGrid);
 bool xWings(Grid &pGrid);
 bool swordfish(Grid &pGrid);
 bool hiddenMulti(Grid &pGrid, int iniMultiplicity = 2, int maxMultiplicity = 7);
-bool nakedMulti(Grid &pGrid, int maxNaked = 7);
+bool nakedMulti(Grid &pGrid, int iniMultiplicity = 2, int maxMultiplicity = 7);
 
 } // namespace techniques
 

@@ -29,19 +29,19 @@ Level solver::solveLevel(Grid &pGrid, Level maxLevel)
         if (techniques::lockedCandidates(pGrid))
             continue;
 
-        if (techniques::nakedMulti(pGrid, 2))
+        if (techniques::hiddenMulti(pGrid, 2, 2))
             continue;
 
-        if (techniques::hiddenMulti(pGrid, 2, 2))
+        if (techniques::nakedMulti(pGrid, 2, 2))
             continue;
 
         if (level < LEV_2_LOGIC)
             level = LEV_2_LOGIC;
 
-        if (techniques::nakedMulti(pGrid))
+        if (techniques::hiddenMulti(pGrid, 3))
             continue;
 
-        if (techniques::hiddenMulti(pGrid, 3))
+        if (techniques::nakedMulti(pGrid, 3))
             continue;
 
         if (techniques::xWings(pGrid))

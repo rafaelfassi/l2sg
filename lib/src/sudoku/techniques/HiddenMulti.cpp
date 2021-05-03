@@ -51,17 +51,17 @@ bool hiddenMulti(Grid &pGrid, int iniMultiplicity, int maxMultiplicity)
 
     pGrid.forAllCells(fillDataFunc);
 
-    // For each size of combination's chain. (from 2 values to maxMultiplicity)
+    // For each size of combinations.
     for (int multiplicity = iniMultiplicity; (multiplicity <= maxMultiplicity); ++multiplicity)
     {
-        // multiplicity possible combinations for 9 values
+        // {multiplicity} possible combinations for 9 values
         combination.reset(9, multiplicity);
         combLst.clear();
 
         // For each possible combination of candidates according to the current multiplicity
         while (combination.getNextCombination(combLst))
         {
-            // For each row
+            // For each row (in fact, it's processing 1 row, 1 col and 1 block at once)
             for (int i = 0; i < 9; ++i)
             {
                 Cell::Notes totalNotes;
@@ -108,7 +108,7 @@ bool hiddenMulti(Grid &pGrid, int iniMultiplicity, int maxMultiplicity)
 
                 bool changed(false);
 
-                // The number of columns where the combinations were found equals the current multiplicity?
+                // The number of columns where the candidates were found equals the number of candidates?
                 if (goodRow && (mergedRowSet.count() == multiplicity))
                 {
                     changed |= processData(i, totalNotes, mergedRowSet, Grid::T_LINE);

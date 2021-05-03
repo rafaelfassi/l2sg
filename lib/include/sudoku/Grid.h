@@ -58,7 +58,7 @@ public:
     bool clearNotesCascade(int _nLin, int _nCol, int _nValue);
     int clearRowNotes(int _row, int _val, const std::function<bool(int)> &_clear);
     int clearColNotes(int _col, int _val, const std::function<bool(int)> &_clear);
-    int clearBlockNotes(int _blk, int _val, const std::function<bool(int, int)> &_clear);
+    int clearBlockNotes(int _blk, int _val, const std::function<bool(int, int, int)> &_clear);
     std::string getNotesSignature();
     void forAllCells(const std::function<bool(int, int, int, int)> &_callback);
     bool compareValues(int *_pValues);

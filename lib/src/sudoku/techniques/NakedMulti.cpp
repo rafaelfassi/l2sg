@@ -1,87 +1,137 @@
-#include "Grid.h"
 #include "CombinationsGen.h"
+#include "Grid.h"
+#include "Utils.h"
+#include <iostream>
 
 namespace sudoku::solver::techniques
 {
 
-// This function tries to find chains to reduce the number of candidates.
-// Being "P" the number of different candidates that can be found in "N" number of cells for a line, column,
-// or block, if (P == N) all "P" candidates can be removed from the cells that are not part of "N".
-// Example:
-//    ......789  ...4..7.9  ...4...89    1..45.78.  1..45.78.  .........    .........  ...4..7.9  .........
-//    The numbers 4, 7, 8, 9 are all possible candiadates for the cells 0, 1, 2, 7.
-//    P == size(4,7,8,9) == 4
-//    N == size(0,1,2,7) == 4
-//    The P candidates (4,7,8,9) can be removed from all other cells that are not one of the N !(0,1,2,7).
-//    ......789  ...4..7.9  ...4...89    1...5....  1...5....  .........    .........  ...4..7.9  .........
-// Source puzzle: 1....8..64...3..81.8............26.32359.61....13......12..536.......7525.726381.
-bool nakedMulti(Grid &pGrid, int maxNaked)
+bool nakedMulti(Grid &pGrid, int iniMultiplicity, int maxMultiplicity)
 {
     CombinationsGen combination;
     std::vector<int> combLst;
-    combLst.reserve(maxNaked);
 
-    // For each type
-    for (int type = Grid::T_LINE; type <= Grid::T_BLOCK; ++type)
-    {
-        // All the below comments assume (type == T_LINE), but the same logic is applicable
-        // for T_COLUMN and T_BLOCK
-        // For each row
-        for (int i = 0; i < 9; ++i)
+    // These buffers are used to improved a little bit the performance, by avoiding calling getTranslatedCell
+    // or translateCoordinates inside the loops.
+    std::bitset<9> rows[9][9];
+    std::bitset<9> cols[9][9];
+    std::bitset<9> blks[9][9];
+
+    const auto fillDataFunc = [&](int l, int c, int b, int e) -> bool {
+        for (int vIdx = 0; vIdx < 9; ++vIdx)
         {
-            // For each size of combination's chain. (from 2 columns to maxNaked)
-            for (int chainSize = 2; (chainSize <= maxNaked); ++chainSize)
+            if (pGrid.hasNote(l, c, vIdx + 1))
             {
-                // chainSize possible combinations for 9 cols
-                combination.reset(9, chainSize);
-                combLst.clear();
+                rows[l][c].set(vIdx, true);
+                cols[c][l].set(vIdx, true);
+                blks[b][e].set(vIdx, true);
+            }
+        }
+        return true;
+    };
 
-                // For each possible combination of columns according to the size of the current chain
-                while (combination.getNextCombination(combLst))
+    const auto processData = [&pGrid](int i, const auto &jSet, const auto &mergedSet, int type) -> bool {
+        bool changed(false);
+
+        int vIdx(-1);
+        while ((vIdx = utils::getNext(mergedSet, vIdx)) != -1)
+        {
+            if (type == Grid::T_LINE)
+            {
+                changed |= pGrid.clearRowNotes(i, vIdx + 1, [&jSet](int c) { return !jSet.test(c); });
+            }
+            else if (type == Grid::T_COLUMN)
+            {
+                changed |= pGrid.clearColNotes(i, vIdx + 1, [&jSet](int r) { return !jSet.test(r); });
+            }
+            else if (type == Grid::T_BLOCK)
+            {
+                changed |=
+                    pGrid.clearBlockNotes(i, vIdx + 1, [&jSet](int e, int, int) { return !jSet.test(e); });
+            }
+        }
+
+        return changed;
+    };
+
+    pGrid.forAllCells(fillDataFunc);
+
+    combLst.reserve(maxMultiplicity);
+
+    // For each size of combinations.
+    for (int multiplicity = iniMultiplicity; (multiplicity <= maxMultiplicity); ++multiplicity)
+    {
+        // {multiplicity} possible combinations for 9 values
+        combination.reset(9, multiplicity);
+        combLst.clear();
+
+        // For each possible combination of columns according to the current multiplicity
+        while (combination.getNextCombination(combLst))
+        {
+            // For each row (in fact, it's processing 1 row, 1 col and 1 block at once)
+            for (int i = 0; i < 9; ++i)
+            {
+                std::bitset<9> jSet;
+                bool goodRow(true);
+                std::bitset<9> mergedRowSet;
+                bool goodCol(true);
+                std::bitset<9> mergedColSet;
+                bool goodBlk(true);
+                std::bitset<9> mergedBlkSet;
+
+                // Merge the candidates of the combinations for the row.
+                for (const int j : combLst)
                 {
-                    Cell::Notes cellNotes, totalNotes;
-                    std::bitset<9> cells;
+                    jSet.set(j, true);
 
-                    // Iterate over the current combination of cols and
-                    // set all found notes into "totalNotes".
-                    // Set into "cells" the columns where the notes were found.
-                    for (size_t comb = 0; comb < combLst.size(); ++comb)
+                    if (goodRow)
                     {
-                        const int j = combLst.at(comb);
-                        const Cell &cell = pGrid.getTranslatedCell(i, j, type);
-                        cellNotes = cell.getNotes();
-                        if (!cellNotes.any())
-                            break;
-                        totalNotes |= cellNotes;
-                        cells.set(j);
+                        if (!rows[i][j].any())
+                        {
+                            goodRow = false;
+                        }
+                        mergedRowSet |= rows[i][j];
                     }
 
-                    // The quantity of notes equals to the number of cols they were found?
-                    // Notice: If cellNotes is empty, the above loop has broke, meaning the col has value.
-                    if (cellNotes.any() && (cells.count() == totalNotes.count()))
+                    if (goodCol)
                     {
-                        bool changed(false);
-                        // For each columns
-                        for (int pos = 0; pos < cells.size(); ++pos)
+                        if (!cols[i][j].any())
                         {
-                            // If the col is not one of the columns of the found chain
-                            if (!cells.test(pos))
-                            {
-                                auto &cell = pGrid.getTranslatedCell(i, pos, type);
-                                const auto &notes = cell.getNotes();
-                                // The col contains one of the notes that must be removed?
-                                if (notes.any() && ((notes & ~totalNotes) != notes))
-                                {
-                                    // Remove the notes
-                                    cell.setNotes(notes & ~totalNotes);
-                                    changed = true;
-                                }
-                            }
+                            goodCol = false;
                         }
-                        if (changed)
-                            return true;
+                        mergedColSet |= cols[i][j];
+                    }
+
+                    if (goodBlk)
+                    {
+                        if (!blks[i][j].any())
+                        {
+                            goodBlk = false;
+                        }
+                        mergedBlkSet |= blks[i][j];
                     }
                 }
+
+                bool changed(false);
+
+                // The total number of candidates equals the number of columns where they were found?
+                if (goodRow && (mergedRowSet.count() == multiplicity))
+                {
+                    changed |= processData(i, jSet, mergedRowSet, Grid::T_LINE);
+                }
+
+                if (goodCol && (mergedColSet.count() == multiplicity))
+                {
+                    changed |= processData(i, jSet, mergedColSet, Grid::T_COLUMN);
+                }
+
+                if (goodBlk && (mergedBlkSet.count() == multiplicity))
+                {
+                    changed |= processData(i, jSet, mergedBlkSet, Grid::T_BLOCK);
+                }
+
+                if (changed)
+                    return true;
             }
         }
     }

@@ -1,11 +1,11 @@
 #include "Test.h"
 
-bool test(int maxNaked, const std::string &puzzle, const std::string &board, const std::string &expectedBoard)
+bool test(int maxMultiplicity, const std::string &puzzle, const std::string &board, const std::string &expectedBoard)
 {
     Grid grid;
     grid.fillFromSolutionGrid(board);
 
-    solver::techniques::nakedMulti(grid, maxNaked);
+    solver::techniques::nakedMulti(grid, 2, maxMultiplicity);
 
     return checkAll(puzzle, grid, board, expectedBoard);
 }
