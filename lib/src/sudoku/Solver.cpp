@@ -32,7 +32,7 @@ Level solver::solveLevel(Grid &pGrid, Level maxLevel)
         if (techniques::nakedMulti(pGrid, 2))
             continue;
 
-        if (techniques::hiddenMulti(pGrid, 2))
+        if (techniques::hiddenMulti(pGrid, 2, 2))
             continue;
 
         if (level < LEV_2_LOGIC)
@@ -41,7 +41,7 @@ Level solver::solveLevel(Grid &pGrid, Level maxLevel)
         if (techniques::nakedMulti(pGrid))
             continue;
 
-        if (techniques::hiddenMulti(pGrid))
+        if (techniques::hiddenMulti(pGrid, 3))
             continue;
 
         if (techniques::xWings(pGrid))

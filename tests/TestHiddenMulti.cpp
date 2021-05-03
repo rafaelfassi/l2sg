@@ -1,13 +1,13 @@
 #include "Test.h"
 
-bool test(int maxHidden, const std::string &puzzle, const std::string &notes,
+bool test(int maxMultiplicity, const std::string &puzzle, const std::string &notes,
           const std::string &expectedNotes)
 {
     Grid grid;
     grid.fillValues(puzzle);
     grid.fillNotes(notes);
 
-    solver::techniques::hiddenMulti(grid, maxHidden);
+    solver::techniques::hiddenMulti(grid, 2, maxMultiplicity);
 
     return checkNotes(puzzle, grid, notes, expectedNotes);
 }
