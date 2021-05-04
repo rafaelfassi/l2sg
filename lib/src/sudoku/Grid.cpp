@@ -1,29 +1,17 @@
 #include "Grid.h"
 
+#include <iomanip>
 #include <iostream>
+#include <sstream>
 
 // clang-format off
 
 // Creating matrices with known calculations' results to improve performance. 
 
 // Matrix from:
-// b = (c / 3) + (l / 3) * 3
-int g_rowCol2Block[9][9] = {
-    {0 ,0, 0,   1, 1, 1,   2, 2, 2},
-    {0 ,0, 0,   1, 1, 1,   2, 2, 2},
-    {0 ,0, 0,   1, 1, 1,   2, 2, 2},
-
-    {3 ,3, 3,   4, 4, 4,   5, 5, 5},
-    {3 ,3, 3,   4, 4, 4,   5, 5, 5},
-    {3 ,3, 3,   4, 4, 4,   5, 5, 5},
-
-    {6 ,6, 6,   7, 7, 7,   8, 8, 8},
-    {6 ,6, 6,   7, 7, 7,   8, 8, 8},
-    {6 ,6, 6,   7, 7, 7,   8, 8, 8}};
-
-// Matrix from:
 // l = (j / 3) + (i / 3) * 3;
 // c = (j % 3) + ((i - (l / 3) * 3) * 3);
+// The symmetry of the puzzle makes this map bidirectional. (row->block, block->row)
 std::pair<int, int> g_blockElem2RowCol[9][9] = {
     {{0, 0} ,{0, 1}, {0, 2},   {1, 0}, {1, 1}, {1, 2},   {2, 0}, {2, 1}, {2, 2}},
     {{0, 3} ,{0, 4}, {0, 5},   {1, 3}, {1, 4}, {1, 5},   {2, 3}, {2, 4}, {2, 5}},
@@ -95,7 +83,7 @@ std::pair<int, int> Grid::getBlockStartCoordinates(int _b)
 
 int Grid::getBlockNumber(int _l, int _c) const
 {
-    return g_rowCol2Block[_l][_c];
+    return g_blockElem2RowCol[_l][_c].first;
 }
 
 void Grid::fillValues(int *_pValues)
@@ -246,7 +234,7 @@ bool Grid::isAllowedValue(int _nLin, int _nCol, int _nVal)
             return false;
 
     // Check if the value already exists for the block.
-    const auto b = g_rowCol2Block[_nLin][_nCol];
+    const auto b = g_blockElem2RowCol[_nLin][_nCol].first;
     for (int e = 0; e < 9; ++e)
     {
         const auto &rowCol = g_blockElem2RowCol[b][e];
@@ -354,7 +342,7 @@ bool Grid::clearNotesCascade(int _nLin, int _nCol, int _nValue)
         }
     }
 
-    const auto b = g_rowCol2Block[_nLin][_nCol];
+    const auto b = g_blockElem2RowCol[_nLin][_nCol].first;
     for (int e = 0; e < 9; ++e)
     {
         const auto &rowCol = g_blockElem2RowCol[b][e];
@@ -438,7 +426,7 @@ void Grid::forAllCells(const std::function<bool(int, int, int, int)> &_callback)
     {
         for (int c = 0; c < 9; ++c)
         {
-            const auto& blockElem = g_blockElem2RowCol[l][c];
+            const auto &blockElem = g_blockElem2RowCol[l][c];
             if (!_callback(l, c, blockElem.first, blockElem.second))
             {
                 return;
@@ -477,6 +465,8 @@ bool Grid::compareNotes(const Grid &_grid)
 void Grid::dump(int _dumpFlags, const std::string &_null, const std::string &_numSep,
                 const std::string &_lineSep, const std::string &_colSep)
 {
+    bool oneLine(_dumpFlags & D_ONE_LINE);
+
     if (_dumpFlags & D_VALUES)
     {
         std::cout << "Values:" << std::endl;
@@ -484,18 +474,25 @@ void Grid::dump(int _dumpFlags, const std::string &_null, const std::string &_nu
         {
             for (int j = 0; j < 9; ++j)
             {
-                bool lastOfCol((j % 3) == 2);
                 int val = getValue(i, j);
                 if (val)
-                    std::cout << val << (lastOfCol ? _colSep : _numSep);
+                    std::cout << val;
                 else
-                    std::cout << _null << (lastOfCol ? _colSep : _numSep);
+                    std::cout << _null;
+
+                if (j < 8)
+                {
+                    if (j % 3 == 2)
+                        std::cout << _colSep;
+                    else
+                        std::cout << _numSep;
+                }
             }
 
             if (i < 8)
             {
                 std::cout << _lineSep;
-                if (!(_dumpFlags & D_ONE_LINE))
+                if (!oneLine)
                 {
                     std::cout << std::endl;
                     if (i % 3 == 2)
@@ -521,16 +518,68 @@ void Grid::dump(int _dumpFlags, const std::string &_null, const std::string &_nu
                         std::cout << _null;
                 }
 
-                if (j % 3 == 2)
-                    std::cout << _colSep;
-                else
-                    std::cout << _numSep;
+                if (j < 8)
+                {
+                    if (j % 3 == 2)
+                        std::cout << _colSep;
+                    else
+                        std::cout << _numSep;
+                }
             }
 
             if (i < 8)
             {
                 std::cout << _lineSep;
-                if (!(_dumpFlags & D_ONE_LINE))
+                if (!oneLine)
+                {
+                    std::cout << std::endl;
+                    if (i % 3 == 2)
+                        std::cout << std::endl;
+                }
+            }
+        }
+        std::cout << std::endl;
+    }
+
+    if (_dumpFlags & D_BOARD)
+    {
+        std::cout << "Board:" << std::endl;
+        for (int i = 0; i < 9; ++i)
+        {
+            for (int j = 0; j < 9; ++j)
+            {
+                if (getValue(i, j))
+                {
+                    std::cout << std::left << std::setfill(' ') << std::setw(oneLine ? 0 : 9)
+                              << getValue(i, j);
+                }
+                else
+                {
+                    std::stringstream notesSs;
+                    for (int x = 1; x <= 9; ++x)
+                    {
+                        if (hasNote(i, j, x))
+                        {
+                            notesSs << x;
+                        }
+                    }
+                    std::cout << std::left << std::setfill(' ') << std::setw(oneLine ? 0 : 9)
+                              << notesSs.str();
+                }
+
+                if (j < 8)
+                {
+                    if (j % 3 == 2)
+                        std::cout << _colSep;
+                    else
+                        std::cout << _numSep;
+                }
+            }
+
+            if (i < 8)
+            {
+                std::cout << _lineSep;
+                if (!oneLine)
                 {
                     std::cout << std::endl;
                     if (i % 3 == 2)

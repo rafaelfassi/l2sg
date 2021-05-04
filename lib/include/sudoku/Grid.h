@@ -26,7 +26,8 @@ public:
     {
         D_VALUES = 0x01,  // Prints the values
         D_NOTES = 0x02,   // Prints the notes (candidates for the cells)
-        D_ONE_LINE = 0x04 // Prints in one line
+        D_BOARD = 0x04,   // Prints the board (values and notes in one grid)
+        D_ONE_LINE = 0x08 // Prints in one line
     };
 
     Cell &getCell(int _nLin, int _nCol) { return m_cells[_nLin][_nCol]; }

@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
     {
         puzzle = "8.......5.16...79..9.4.1.3...25.96......3......18.79...4.7.8.1..68...37.9.......8";
         std::cout << "No puzzle provided!" << std::endl
-                  << "Solving the following example puzzle:" << std::endl
+                  << "Solving the following puzzle example:" << std::endl
                   << puzzle << std::endl;
     }
     else

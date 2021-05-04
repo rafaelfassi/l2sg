@@ -31,14 +31,14 @@ make
 ```
 
 ## Run
-The project is supposed to be used as a library by other projects, but this includes a simple command line application for testing.
+The project is supposed to be used as a library by other projects, but it includes a simple command line application for testing.
 
 Solve a puzzle:
 ```
 app/sudoku_app 8.......5.16...79..9.4.1.3...25.96......3......18.79...4.7.8.1..68...37.9.......8
 ```
 
-Load a puzzle from file and solve it:
+Load puzzle from file and solve it:
 ```
 app/sudoku_app --file puzzle.txt
 ```
