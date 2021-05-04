@@ -65,9 +65,9 @@ public:
     bool compareValues(int *_pValues);
     bool compareValues(const Grid &_grid);
     bool compareNotes(const Grid &_grid);
-    void dump(int _dumpFlags = D_VALUES | D_NOTES, const std::string &_null = ".",
-              const std::string &_numSep = "  ", const std::string &_lineSep = "",
-              const std::string &_colSep = "    ");
+    void dump(int _dumpFlags = D_VALUES | D_NOTES, const std::string &_empty = ".",
+              const std::string &_numSep = "  ", const std::string &_colSep = "    ",
+              const std::string &_lineSep = "");
 
 protected:
     Cell m_cells[9][9];

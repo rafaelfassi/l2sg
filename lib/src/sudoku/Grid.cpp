@@ -462,23 +462,21 @@ bool Grid::compareNotes(const Grid &_grid)
     return true;
 }
 
-void Grid::dump(int _dumpFlags, const std::string &_null, const std::string &_numSep,
-                const std::string &_lineSep, const std::string &_colSep)
+void Grid::dump(int _dumpFlags, const std::string &_empty, const std::string &_numSep,
+                const std::string &_colSep, const std::string &_lineSep)
 {
-    bool oneLine(_dumpFlags & D_ONE_LINE);
+    const bool oneLine(_dumpFlags & D_ONE_LINE);
 
-    if (_dumpFlags & D_VALUES)
-    {
-        std::cout << "Values:" << std::endl;
+    const auto dumpGridFunc = [&](const std::string &title,
+                                  std::function<void(int, int, std::ostream &out)> printCell) {
+        if (!oneLine)
+            std::cout << title << std::endl;
+
         for (int i = 0; i < 9; ++i)
         {
             for (int j = 0; j < 9; ++j)
             {
-                int val = getValue(i, j);
-                if (val)
-                    std::cout << val;
-                else
-                    std::cout << _null;
+                printCell(i, j, std::cout);
 
                 if (j < 8)
                 {
@@ -501,93 +499,55 @@ void Grid::dump(int _dumpFlags, const std::string &_null, const std::string &_nu
             }
         }
         std::cout << std::endl;
+        if (!oneLine)
+        {
+            std::cout << std::endl;
+        }
+    };
+
+    if (_dumpFlags & D_VALUES)
+    {
+        dumpGridFunc("Values:", [this, &_empty](int i, int j, std::ostream &out) {
+            if (const int val = getValue(i, j); val)
+                out << val;
+            else
+                out << _empty;
+        });
     }
 
     if (_dumpFlags & D_NOTES)
     {
-        std::cout << "Notes:" << std::endl;
-        for (int i = 0; i < 9; ++i)
-        {
-            for (int j = 0; j < 9; ++j)
+        dumpGridFunc("Notes:", [this, &_empty](int i, int j, std::ostream &out) {
+            for (int x = 1; x <= 9; ++x)
             {
-                for (int x = 1; x <= 9; ++x)
-                {
-                    if (hasNote(i, j, x))
-                        std::cout << x;
-                    else
-                        std::cout << _null;
-                }
-
-                if (j < 8)
-                {
-                    if (j % 3 == 2)
-                        std::cout << _colSep;
-                    else
-                        std::cout << _numSep;
-                }
+                if (hasNote(i, j, x))
+                    out << x;
+                else
+                    out << _empty;
             }
-
-            if (i < 8)
-            {
-                std::cout << _lineSep;
-                if (!oneLine)
-                {
-                    std::cout << std::endl;
-                    if (i % 3 == 2)
-                        std::cout << std::endl;
-                }
-            }
-        }
-        std::cout << std::endl;
+        });
     }
 
     if (_dumpFlags & D_BOARD)
     {
-        std::cout << "Board:" << std::endl;
-        for (int i = 0; i < 9; ++i)
-        {
-            for (int j = 0; j < 9; ++j)
+        dumpGridFunc("Board:", [this, oneLine](int i, int j, std::ostream &out) {
+            if (const int val = getValue(i, j); val)
             {
-                if (getValue(i, j))
+                out << std::left << std::setfill(' ') << std::setw(oneLine ? 1 : 10) << val;
+            }
+            else
+            {
+                std::stringstream ssNotes;
+                for (int x = 1; x <= 9; ++x)
                 {
-                    std::cout << std::left << std::setfill(' ') << std::setw(oneLine ? 0 : 9)
-                              << getValue(i, j);
-                }
-                else
-                {
-                    std::stringstream notesSs;
-                    for (int x = 1; x <= 9; ++x)
+                    if (hasNote(i, j, x))
                     {
-                        if (hasNote(i, j, x))
-                        {
-                            notesSs << x;
-                        }
+                        ssNotes << x;
                     }
-                    std::cout << std::left << std::setfill(' ') << std::setw(oneLine ? 0 : 9)
-                              << notesSs.str();
                 }
-
-                if (j < 8)
-                {
-                    if (j % 3 == 2)
-                        std::cout << _colSep;
-                    else
-                        std::cout << _numSep;
-                }
+                out << std::left << std::setfill(' ') << std::setw(oneLine ? 1 : 10) << ssNotes.str();
             }
-
-            if (i < 8)
-            {
-                std::cout << _lineSep;
-                if (!oneLine)
-                {
-                    std::cout << std::endl;
-                    if (i % 3 == 2)
-                        std::cout << std::endl;
-                }
-            }
-        }
-        std::cout << std::endl;
+        });
     }
 }
 
