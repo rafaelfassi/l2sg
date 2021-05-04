@@ -10,121 +10,98 @@ bool hiddenMulti(Grid &pGrid, int iniMultiplicity, int maxMultiplicity)
 {
     CombinationsGen combination;
     std::vector<int> combLst;
+    std::vector<int> validCandVec;
 
-    std::bitset<9> rows[9][9];
-    std::bitset<9> cols[9][9];
-    std::bitset<9> blks[9][9];
-
-    const auto fillDataFunc = [&](int l, int c, int b, int e) -> bool {
-        for (int vIdx = 0; vIdx < 9; ++vIdx)
+    const auto processCandidates = [&](int i, size_t multiplicity, const auto &availableCandVec, int type,
+                                       const auto &sourceDataFunc) -> bool {
+        validCandVec.clear();
+        for (const auto vIdx : availableCandVec)
         {
-            if (pGrid.hasNote(l, c, vIdx + 1))
+            if (sourceDataFunc(i, vIdx).count() <= multiplicity)
             {
-                rows[vIdx][l].set(c, true);
-                cols[vIdx][c].set(l, true);
-                blks[vIdx][b].set(e, true);
+                validCandVec.push_back(vIdx);
             }
         }
-        return true;
-    };
 
-    const auto processData = [&pGrid](int i, const auto &totalNotes, const auto &mergedSet,
-                                      int type) -> bool {
-        int j(-1);
-        bool changed(false);
-        while ((j = utils::getNext(mergedSet, j)) != -1)
-        {
-            auto &cell = pGrid.getTranslatedCell(i, j, type);
-            const auto &notes = cell.getNotes();
-            // Has notes to be removed?
-            if ((notes & totalNotes) != notes)
-            {
-                cell.setNotes(notes & totalNotes);
-                changed = true;
-                // std::cout << "Found hidden at i: " << i << " type: " << type << std::endl;
-            }
-        }
-        return changed;
-    };
+        if (validCandVec.size() < multiplicity)
+            return false;
 
-    combLst.reserve(maxMultiplicity);
-
-    pGrid.forAllCells(fillDataFunc);
-
-    // For each size of combinations.
-    for (int multiplicity = iniMultiplicity; (multiplicity <= maxMultiplicity); ++multiplicity)
-    {
         // {multiplicity} possible combinations for 9 values
-        combination.reset(9, multiplicity);
+        combination.reset(validCandVec.size(), multiplicity);
         combLst.clear();
 
         // For each possible combination of candidates according to the current multiplicity
         while (combination.getNextCombination(combLst))
         {
             // For each row (in fact, it's processing 1 row, 1 col and 1 block at once)
-            for (int i = 0; i < 9; ++i)
+            Cell::Notes combCandidates;
+            std::bitset<9> jFoundCandSet;
+
+            // Merge the combinations of the candidates for the row.
+            // The result is the columns where the candidates were found.
+            for (const int comb : combLst)
             {
-                Cell::Notes totalNotes;
-                bool goodRow(true);
-                std::bitset<9> mergedRowSet;
-                bool goodCol(true);
-                std::bitset<9> mergedColSet;
-                bool goodBlk(true);
-                std::bitset<9> mergedBlkSet;
+                const auto vIdx = validCandVec[comb];
+                const auto &jSet = sourceDataFunc(i, vIdx);
+                combCandidates.set(vIdx, true);
+                jFoundCandSet |= jSet;
+            }
 
-                // Merge the combinations of the candidates for the row.
-                // The result is the columns where the candidates were found.
-                for (const int vIdx : combLst)
-                {
-                    totalNotes.set(vIdx, true);
-
-                    if (goodRow)
-                    {
-                        if (!rows[vIdx][i].any())
-                        {
-                            goodRow = false;
-                        }
-                        mergedRowSet |= rows[vIdx][i];
-                    }
-
-                    if (goodCol)
-                    {
-                        if (!cols[vIdx][i].any())
-                        {
-                            goodCol = false;
-                        }
-                        mergedColSet |= cols[vIdx][i];
-                    }
-
-                    if (goodBlk)
-                    {
-                        if (!blks[vIdx][i].any())
-                        {
-                            goodBlk = false;
-                        }
-                        mergedBlkSet |= blks[vIdx][i];
-                    }
-                }
-
+            // The number of columns where the candidates were found equals the number of candidates?
+            if (jFoundCandSet.count() == multiplicity)
+            {
                 bool changed(false);
-
-                // The number of columns where the candidates were found equals the number of candidates?
-                if (goodRow && (mergedRowSet.count() == multiplicity))
+                int j(-1);
+                while ((j = utils::getNext(jFoundCandSet, j)) != -1)
                 {
-                    changed |= processData(i, totalNotes, mergedRowSet, Grid::T_LINE);
+                    auto &cell = pGrid.getTranslatedCell(i, j, type);
+                    const auto &notes = cell.getNotes();
+                    // Has notes to be removed?
+                    if ((notes & combCandidates) != notes)
+                    {
+                        pGrid.setNotes(i, j, type, Cell::Notes(notes & combCandidates));
+                        changed = true;
+                        // std::cout << "Found hidden at i: " << i << " type: " << type << std::endl;
+                    }
                 }
+                return changed;
+            }
+        }
+        return false;
+    };
 
-                if (goodCol && (mergedColSet.count() == multiplicity))
-                {
-                    changed |= processData(i, totalNotes, mergedColSet, Grid::T_COLUMN);
-                }
+    const auto &summary(pGrid.getSummary());
 
-                if (goodBlk && (mergedBlkSet.count() == multiplicity))
-                {
-                    changed |= processData(i, totalNotes, mergedBlkSet, Grid::T_BLOCK);
-                }
+    combLst.reserve(maxMultiplicity);
+    validCandVec.reserve(9);
 
-                if (changed)
+    // For each size of combinations.
+    for (int multiplicity = iniMultiplicity; (multiplicity <= maxMultiplicity); ++multiplicity)
+    {
+        // For each row
+        for (int i = 0; i < 9; ++i)
+        {
+            if (summary.getNotesByRow(i).size() > multiplicity)
+            {
+                if (processCandidates(
+                        i, multiplicity, summary.getNotesByRow(i), Grid::T_LINE,
+                        [&summary](int i, int vIdx) { return summary.getColsByRowNote(i, vIdx); }))
+                    return true;
+            }
+
+            if (summary.getNotesByCol(i).size() > multiplicity)
+            {
+                if (processCandidates(
+                        i, multiplicity, summary.getNotesByCol(i), Grid::T_COLUMN,
+                        [&summary](int i, int vIdx) { return summary.getRowsByColNote(i, vIdx); }))
+                    return true;
+            }
+
+            if (summary.getNotesByBlk(i).size() > multiplicity)
+            {
+                if (processCandidates(
+                        i, multiplicity, summary.getNotesByBlk(i), Grid::T_BLOCK,
+                        [&summary](int i, int vIdx) { return summary.getElmsByBlkNote(i, vIdx); }))
                     return true;
             }
         }

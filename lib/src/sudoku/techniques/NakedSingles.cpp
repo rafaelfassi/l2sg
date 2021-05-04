@@ -11,7 +11,6 @@ void nakedSingles(Grid &pGrid, bool *check)
     do
     {
         changed = false;
-
         for (int i = 0; i < 9; ++i)
         {
             for (int j = 0; j < 9; ++j)
@@ -20,22 +19,16 @@ void nakedSingles(Grid &pGrid, bool *check)
                 {
                     const auto note = cell.getNextNote(0);
                     cell.setValue(note);
-                    if (!pGrid.clearNotesCascade(i, j, note) && check)
+                    pGrid.clearNotesCascade(i, j, note, check);
+                    if (check && !(*check))
                     {
-                        *check = false;
                         return;
                     }
                     changed = true;
                 }
             }
         }
-
     } while (changed);
-
-    if (check)
-    {
-        *check = true;
-    }
 }
 
 } // namespace sudoku::solver::techniques

@@ -7,54 +7,42 @@ namespace sudoku::solver::techniques
 
 bool hiddenSingles(Grid &pGrid)
 {
-    std::bitset<9> rows[9][9];
-    std::bitset<9> cols[9][9];
-    std::bitset<9> blks[9][9];
-
-    const auto fillDataFunc = [&](int l, int c, int b, int e) -> bool {
-        for (int vIdx = 0; vIdx < 9; ++vIdx)
-        {
-            if (pGrid.hasNote(l, c, vIdx + 1))
-            {
-                rows[vIdx][l].set(c, true);
-                cols[vIdx][c].set(l, true);
-                blks[vIdx][b].set(e, true);
-            }
-        }
-        return true;
+    const auto processDataSet = [&pGrid](int vIdx, int i, int type, const auto &dataSet) {
+        int l, c;
+        int j = utils::getNext(dataSet, -1);
+        pGrid.translateCoordinates(i, j, l, c, type);
+        pGrid.setValue(l, c, vIdx + 1);
+        pGrid.clearNotesCascade(l, c, vIdx + 1);
+        //std::cout << "hiddenSingles: " << l << "," << c << " = " << vIdx + 1 << std::endl;
     };
 
-    const auto processDataSet = [&pGrid](int vIdx, int i, int type, const auto &dataSet) -> bool {
-        if (dataSet[vIdx][i].count() == 1)
-        {
-            int l, c;
-            int j = utils::getNext(dataSet[vIdx][i], -1);
-            pGrid.translateCoordinates(i, j, l, c, type);
-            if (pGrid.getValue(l, c) == 0)
-            {
-                pGrid.setValue(l, c, vIdx + 1);
-                pGrid.clearNotesCascade(l, c, vIdx + 1);
-                return true;
-            }
-        }
-        return false;
-    };
-
-    pGrid.forAllCells(fillDataFunc);
-
-    bool changed(false);
+    const auto& summary(pGrid.getSummary());
 
     for (int vIdx = 0; vIdx < 9; ++vIdx)
     {
         for (int i = 0; i < 9; ++i)
         {
-            changed |= processDataSet(vIdx, i, Grid::T_LINE, rows);
-            changed |= processDataSet(vIdx, i, Grid::T_COLUMN, cols);
-            changed |= processDataSet(vIdx, i, Grid::T_BLOCK, blks);
+            if (const auto& dataSet = summary.getColsByRowNote(i, vIdx); dataSet.count() == 1)
+            {
+                processDataSet(vIdx, i, Grid::T_LINE, dataSet);
+                return true;
+            }
+
+            if (const auto& dataSet = summary.getRowsByColNote(i, vIdx); dataSet.count() == 1)
+            {
+                processDataSet(vIdx, i, Grid::T_COLUMN, dataSet);
+                return true;
+            }
+            
+            if (const auto& dataSet = summary.getElmsByBlkNote(i, vIdx); dataSet.count() == 1)
+            {
+                processDataSet(vIdx, i, Grid::T_BLOCK, dataSet);
+                return true;
+            }
         }
     }
 
-    return changed;
+    return false;
 }
 
 } // namespace sudoku::solver::techniques

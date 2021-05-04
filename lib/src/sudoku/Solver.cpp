@@ -71,6 +71,7 @@ int solver::solveByGuesses(Grid &pGrid, int maxSolutions)
     using CellsRank = std::multimap<int, std::pair<int, int>>;
     std::vector<Grid> solutions;
     CellsRank guessesCellsRank;
+    pGrid.resetSummary();
     Grid grid = pGrid;
 
     const std::function<void(CellsRank::const_iterator)> evalCell = [&](CellsRank::const_iterator it) {
@@ -79,8 +80,7 @@ int solver::solveByGuesses(Grid &pGrid, int maxSolutions)
 
         if (it != guessesCellsRank.end())
         {
-            const int lin = it->second.first;
-            const int col = it->second.second;
+            const auto [lin, col] = it->second;
             const auto &cell = grid.getCell(lin, col);
             ++it;
             if (cell.getValue() > 0)
@@ -93,10 +93,11 @@ int solver::solveByGuesses(Grid &pGrid, int maxSolutions)
                 while ((candidate = cell.getNextNote(candidate)))
                 {
                     Grid savedPoint = grid;
+                    bool noConflicts(true);
                     grid.setValue(lin, col, candidate);
-                    if (grid.clearNotesCascade(lin, col, candidate))
+                    grid.clearNotesCascade(lin, col, candidate, &noConflicts);
+                    if (noConflicts)
                     {
-                        bool noConflicts(true);
                         techniques::nakedSingles(grid, &noConflicts);
                         if (noConflicts)
                         {
