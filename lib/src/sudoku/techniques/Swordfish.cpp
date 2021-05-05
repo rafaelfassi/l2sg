@@ -78,7 +78,7 @@ bool swordfish(Grid &pGrid)
                 // Has 3 fully connected rows?
                 if (connectedCount == 3)
                 {
-                    bool changedCount(0);
+                    int changedCount(0);
                     for (int j = 0; j < 9; ++j)
                     {
                         if (jValueCount[j] == 2 || jValueCount[j] == 3)
@@ -105,8 +105,6 @@ bool swordfish(Grid &pGrid)
                     }
                     if (changedCount > 0)
                         return true;
-                    else
-                        break;
                 }
             }
         }
