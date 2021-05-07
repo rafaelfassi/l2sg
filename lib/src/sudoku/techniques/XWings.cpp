@@ -37,8 +37,6 @@ bool xWings(Grid &pGrid)
         return false;
     };
 
-    bool changed(false);
-
     // As processDataFunc will look for a ahead row to match, 'i' may iterate from 0 to 7
     for (int i = 0; i < 8; ++i)
     {
@@ -47,16 +45,18 @@ bool xWings(Grid &pGrid)
             // A number was found only 2 times in a row?
             if (const auto &dataSet = summary.getColsByRowNote(i, v - 1); dataSet.count() == 2)
             {
-                changed |= processDataFunc(i, v, Grid::T_LINE, dataSet);
+                if (processDataFunc(i, v, Grid::T_LINE, dataSet))
+                    return true;
             }
             if (const auto &dataSet = summary.getRowsByColNote(i, v - 1); dataSet.count() == 2)
             {
-                changed |= processDataFunc(i, v, Grid::T_COLUMN, dataSet);
+                if (processDataFunc(i, v, Grid::T_COLUMN, dataSet))
+                    return true;
             }
         }
     }
 
-    return changed;
+    return false;
 }
 
 } // namespace sudoku::solver::techniques
