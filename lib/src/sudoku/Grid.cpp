@@ -1,4 +1,5 @@
 #include "Grid.h"
+#include "Utils.h"
 
 #include <iomanip>
 #include <iostream>
@@ -12,7 +13,7 @@
 // l = (j / 3) + (i / 3) * 3;
 // c = (j % 3) + ((i - (l / 3) * 3) * 3);
 // The symmetry of the puzzle makes this map bidirectional. (row->block, block->row)
-std::pair<int, int> g_blockElem2RowCol[9][9] = {
+const std::pair<int, int> sudoku::Grid::g_blockElem2RowCol[9][9] = {
     {{0, 0} ,{0, 1}, {0, 2},   {1, 0}, {1, 1}, {1, 2},   {2, 0}, {2, 1}, {2, 2}},
     {{0, 3} ,{0, 4}, {0, 5},   {1, 3}, {1, 4}, {1, 5},   {2, 3}, {2, 4}, {2, 5}},
     {{0, 6} ,{0, 7}, {0, 8},   {1, 6}, {1, 7}, {1, 8},   {2, 6}, {2, 7}, {2, 8}},
@@ -40,50 +41,98 @@ int char2Int(char ch)
     return ch - '0';
 }
 
-Cell &Grid::getTranslatedCell(int _i, int _j, int type)
+Grid::Summary::Summary(const Grid &pGrid)
 {
-    int l, c;
-    translateCoordinates(_i, _j, l, c, type);
-    return getCell(l, c);
-}
-
-void Grid::translateCoordinates(int _i, int _j, int &_l, int &_c, int type)
-{
-    switch (type)
+    for (int l = 0; l < 9; ++l)
     {
-        case T_LINE:
-            _l = _i;
-            _c = _j;
-            break;
-        case T_COLUMN:
-            _l = _j;
-            _c = _i;
-            break;
-        case T_BLOCK:
-            const auto &rowCol = g_blockElem2RowCol[_i][_j];
-            _l = rowCol.first;
-            _c = rowCol.second;
-            break;
+        m_notesByRow[l].reserve(9);
+        m_notesByCol[l].reserve(9);
+        m_notesByBlk[l].reserve(9);
+        for (int c = 0; c < 9; ++c)
+        {
+            const auto [b, e] = g_blockElem2RowCol[l][c];
+            for (int vIdx = 0; vIdx < 9; ++vIdx)
+            {
+                if (pGrid.hasNote(l, c, vIdx + 1))
+                {
+                    if (!m_colsByRowNote[l][vIdx].any())
+                    {
+                        m_notesByRow[l].push_back(vIdx);
+                    }
+                    if (!m_rowsByColNote[c][vIdx].any())
+                    {
+                        m_notesByCol[c].push_back(vIdx);
+                    }
+                    if (!m_elmsByBlkNote[b][vIdx].any())
+                    {
+                        m_notesByBlk[b].push_back(vIdx);
+                    }
+
+                    m_colsByRowNote[l][vIdx].set(c, true);
+                    m_rowsByColNote[c][vIdx].set(l, true);
+                    m_elmsByBlkNote[b][vIdx].set(e, true);
+                }
+            }
+        }
     }
 }
 
-std::pair<int, int> Grid::getCellCoordinates(int _cellNum)
+void Grid::Summary::updateNote(int l, int c, int vIdx, bool active)
 {
-    const int l = _cellNum / 9;
-    const int c = _cellNum % 9;
-    return std::make_pair(l, c);
+    if (active == m_colsByRowNote[l][vIdx].test(c))
+        return;
+
+    const auto &be = g_blockElem2RowCol[l][c];
+
+    const auto updateSets = [&]() {
+        m_colsByRowNote[l][vIdx].set(c, active);
+        m_rowsByColNote[c][vIdx].set(l, active);
+        m_elmsByBlkNote[be.first][vIdx].set(be.second, active);
+    };
+
+    if (active)
+    {
+        if (!m_colsByRowNote[l][vIdx].any())
+            m_notesByRow[l].push_back(vIdx);
+        if (!m_rowsByColNote[c][vIdx].any())
+            m_notesByCol[c].push_back(vIdx);
+        if (!m_elmsByBlkNote[be.first][vIdx].any())
+            m_notesByBlk[be.first].push_back(vIdx);
+
+        updateSets();
+    }
+    else
+    {
+        const auto removeNoteFromVec = [vIdx](std::vector<int> &vec) {
+            auto it = std::find(vec.begin(), vec.end(), vIdx);
+            if (it != vec.end())
+            {
+                if(it != vec.end()-1)
+                    *it = vec.back();
+                vec.pop_back();
+            }
+        };
+
+        updateSets();
+
+        if (!m_colsByRowNote[l][vIdx].any())
+            removeNoteFromVec(m_notesByRow[l]);
+        if (!m_rowsByColNote[c][vIdx].any())
+            removeNoteFromVec(m_notesByCol[c]);
+        if (!m_elmsByBlkNote[be.first][vIdx].any())
+            removeNoteFromVec(m_notesByBlk[be.first]);
+    }
 }
 
-std::pair<int, int> Grid::getBlockStartCoordinates(int _b)
+void Grid::Summary::updateNotes(int l, int c, const Cell::Notes &oldNotes, const Cell::Notes &newNotes)
 {
-    const int l = (_b / 3) * 3;
-    const int c = (_b % 3) * 3;
-    return std::make_pair(l, c);
-}
-
-int Grid::getBlockNumber(int _l, int _c) const
-{
-    return g_blockElem2RowCol[_l][_c].first;
+    const Cell::Notes changedNotes(oldNotes ^ newNotes);
+    int vIdx(-1);
+    while ((vIdx = utils::getNext(changedNotes, vIdx)) != -1)
+    {
+        const bool active(newNotes.test(vIdx));
+        updateNote(l, c, vIdx, active);
+    }
 }
 
 void Grid::fillValues(int *_pValues)
@@ -209,6 +258,35 @@ bool Grid::fillValuesArrayFormString(const std::string &values, int *array)
     return (x == 9 * 9);
 }
 
+void Grid::setNotes(int _i, int _j, int _type, const Cell::Notes &_nNotes)
+{
+    int l, c;
+    translateCoordinates(_i, _j, l, c, _type);
+    auto &cell = getCell(l, c);
+
+    if (m_summary)
+    {
+        m_summary->updateNotes(l, c, cell.getNotes(), _nNotes);
+    }
+
+    cell.setNotes(_nNotes);
+}
+
+int Grid::clearNotes(int _nLin, int _nCol)
+{
+    const auto &notes = getNotes(_nLin, _nCol);
+    const int count = notes.count();
+
+    if (m_summary)
+    {
+        m_summary->updateNotes(_nLin, _nCol, notes, Cell::Notes());
+    }
+
+    m_cells[_nLin][_nCol].clearNotes();
+
+    return count;
+}
+
 bool Grid::isAllowedValue(int _nLin, int _nCol, int _nVal)
 {
     // If the cell already has the value that is being tested, that's all right.
@@ -237,8 +315,8 @@ bool Grid::isAllowedValue(int _nLin, int _nCol, int _nVal)
     const auto b = g_blockElem2RowCol[_nLin][_nCol].first;
     for (int e = 0; e < 9; ++e)
     {
-        const auto &rowCol = g_blockElem2RowCol[b][e];
-        if (getValue(rowCol.first, rowCol.second) == _nVal)
+        const auto [l, c] = g_blockElem2RowCol[b][e];
+        if (getValue(l, c) == _nVal)
             return false;
     }
 
@@ -277,7 +355,7 @@ void Grid::clearNotes()
 {
     for (int i = 0; i < 9; ++i)
         for (int j = 0; j < 9; ++j)
-            getCell(i, j).clearNotes();
+            clearNotes(i, j);
 }
 
 int Grid::countNotes(int _nVal, int _i, int _type)
@@ -302,17 +380,17 @@ int Grid::countNotes(int _nVal, int _i, int _type)
     {
         for (int e = 0; e < 9; ++e)
         {
-            const auto &rowCol = g_blockElem2RowCol[_i][e];
-            count += hasNote(rowCol.first, rowCol.second, _nVal);
+            const auto [l, c] = g_blockElem2RowCol[_i][e];
+            count += hasNote(l, c, _nVal);
         }
     }
 
     return count;
 }
 
-bool Grid::clearNotesCascade(int _nLin, int _nCol, int _nValue)
+int Grid::clearNotesCascade(int _nLin, int _nCol, int _nValue, bool *check)
 {
-    clearNotes(_nLin, _nCol);
+    int cleanedCount(clearNotes(_nLin, _nCol));
 
     for (int l = 0; l < 9; ++l)
     {
@@ -320,11 +398,13 @@ bool Grid::clearNotesCascade(int _nLin, int _nCol, int _nValue)
             continue;
         if (Cell &cell = getCell(l, _nCol); cell.hasNote(_nValue))
         {
-            cell.setNote(_nValue, false);
-            if (!cell.hasAnyNote())
+            setNote(l, _nCol, _nValue, false);
+            if (check && !cell.hasAnyNote())
             {
-                return false;
+                *check = false;
+                return 0;
             }
+            ++cleanedCount;
         }
     }
 
@@ -334,32 +414,41 @@ bool Grid::clearNotesCascade(int _nLin, int _nCol, int _nValue)
             continue;
         if (Cell &cell = getCell(_nLin, c); cell.hasNote(_nValue))
         {
-            cell.setNote(_nValue, false);
-            if (!cell.hasAnyNote())
+            setNote(_nLin, c, _nValue, false);
+            if (check && !cell.hasAnyNote())
             {
-                return false;
+                *check = false;
+                return 0;
             }
+            ++cleanedCount;
         }
     }
 
     const auto b = g_blockElem2RowCol[_nLin][_nCol].first;
     for (int e = 0; e < 9; ++e)
     {
-        const auto &rowCol = g_blockElem2RowCol[b][e];
+        const auto [l, c] = g_blockElem2RowCol[b][e];
         // The previous loops have cleaned all the candidates from the row and column already.
-        if ((rowCol.first == _nLin) || (rowCol.second == _nCol))
+        if ((l == _nLin) || (c == _nCol))
             continue;
-        if (Cell &cell = getCell(rowCol.first, rowCol.second); cell.hasNote(_nValue))
+        if (Cell &cell = getCell(l, c); cell.hasNote(_nValue))
         {
-            cell.setNote(_nValue, false);
-            if (!cell.hasAnyNote())
+            setNote(l, c, _nValue, false);
+            if (check && !cell.hasAnyNote())
             {
-                return false;
+                *check = false;
+                return 0;
             }
+            ++cleanedCount;
         }
     }
 
-    return true;
+    if (check)
+    {
+        *check = true;
+    }
+
+    return cleanedCount;
 }
 
 int Grid::clearRowNotes(int _row, int _val, const std::function<bool(int)> &_clear)
@@ -395,10 +484,10 @@ int Grid::clearBlockNotes(int _blk, int _val, const std::function<bool(int, int,
     int count(0);
     for (int e = 0; e < 9; ++e)
     {
-        const auto &rowCol = g_blockElem2RowCol[_blk][e];
-        if (hasNote(rowCol.first, rowCol.second, _val) && _clear(e, rowCol.first, rowCol.second))
+        const auto [l, c] = g_blockElem2RowCol[_blk][e];
+        if (hasNote(l, c, _val) && _clear(e, l, c))
         {
-            setNote(rowCol.first, rowCol.second, _val, false);
+            setNote(l, c, _val, false);
             ++count;
         }
     }
@@ -426,8 +515,8 @@ void Grid::forAllCells(const std::function<bool(int, int, int, int)> &_callback)
     {
         for (int c = 0; c < 9; ++c)
         {
-            const auto &blockElem = g_blockElem2RowCol[l][c];
-            if (!_callback(l, c, blockElem.first, blockElem.second))
+            const auto [b, e] = g_blockElem2RowCol[l][c];
+            if (!_callback(l, c, b, e))
             {
                 return;
             }

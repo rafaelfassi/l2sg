@@ -10,10 +10,13 @@ namespace sudoku::utils
 // Returns the next found position, or -1 otherwise.
 template <size_t N> int getNext(const std::bitset<N> &bs, int pos)
 {
-    for (int i = pos + 1; i < bs.size(); ++i)
+    if (bs.to_ulong() >> (++pos))
     {
-        if (bs.test(i))
-            return i;
+        for (int i = pos; i < bs.size(); ++i)
+        {
+            if (bs.test(i))
+                return i;
+        }
     }
     return -1;
 }
