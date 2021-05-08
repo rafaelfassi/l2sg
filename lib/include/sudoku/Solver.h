@@ -21,13 +21,13 @@ namespace solver
 namespace techniques
 {
 
-void nakedSingles(Grid &pGrid, bool *check = nullptr);
+bool nakedSingles(Grid &pGrid, bool *check = nullptr);
 bool hiddenSingles(Grid &pGrid);
 bool lockedCandidates(Grid &pGrid);
 bool xWings(Grid &pGrid);
 bool basicFish(Grid &pGrid, int iniSize = 3, int maxSize = 4);
-bool hiddenMulti(Grid &pGrid, int iniMultiplicity = 2, int maxMultiplicity = 7);
-bool nakedMulti(Grid &pGrid, int iniMultiplicity = 2, int maxMultiplicity = 7);
+bool hiddenMulti(Grid &pGrid, int iniMultiplicity = 2, int maxMultiplicity = 4);
+bool nakedMulti(Grid &pGrid, int iniMultiplicity = 2, int maxMultiplicity = 4);
 
 } // namespace techniques
 

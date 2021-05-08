@@ -8,13 +8,10 @@ This project implements a bunch of sudoku techniques in order to estimate the pu
 All implemented algorithms are focused in performance.
 
 ### Some implemented techniques
-* Naked Single
-* Naked Multi (2 - 7)
-* Hidden Single
-* Hidden Multi (2 - 7)
-* Locked Candidates
-* X-Wings
-* Swordfish
+* Naked (Single, Pair, Triple, Quadruple)
+* Hidden (Single, Pair, Triple, Quadruple)
+* Locked Candidates (Pointing, Claiming)
+* Basic Fish (X-Wings, Swordfish, Jellyfish)
 * Guessing / Brute Force
 
 ## Build

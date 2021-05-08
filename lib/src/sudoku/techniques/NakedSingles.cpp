@@ -5,9 +5,11 @@ namespace sudoku::solver::techniques
 {
 
 // Encompasses Full House/Last Digit
-void nakedSingles(Grid &pGrid, bool *check)
+bool nakedSingles(Grid &pGrid, bool *check)
 {
+    bool changedOverall(false);
     bool changed;
+
     do
     {
         changed = false;
@@ -22,13 +24,16 @@ void nakedSingles(Grid &pGrid, bool *check)
                     pGrid.clearNotesCascade(i, j, note, check);
                     if (check && !(*check))
                     {
-                        return;
+                        return false;
                     }
                     changed = true;
                 }
             }
         }
+        changedOverall |= changed;
     } while (changed);
+
+    return changedOverall;
 }
 
 } // namespace sudoku::solver::techniques

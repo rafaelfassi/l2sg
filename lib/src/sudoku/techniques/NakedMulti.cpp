@@ -44,25 +44,25 @@ bool nakedMulti(Grid &pGrid, int iniMultiplicity, int maxMultiplicity)
 
             if (mergedSet.count() == multiplicity)
             {
-                bool changed(false);
+                int changedCnt(false);
                 for (const auto vIdx : utils::bitset_it(mergedSet))
                 {
                     if (type == Grid::T_LINE)
                     {
-                        changed |= pGrid.clearRowNotes(i, vIdx + 1, [&jSet](int c) { return !jSet.test(c); });
+                        changedCnt += pGrid.clearRowNotes(i, vIdx + 1, [&jSet](int c) { return !jSet.test(c); });
                     }
                     else if (type == Grid::T_COLUMN)
                     {
-                        changed |= pGrid.clearColNotes(i, vIdx + 1, [&jSet](int r) { return !jSet.test(r); });
+                        changedCnt += pGrid.clearColNotes(i, vIdx + 1, [&jSet](int r) { return !jSet.test(r); });
                     }
                     else if (type == Grid::T_BLOCK)
                     {
-                        changed |= pGrid.clearBlockNotes(i, vIdx + 1,
+                        changedCnt += pGrid.clearBlockNotes(i, vIdx + 1,
                                                          [&jSet](int e, int, int) { return !jSet.test(e); });
                     }
                 }
 
-                if (changed)
+                if (changedCnt > 0)
                     return true;
             }
         }
