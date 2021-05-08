@@ -52,7 +52,8 @@ Level solver::solveLevel(Grid &pGrid, Level maxLevel)
         if (techniques::xWings(pGrid))
             continue;
 
-        if (techniques::swordfish(pGrid))
+        // Swordfish and Jellyfish
+        if (techniques::basicFish(pGrid, 3, 4))
             continue;
 
         SWITCH_LEVEL(LEV_3_GUESS, level, maxLevel)

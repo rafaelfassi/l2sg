@@ -120,9 +120,6 @@ public:
                 case 1 << 8:
                     this->index += 8;
                     break;
-                case 1 << 9:
-                    this->index += 9;
-                    break;
                 default:
                     throw std::out_of_range("bitset_iterator doesn't support N > 9");
             }

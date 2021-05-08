@@ -4,7 +4,7 @@
 namespace sudoku::solver::techniques
 {
 
-bool swordfish(Grid &pGrid, int iniSize, int maxSize)
+bool basicFish(Grid &pGrid, int iniSize, int maxSize)
 {
     std::vector<int> combLst;
     utils::CombinationsGen combination;
