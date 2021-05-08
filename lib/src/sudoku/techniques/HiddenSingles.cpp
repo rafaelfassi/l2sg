@@ -9,7 +9,7 @@ bool hiddenSingles(Grid &pGrid)
 {
     const auto processDataSet = [&pGrid](int vIdx, int i, int type, const auto &dataSet) {
         int l, c;
-        int j = utils::make_bitset_it(dataSet).front();
+        int j = utils::bitset_it(dataSet).front();
         pGrid.translateCoordinates(i, j, l, c, type);
         pGrid.setValue(l, c, vIdx + 1);
         pGrid.clearNotesCascade(l, c, vIdx + 1);

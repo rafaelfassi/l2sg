@@ -4,15 +4,15 @@
 namespace sudoku::solver::techniques
 {
 
-bool swordfish(Grid &pGrid, int intSetSize, int maxSetSize)
+bool swordfish(Grid &pGrid, int iniSize, int maxSize)
 {
     std::vector<int> combLst;
     utils::CombinationsGen combination;
     const auto &summary(pGrid.getSummary());
 
-    const auto processSets = [&](int type, int vIdx, int setSize, auto &iCandidatesSet) -> bool {
-        // Make combinations of 3 rows
-        combination.reset(iCandidatesSet[vIdx].size(), setSize);
+    const auto processSets = [&](int type, int vIdx, int currSize, auto &iCandidatesSet) -> bool {
+        // Make combinations of {currSize} rows
+        combination.reset(iCandidatesSet[vIdx].size(), currSize);
         combLst.clear();
         // For each combination
         while (combination.getNextCombination(combLst))
@@ -30,13 +30,6 @@ bool swordfish(Grid &pGrid, int intSetSize, int maxSetSize)
                 {
                     ++jValueCount[j];
                 }
-                // for (int j = 0; j < 9; ++j)
-                // {
-                //     if (iSet.test(j))
-                //     {
-                //         ++jValueCount[j];
-                //     }
-                // }
             }
 
             // Check if all rows are fully connected to each other by common columns.
@@ -61,13 +54,13 @@ bool swordfish(Grid &pGrid, int intSetSize, int maxSetSize)
                 }
             }
 
-            // Has 3 fully connected rows?
-            if (connectedCount == setSize)
+            // Has {currSize} rows fully connected?
+            if (connectedCount == currSize)
             {
                 int changedCount(false);
                 for (int j = 0; j < 9; ++j)
                 {
-                    if ((jValueCount[j] > 1) && (jValueCount[j] <= setSize))
+                    if ((jValueCount[j] > 1) && (jValueCount[j] <= currSize))
                     {
                         if (type == Grid::T_LINE)
                         {
@@ -98,22 +91,22 @@ bool swordfish(Grid &pGrid, int intSetSize, int maxSetSize)
         return false;
     };
 
-    for (int setSize = intSetSize; setSize <= maxSetSize; ++setSize)
+    for (int currSize = iniSize; currSize <= maxSize; ++currSize)
     {
         std::vector<int> candidateRows[9];
         std::vector<int> candidateCols[9];
 
-        // Make sets of candidates rows and cols, where a value appears two or three times.
+        // Make sets of candidates rows and cols, where a value appears from two to {currSize} times.
         for (int i = 0; i < 9; ++i)
         {
             for (int vIdx = 0; vIdx < 9; ++vIdx)
             {
                 const int countByRow = summary.getColsByRowNote(i, vIdx).count();
-                if ((countByRow > 1) && (countByRow <= setSize))
+                if ((countByRow > 1) && (countByRow <= currSize))
                     candidateRows[vIdx].push_back(i);
 
                 const int countByCol = summary.getRowsByColNote(i, vIdx).count();
-                if ((countByCol > 1) && (countByCol <= setSize))
+                if ((countByCol > 1) && (countByCol <= currSize))
                     candidateCols[vIdx].push_back(i);
             }
         }
@@ -121,17 +114,16 @@ bool swordfish(Grid &pGrid, int intSetSize, int maxSetSize)
         bool changed(false);
         for (int vIdx = 0; vIdx < 9; ++vIdx)
         {
-            // If there are three or more rows that are valid candidates (has the same value only 2 or 3
-            // times)
-            if (candidateRows[vIdx].size() >= setSize)
+            // If there are {currSize} or more rows with the current candidate.
+            if (candidateRows[vIdx].size() >= currSize)
             {
-                if (processSets(Grid::T_LINE, vIdx, setSize, candidateRows))
+                if (processSets(Grid::T_LINE, vIdx, currSize, candidateRows))
                     return true;
             }
 
-            if (candidateCols[vIdx].size() >= setSize)
+            if (candidateCols[vIdx].size() >= currSize)
             {
-                if (processSets(Grid::T_COLUMN, vIdx, setSize, candidateCols))
+                if (processSets(Grid::T_COLUMN, vIdx, currSize, candidateCols))
                     return true;
             }
         }

@@ -17,7 +17,7 @@ void nakedSingles(Grid &pGrid, bool *check)
             {
                 if (auto &cell = pGrid.getCell(i, j); cell.notesCount() == 1)
                 {
-                    const auto note = cell.getNextNote(0);
+                    const auto note = utils::bitset_it(cell.getNotes()).front() + 1;
                     cell.setValue(note);
                     pGrid.clearNotesCascade(i, j, note, check);
                     if (check && !(*check))

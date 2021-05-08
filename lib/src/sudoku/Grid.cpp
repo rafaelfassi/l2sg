@@ -222,7 +222,7 @@ void Grid::fillBoard(const std::string &board)
         {
             if (auto &cell = getCell(i, j); cell.notesCount() == 1)
             {
-                int note = cell.getNextNote(0);
+                const auto note = utils::bitset_it(cell.getNotes()).front() + 1;
                 int b = getBlockNumber(i, j);
                 if ((countNotes(note, i, T_LINE) == 1) && (countNotes(note, j, T_COLUMN) == 1) &&
                     (countNotes(note, b, T_BLOCK) == 1))

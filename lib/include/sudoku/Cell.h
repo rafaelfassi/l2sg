@@ -19,18 +19,6 @@ public:
     inline bool hasNote(int _nNoteVal) const { return m_nNotes.test(_nNoteVal - 1); };
     inline size_t notesCount() const { return m_nNotes.count(); };
     inline bool hasAnyNote() const { return m_nNotes.any(); }
-    inline int getNextNote(int note) const
-    {
-        if (m_nNotes.to_ulong() >> note)
-        {
-            for (int i = note; i < m_nNotes.size(); ++i)
-            {
-                if (m_nNotes.test(i))
-                    return i + 1;
-            }
-        }
-        return 0;
-    }
     inline void getNotesList(std::vector<int> &list)
     {
         list.reserve(9);

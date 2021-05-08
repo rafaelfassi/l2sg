@@ -47,7 +47,7 @@ private:
     bool m_hasNext;
 };
 
-template <std::size_t N> class bitset_it
+template <std::size_t N, typename BS> class bitset_iterator
 {
 public:
     class const_iterator
@@ -80,8 +80,8 @@ public:
 
         bool operator!=(const const_iterator &rhs) const { return !(this->operator==(rhs)); }
 
-        friend const_iterator bitset_it::begin() const;
-        friend const_iterator bitset_it::end() const;
+        friend const_iterator bitset_iterator::begin() const;
+        friend const_iterator bitset_iterator::end() const;
 
     protected:
         std::size_t index;
@@ -124,14 +124,14 @@ public:
                     this->index += 9;
                     break;
                 default:
-                    throw std::out_of_range("bitset_it doesn't support N > 9");
+                    throw std::out_of_range("bitset_iterator doesn't support N > 9");
             }
         }
 
         const std::bitset<N> &m_bs;
     };
 
-    explicit bitset_it(const std::bitset<N> &bitset) : m_bitset(bitset) {}
+    explicit bitset_iterator(const std::bitset<N> &bitset) : m_bitset(bitset) {}
 
     std::size_t front() const { return *this->begin(); }
 
@@ -150,12 +150,17 @@ public:
     }
 
 private:
-    const std::bitset<N> &m_bitset;
+    BS m_bitset;
 };
 
-template <std::size_t N> bitset_it<N> make_bitset_it(const std::bitset<N> &bitset)
+template <std::size_t N> bitset_iterator<N, const std::bitset<N> &> bitset_it(const std::bitset<N> &bitset)
 {
-    return bitset_it<N>(bitset);
+    return bitset_iterator<N, const std::bitset<N> &>(bitset);
+}
+
+template <std::size_t N> bitset_iterator<N, const std::bitset<N>> bitset_it(std::bitset<N> &&bitset)
+{
+    return bitset_iterator<N, const std::bitset<N>>(bitset);
 }
 
 } // namespace sudoku::utils

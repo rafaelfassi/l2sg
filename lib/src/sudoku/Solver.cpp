@@ -1,4 +1,5 @@
 #include "Solver.h"
+#include "Utils.h"
 #include <iostream>
 #include <map>
 #include <string>
@@ -89,13 +90,12 @@ int solver::solveByGuesses(Grid &pGrid, int maxSolutions)
             }
             else
             {
-                int candidate(0);
-                while ((candidate = cell.getNextNote(candidate)))
+                for (const auto candidateIdx : utils::bitset_it(cell.getNotes()))
                 {
                     Grid savedPoint = grid;
                     bool noConflicts(true);
-                    grid.setValue(lin, col, candidate);
-                    grid.clearNotesCascade(lin, col, candidate, &noConflicts);
+                    grid.setValue(lin, col, candidateIdx + 1);
+                    grid.clearNotesCascade(lin, col, candidateIdx + 1, &noConflicts);
                     if (noConflicts)
                     {
                         techniques::nakedSingles(grid, &noConflicts);
