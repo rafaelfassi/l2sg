@@ -23,10 +23,10 @@ bool basicFish(Grid &pGrid, int iniSize, int maxSize)
             {
                 // Get the row number
                 const int i = iCandidatesSet[vIdx][comb];
-                const auto &iSet = ((type == Grid::T_LINE) ? summary.getColsByRowNote(i, vIdx)
+                const auto &jSet = ((type == Grid::T_LINE) ? summary.getColsByRowNote(i, vIdx)
                                                            : summary.getRowsByColNote(i, vIdx));
 
-                for (const auto j : utils::bitset_it(iSet))
+                for (const auto j : utils::bitset_it(jSet))
                 {
                     ++jValueCount[j];
                 }

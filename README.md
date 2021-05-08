@@ -16,9 +16,9 @@ All implemented algorithms are focused in performance.
 
 ## Build
 
-__Requirements__
+__Minimum Requirements__
 * C++ 17
-* CMake >= 3.10
+* CMake 3.10
 
 ```
 mkdir build
