@@ -7,7 +7,6 @@ add_library(sudoku_lib STATIC
 # Source
     src/sudoku/Grid.cpp
     src/sudoku/Solver.cpp
-    src/sudoku/CombinationsGen.cpp
     src/sudoku/techniques/NakedSingles.cpp
     src/sudoku/techniques/HiddenSingles.cpp
     src/sudoku/techniques/LockedCandidates.cpp
@@ -18,7 +17,6 @@ add_library(sudoku_lib STATIC
 
 # Private headers
     src/sudoku/Utils.h
-    src/sudoku/CombinationsGen.h
 
 # Public headers
     include/sudoku/Cell.h

@@ -1,4 +1,3 @@
-#include "CombinationsGen.h"
 #include "Grid.h"
 #include "Utils.h"
 #include <iostream>
@@ -8,7 +7,7 @@ namespace sudoku::solver::techniques
 
 bool hiddenMulti(Grid &pGrid, int iniMultiplicity, int maxMultiplicity)
 {
-    CombinationsGen combination;
+    utils::CombinationsGen combination;
     std::vector<int> combLst;
     std::vector<int> validCandVec;
 
@@ -51,8 +50,7 @@ bool hiddenMulti(Grid &pGrid, int iniMultiplicity, int maxMultiplicity)
             if (jFoundCandSet.count() == multiplicity)
             {
                 bool changed(false);
-                int j(-1);
-                while ((j = utils::getNext(jFoundCandSet, j)) != -1)
+                for (const auto j : utils::bitset_it(jFoundCandSet))
                 {
                     auto &cell = pGrid.getTranslatedCell(i, j, type);
                     const auto &notes = cell.getNotes();

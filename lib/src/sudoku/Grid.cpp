@@ -127,8 +127,7 @@ void Grid::Summary::updateNote(int l, int c, int vIdx, bool active)
 void Grid::Summary::updateNotes(int l, int c, const Cell::Notes &oldNotes, const Cell::Notes &newNotes)
 {
     const Cell::Notes changedNotes(oldNotes ^ newNotes);
-    int vIdx(-1);
-    while ((vIdx = utils::getNext(changedNotes, vIdx)) != -1)
+    for (const auto vIdx : utils::bitset_it(changedNotes))
     {
         const bool active(newNotes.test(vIdx));
         updateNote(l, c, vIdx, active);

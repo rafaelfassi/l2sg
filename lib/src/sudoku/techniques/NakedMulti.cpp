@@ -1,4 +1,3 @@
-#include "CombinationsGen.h"
 #include "Grid.h"
 #include "Utils.h"
 #include <iostream>
@@ -8,7 +7,7 @@ namespace sudoku::solver::techniques
 
 bool nakedMulti(Grid &pGrid, int iniMultiplicity, int maxMultiplicity)
 {
-    CombinationsGen combination;
+    utils::CombinationsGen combination;
     std::vector<int> combLst;
     std::vector<std::pair<int, Cell *>> validCellsVec;
     validCellsVec.reserve(9);
@@ -46,8 +45,7 @@ bool nakedMulti(Grid &pGrid, int iniMultiplicity, int maxMultiplicity)
             if (mergedSet.count() == multiplicity)
             {
                 bool changed(false);
-                int vIdx(-1);
-                while ((vIdx = utils::getNext(mergedSet, vIdx)) != -1)
+                for (const auto vIdx : utils::bitset_it(mergedSet))
                 {
                     if (type == Grid::T_LINE)
                     {

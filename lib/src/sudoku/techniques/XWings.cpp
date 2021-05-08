@@ -17,9 +17,8 @@ bool xWings(Grid &pGrid)
                                                            : summary.getRowsByColNote(i2, vIdx));
             if (dataSet == dataSet2)
             {
-                int j(-1);
                 int changedCount(0);
-                while ((j = utils::getNext(dataSet, j)) != -1)
+                for (const auto j : utils::bitset_it(dataSet))
                 {
                     if (type == Grid::T_LINE)
                         changedCount +=

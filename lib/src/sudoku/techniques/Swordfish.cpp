@@ -1,4 +1,3 @@
-#include "CombinationsGen.h"
 #include "Grid.h"
 #include "Utils.h"
 
@@ -8,7 +7,7 @@ namespace sudoku::solver::techniques
 bool swordfish(Grid &pGrid, int intSetSize, int maxSetSize)
 {
     std::vector<int> combLst;
-    CombinationsGen combination;
+    utils::CombinationsGen combination;
     const auto &summary(pGrid.getSummary());
 
     const auto processSets = [&](int type, int vIdx, int setSize, auto &iCandidatesSet) -> bool {
@@ -27,8 +26,7 @@ bool swordfish(Grid &pGrid, int intSetSize, int maxSetSize)
                 const auto &iSet = ((type == Grid::T_LINE) ? summary.getColsByRowNote(i, vIdx)
                                                            : summary.getRowsByColNote(i, vIdx));
 
-                int j(-1);
-                while ((j = utils::getNext(iSet, j)) != -1)
+                for (const auto j : utils::bitset_it(iSet))
                 {
                     ++jValueCount[j];
                 }

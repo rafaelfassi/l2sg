@@ -80,7 +80,7 @@ bool lockedCandidates(Grid &pGrid)
             if (iFoundType1.has_value() && (foundSetType1.count() == 1))
             {
                 // Gets the starting column of the block
-                const int j = utils::getNext(foundSetType1, -1) * 3;
+                const int j = utils::bitset_it(foundSetType1).front() * 3;
                 if (type == Grid::T_LINE)
                 {
                     pGrid.clearRowNotes(*iFoundType1, vIdx + 1,
@@ -106,7 +106,7 @@ bool lockedCandidates(Grid &pGrid)
             else if (iFoundType2.has_value() && (foundSetType2 & othersSetType2).any())
             {
                 // Gets the starting column of the block
-                const int j = utils::getNext(foundSetType2, -1) * 3;
+                const int j = utils::bitset_it(foundSetType2).front() * 3;
                 if (type == Grid::T_LINE)
                 {
                     const int blk = pGrid.getBlockNumber(*iFoundType2, j);
