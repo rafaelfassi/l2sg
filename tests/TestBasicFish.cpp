@@ -5,9 +5,9 @@ bool test(int size, const std::string &puzzle, const std::string &board, const s
     Grid grid;
     grid.fillBoard(board);
 
-    solver::techniques::basicFish(grid, size, size);
+    bool changed = solver::techniques::basicFish(grid, size, size);
 
-    return checkAll(puzzle, grid, board, expectedBoard);
+    return checkAll(puzzle, grid, board, expectedBoard, changed);
 }
 
 int main(int, char **)

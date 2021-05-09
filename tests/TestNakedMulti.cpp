@@ -1,16 +1,14 @@
 #include "Test.h"
 
-bool test(int maxMultiplicity, const std::string &puzzle, const std::string &board, const std::string &expectedBoard)
+bool test(int maxMultiplicity, const std::string &puzzle, const std::string &board,
+          const std::string &expectedBoard)
 {
     Grid grid;
     grid.fillBoard(board);
 
-    bool solved = solver::techniques::nakedMulti(grid, 2, maxMultiplicity);
+    bool changed = solver::techniques::nakedMulti(grid, 2, maxMultiplicity);
 
-    if (!solved)
-      printMsg(puzzle, "Not solved");
-
-    return checkAll(puzzle, grid, board, expectedBoard) && solved;
+    return checkAll(puzzle, grid, board, expectedBoard, changed);
 }
 
 int main(int, char **)
@@ -87,8 +85,9 @@ int main(int, char **)
         return failed();
 
     // Naked Pair in block for values 2, 8 at:
-    // ..... (3,8)
-    // (4,6) .....
+    // ..... ..... (3,8)
+    // (4,6) ..... .....
+    // ..... ..... .....
     if (!test(2, "6215..4..7.9..2..65.8......4.7...93...5.7..64.63.....1156...3898921..647374..9125",
               R"(
                 .-----------.---------------------.--------------.
@@ -196,6 +195,7 @@ int main(int, char **)
         return failed();
 
     // Naked Triple in block for values 1, 2, 5 at:
+    // ..... ..... .....
     // ..... (1,4) (1,5)
     // (2,3) ..... .....
     if (!test(3, "6.....4..7.34...96..9.863.7.6....7.18...6.9.49.7....6.2.697.543394625178.7....629",

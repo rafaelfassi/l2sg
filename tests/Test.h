@@ -89,6 +89,12 @@ bool checkGrid(const std::string &puzzle, Grid &gridIni, Grid &gridSolved, Grid 
     return ok;
 }
 
+void checkChanged(const std::string &puzzle, bool changed)
+{
+    if (!changed)
+        printMsg(puzzle, "Not changed returned");
+}
+
 bool checkValues(const std::string &puzzle, Grid &grid, const std::string &expectedValues)
 {
     Grid gridIni;
@@ -113,7 +119,7 @@ bool checkNotes(const std::string &puzzle, Grid &grid, const std::string &initia
 }
 
 bool checkAll(const std::string &puzzle, Grid &grid, const std::string &iniBoard,
-              const std::string &expectedBoard)
+              const std::string &expectedBoard, bool changed)
 {
     Grid gridIni;
     gridIni.fillBoard(iniBoard);
@@ -121,7 +127,9 @@ bool checkAll(const std::string &puzzle, Grid &grid, const std::string &iniBoard
     Grid gridExpected;
     gridExpected.fillBoard(expectedBoard);
 
-    return checkGrid(puzzle, gridIni, grid, gridExpected, true, true);
+    checkChanged(puzzle, changed);
+
+    return checkGrid(puzzle, gridIni, grid, gridExpected, true, true) && changed;
 }
 
 #endif // SUDOKU_TEST_H

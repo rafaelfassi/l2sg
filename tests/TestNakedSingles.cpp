@@ -5,9 +5,9 @@ bool test(const std::string &puzzle, const std::string &board, const std::string
     Grid grid;
     grid.fillBoard(board);
 
-    solver::techniques::nakedSingles(grid);
+    bool changed = solver::techniques::nakedSingles(grid);
 
-    return checkAll(puzzle, grid, board, expectedBoard);
+    return checkAll(puzzle, grid, board, expectedBoard, changed);
 }
 
 int main(int, char **)
