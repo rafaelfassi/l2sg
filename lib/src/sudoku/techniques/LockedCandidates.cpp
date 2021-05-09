@@ -24,117 +24,127 @@ bool lockedCandidates(Grid &pGrid)
         return true;
     };
 
-    const auto processDataFunc = [&pGrid](const int vIdx, const int type, const auto &dataSet) -> bool {
+    const auto findType1 = [&pGrid](const int vIdx, const int type, const auto &dataSet) -> bool {
         for (int i = 0; i < 9; i += 3)
         {
-            // Findings for Type 1 (Pointing)
-            std::optional<int> iFoundType1;
-            std::bitset<3> foundSetType1;
-            std::bitset<3> othersSetType1;
+            int iFound;
+            std::bitset<3> foundSet;
 
-            // Findings for Type 2 (Claiming)
-            std::optional<int> iFoundType2;
-            std::bitset<3> foundSetType2;
-            std::bitset<3> othersSetType2;
+            const auto check = [&](int o1, int o2, int o3) -> bool {
+                // If the tested row (i+o1) doesn't have candidates in more than one block, there are no
+                // candidates to be removed.
+                if (dataSet[vIdx][i + o1].count() < 2)
+                    return false;
 
-            for (int ib = i; ib < i + 3; ++ib)
+                // Keep in the foundSet the block where the candidate(s) are in one line only (if any)
+                // Example:
+                // 0 1 1 Merged set of the other rows (i+o2, i+o3)
+                // 1 0 1 The set of the row being tested (i+o1)
+                // ----- AND operation
+                // 0 0 1
+                // 1 0 1 The set of the row being tested (i+o1)
+                // ----- XOR operation
+                // 1 0 0 Result foundSet
+                foundSet = (dataSet[vIdx][i + o1] & (dataSet[vIdx][i + o2] | dataSet[vIdx][i + o3])) ^
+                           dataSet[vIdx][i + o1];
+                // A valid foundSet must have count=1 (the block with candidate(s) only in one row)
+                if (foundSet.count() == 1)
+                {
+                    iFound = i + o1;
+                    return true;
+                }
+                return false;
+            };
+
+            if (!check(0, 1, 2))
+                if (!check(1, 0, 2))
+                    if (!check(2, 1, 0))
+                        continue;
+
+            // Gets the starting column of the block
+            const int j = utils::bitset_it(foundSet).front() * 3;
+            if (type == Grid::T_LINE)
             {
-                const auto blocks = dataSet[vIdx][ib].count();
-
-                // The value must be found in more than one block for the same row.
-                if (!iFoundType1.has_value() && (blocks > 1))
-                {
-                    // Stores the row number and the block's set of the row.
-                    iFoundType1 = ib;
-                    foundSetType1 = dataSet[vIdx][ib];
-                }
-                else
-                {
-                    // Merge the block's set of the other rows.
-                    othersSetType1 |= dataSet[vIdx][ib];
-                }
-
-                // The value must be found in only one block for the row.
-                if (!iFoundType2.has_value() && (blocks == 1))
-                {
-                    iFoundType2 = ib;
-                    foundSetType2 = dataSet[vIdx][ib];
-                }
-                else
-                {
-                    othersSetType2 |= dataSet[vIdx][ib];
-                }
+                pGrid.clearRowNotes(iFound, vIdx + 1, [j](int c) { return (c < j) || (c > j + 2); });
             }
-
-            // Keep in the foundSet only the block where the value was found in one line only
-            // Example:
-            // 0 1 1 Merged set of the other rows
-            // 1 0 1 The set of the found row (if a row was found, it contains two or three blocks)
-            // ----- AND operation
-            // 0 0 1
-            // 1 0 1 The set of the found row
-            // ----- XOR operation
-            // 1 0 0
-            foundSetType1 = (foundSetType1 & othersSetType1) ^ foundSetType1;
-            // Now, if foundSet is valid, its count must be 1 (the block with the candidate only in one line)
-            if (iFoundType1.has_value() && (foundSetType1.count() == 1))
+            else if (type == Grid::T_COLUMN)
             {
-                // Gets the starting column of the block
-                const int j = utils::bitset_it(foundSetType1).front() * 3;
-                if (type == Grid::T_LINE)
-                {
-                    pGrid.clearRowNotes(*iFoundType1, vIdx + 1,
-                                        [j](int c) { return (c < j) || (c > j + 2); });
-                }
-                else if (type == Grid::T_COLUMN)
-                {
-                    pGrid.clearColNotes(*iFoundType1, vIdx + 1,
-                                        [j](int r) { return (r < j) || (r > j + 2); });
-                }
-                return true;
+                pGrid.clearColNotes(iFound, vIdx + 1, [j](int r) { return (r < j) || (r > j + 2); });
             }
-            // If Type 1 (Pointing) was not found, let's try Type 2 (Claiming)
-            // As the foundSet has only one block, it is used as a mask to check
-            // whether there are candidates to be removed.
-            // Example:
-            // 1 0 1 Merged set of the other rows
-            // 1 0 0 The set of the found row (if a row was found, it contains only one block)
-            // ----- AND operation
-            // 1 0 0
-            // If the are no candidates to remove, the result is (0 0 0), otherwise it contains only
-            // one block for sure. Using any() is more efficient than (count()==1).
-            else if (iFoundType2.has_value() && (foundSetType2 & othersSetType2).any())
+            return true;
+        }
+        return false;
+    };
+
+    const auto findType2 = [&pGrid](const int vIdx, const int type, const auto &dataSet) -> bool {
+        for (int i = 0; i < 9; i += 3)
+        {
+            int iFound;
+            std::bitset<3> foundSet;
+
+            const auto check = [&](int o1, int o2, int o3) -> bool {
+                // The tested row (i+o1) must have the candidate(s) in only one block
+                if (dataSet[vIdx][i + o1].count() != 1)
+                    return false;
+
+                // As the tested row (i+o1) has only one block, it is used as a mask to check
+                // whether there are candidates to be removed.
+                // Example:
+                // 1 0 1 Merged set of the other rows (i+o2, i+o3)
+                // 1 0 0 The set of the row being tested (i+o1) (has only one block)
+                // ----- AND operation
+                // 1 0 0
+                // If the are no candidates to remove, the result is {0 0 0}, otherwise it contains only
+                // one block for sure. Using any() is more efficient than (count()==1).
+                if ((dataSet[vIdx][i + o1] & (dataSet[vIdx][i + o2] | dataSet[vIdx][i + o3])).any())
+                {
+                    foundSet = dataSet[vIdx][i + o1];
+                    iFound = i + o1;
+                    return true;
+                }
+                return false;
+            };
+
+            if (!check(0, 1, 2))
+                if (!check(1, 0, 2))
+                    if (!check(2, 1, 0))
+                        continue;
+
+            // Gets the starting column of the block
+            const int j = utils::bitset_it(foundSet).front() * 3;
+            if (type == Grid::T_LINE)
             {
-                // Gets the starting column of the block
-                const int j = utils::bitset_it(foundSetType2).front() * 3;
-                if (type == Grid::T_LINE)
-                {
-                    const int blk = pGrid.getBlockNumber(*iFoundType2, j);
-                    pGrid.clearBlockNotes(blk, vIdx + 1,
-                                          [&iFoundType2](int, int r, int) { return (r != iFoundType2); });
-                }
-                else if (type == Grid::T_COLUMN)
-                {
-                    const int blk = pGrid.getBlockNumber(j, *iFoundType2);
-                    pGrid.clearBlockNotes(blk, vIdx + 1,
-                                          [&iFoundType2](int, int, int c) { return (c != iFoundType2); });
-                }
-                return true;
+                const int blk = pGrid.getBlockNumber(iFound, j);
+                pGrid.clearBlockNotes(blk, vIdx + 1, [&iFound](int, int r, int) { return (r != iFound); });
             }
+            else if (type == Grid::T_COLUMN)
+            {
+                const int blk = pGrid.getBlockNumber(j, iFound);
+                pGrid.clearBlockNotes(blk, vIdx + 1, [&iFound](int, int, int c) { return (c != iFound); });
+            }
+            return true;
         }
         return false;
     };
 
     pGrid.forAllCells(fillDataFunc);
 
-    bool changed(false);
     for (int vIdx = 0; vIdx < 9; ++vIdx)
     {
-        changed |= processDataFunc(vIdx, Grid::T_LINE, blocksInRowSet);
-        changed |= processDataFunc(vIdx, Grid::T_COLUMN, blocksInColSet);
+        if (findType1(vIdx, Grid::T_LINE, blocksInRowSet))
+            return true;
+
+        if (findType1(vIdx, Grid::T_COLUMN, blocksInColSet))
+            return true;
+
+        if (findType2(vIdx, Grid::T_LINE, blocksInRowSet))
+            return true;
+
+        if (findType2(vIdx, Grid::T_COLUMN, blocksInColSet))
+            return true;
     }
 
-    return changed;
+    return false;
 }
 
 } // namespace sudoku::solver::techniques
