@@ -10,45 +10,58 @@ bool basicFish(Grid &pGrid, int iniSize, int maxSize)
     utils::CombinationsGen combination;
     const auto &summary(pGrid.getSummary());
 
-    const auto processSets = [&](int type, int vIdx, int currSize, auto &iCandidatesSet) -> bool {
+    const auto processSets = [&](int type, int vIdx, int currSize, auto &iCandidatesSet,
+                                 const auto &jDataFunc) -> bool {
         // Make combinations of {currSize} rows
         combination.reset(iCandidatesSet[vIdx].size(), currSize);
         combLst.clear();
-        // For each combination
+        // For each combination of rows
         while (combination.getNextCombination(combLst))
         {
             // Count how many times the value appears for each column in the current combination.
-            int jValueCount[9] = {};
+            int jNotesCount[9] = {};
+            std::bitset<9> jMergedSet;
+            bool good(true);
+
             for (auto comb : combLst)
             {
                 // Get the row number
                 const int i = iCandidatesSet[vIdx][comb];
-                const auto &jSet = ((type == Grid::T_LINE) ? summary.getColsByRowNote(i, vIdx)
-                                                           : summary.getRowsByColNote(i, vIdx));
+                const auto &jSet = jDataFunc(i, vIdx);
+                jMergedSet |= jSet;
+
+                if (jMergedSet.count() > currSize)
+                {
+                    good = false;
+                    break;
+                }
 
                 for (const auto j : utils::bitset_it(jSet))
                 {
-                    ++jValueCount[j];
+                    ++jNotesCount[j];
                 }
             }
 
+            if (!good)
+                continue;
+
             // Check if all rows are fully connected to each other by common columns.
-            // For that, the value must appear in at least two rows at the same column, as follow:
+            // For that, the note must appear in at least two rows at the same column, as follow:
             // 1 0 1 0 0
             // 1 0 0 1 0
             // 0 0 1 1 0
             // ---------
             // 2 0 2 2 0
             int connectedCount(0);
-            for (int j = 0; j < 9; ++j)
+            for (const auto j : utils::bitset_it(jMergedSet))
             {
-                if (jValueCount[j] == 1)
+                if (jNotesCount[j] == 1)
                 {
                     // Column only intersects one row, therefore the rows are not fully connected.
                     connectedCount = 0;
                     break;
                 }
-                else if (jValueCount[j] > 1)
+                else if (jNotesCount[j] > 1)
                 {
                     ++connectedCount;
                 }
@@ -58,29 +71,36 @@ bool basicFish(Grid &pGrid, int iniSize, int maxSize)
             if (connectedCount == currSize)
             {
                 int changedCount(false);
-                for (int j = 0; j < 9; ++j)
+                for (const auto j : utils::bitset_it(jMergedSet))
                 {
-                    if ((jValueCount[j] > 1) && (jValueCount[j] <= currSize))
+                    if (jNotesCount[j] > 1)
                     {
                         if (type == Grid::T_LINE)
                         {
-                            changedCount +=
-                                pGrid.clearColNotes(j, vIdx + 1, [vIdx, &combLst, &iCandidatesSet](int r) {
-                                    for (auto comb : combLst)
-                                        if (r == iCandidatesSet[vIdx][comb])
-                                            return false;
-                                    return true;
-                                });
+                            // Are there notes to be removed?
+                            if (summary.getRowsByColNote(j, vIdx).count() > jNotesCount[j])
+                            {
+                                changedCount += pGrid.clearColNotes(
+                                    j, vIdx + 1, [vIdx, &combLst, &iCandidatesSet](int r) {
+                                        for (auto comb : combLst)
+                                            if (r == iCandidatesSet[vIdx][comb])
+                                                return false;
+                                        return true;
+                                    });
+                            }
                         }
                         else if (type == Grid::T_COLUMN)
                         {
-                            changedCount +=
-                                pGrid.clearRowNotes(j, vIdx + 1, [vIdx, &combLst, &iCandidatesSet](int c) {
-                                    for (auto comb : combLst)
-                                        if (c == iCandidatesSet[vIdx][comb])
-                                            return false;
-                                    return true;
-                                });
+                            if (summary.getColsByRowNote(j, vIdx).count() > jNotesCount[j])
+                            {
+                                changedCount += pGrid.clearRowNotes(
+                                    j, vIdx + 1, [vIdx, &combLst, &iCandidatesSet](int c) {
+                                        for (auto comb : combLst)
+                                            if (c == iCandidatesSet[vIdx][comb])
+                                                return false;
+                                        return true;
+                                    });
+                            }
                         }
                     }
                 }
@@ -111,19 +131,20 @@ bool basicFish(Grid &pGrid, int iniSize, int maxSize)
             }
         }
 
-        bool changed(false);
         for (int vIdx = 0; vIdx < 9; ++vIdx)
         {
             // If there are {currSize} or more rows with the current candidate.
             if (candidateRows[vIdx].size() >= currSize)
             {
-                if (processSets(Grid::T_LINE, vIdx, currSize, candidateRows))
+                if (processSets(Grid::T_LINE, vIdx, currSize, candidateRows,
+                                [&summary](int i, int vIdx) { return summary.getColsByRowNote(i, vIdx); }))
                     return true;
             }
 
             if (candidateCols[vIdx].size() >= currSize)
             {
-                if (processSets(Grid::T_COLUMN, vIdx, currSize, candidateCols))
+                if (processSets(Grid::T_COLUMN, vIdx, currSize, candidateCols,
+                                [&summary](int i, int vIdx) { return summary.getRowsByColNote(i, vIdx); }))
                     return true;
             }
         }
