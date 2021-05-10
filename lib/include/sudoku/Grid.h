@@ -102,6 +102,12 @@ public:
     inline void setValue(int _nLin, int _nCol, int _nVal) { m_cells[_nLin][_nCol].setValue(_nVal); }
     inline size_t notesCount(int _nLin, int _nCol) const { return m_cells[_nLin][_nCol].notesCount(); }
     inline Cell::Notes getNotes(int _nLin, int _nCol) const { return m_cells[_nLin][_nCol].getNotes(); }
+    inline Cell::Notes getTranslatedNotes(int _i, int _j, int type)
+    {
+        int l, c;
+        translateCoordinates(_i, _j, l, c, type);
+        return m_cells[l][c].getNotes();
+    }
     inline bool hasNote(int _nLin, int _nCol, int _nVal) const
     {
         return m_cells[_nLin][_nCol].hasNote(_nVal);

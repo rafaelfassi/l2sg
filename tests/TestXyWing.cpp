@@ -2,13 +2,12 @@
 
 bool test(const std::string &puzzle, const std::string &board, const std::string &expectedBoard)
 {
-    return true;
-    // Grid grid;
-    // grid.fillBoard(board);
+    Grid grid;
+    grid.fillBoard(board);
 
-    // bool changed = solver::techniques::xYWings(grid);
+    bool changed = solver::techniques::xyWing(grid);
 
-    // return checkAll(puzzle, grid, board, expectedBoard, changed);
+    return checkAll(puzzle, grid, board, expectedBoard, changed);
 }
 
 int main(int, char **)

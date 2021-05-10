@@ -56,6 +56,9 @@ Level solver::solveLevel(Grid &pGrid, Level maxLevel)
         if (techniques::basicFish(pGrid, 3, 4))
             continue;
 
+        if (techniques::xyWing(pGrid))
+            continue;
+
         SWITCH_LEVEL(LEV_3_GUESS, level, maxLevel)
 
         if (solveByGuesses(pGrid) == 1)

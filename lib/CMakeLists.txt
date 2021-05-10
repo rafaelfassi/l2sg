@@ -11,6 +11,7 @@ add_library(sudoku_lib STATIC
     src/sudoku/techniques/HiddenSingles.cpp
     src/sudoku/techniques/LockedCandidates.cpp
     src/sudoku/techniques/XWings.cpp
+    src/sudoku/techniques/XyWing.cpp
     src/sudoku/techniques/BasicFish.cpp
     src/sudoku/techniques/HiddenMulti.cpp
     src/sudoku/techniques/NakedMulti.cpp

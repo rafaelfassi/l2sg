@@ -12,14 +12,16 @@ All implemented algorithms are focused in performance.
 * Hidden (Single, Pair, Triple, Quadruple)
 * Locked Candidates (Pointing, Claiming)
 * Basic Fish (X-Wings, Swordfish, Jellyfish)
+* XY-Wing
 * Guessing / Brute Force
 
 ## Build
 
-__Minimum Requirements__
+__Minimum requirements__
 * C++ 17
 * CMake 3.10
 
+Building the project via command line:
 ```
 mkdir build
 cd build
