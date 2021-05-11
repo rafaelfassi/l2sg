@@ -5,14 +5,16 @@
 namespace sudoku::solver::techniques
 {
 
-bool hiddenMulti(Grid &pGrid, int iniMultiplicity, int maxMultiplicity)
+bool hiddenMulti(Grid &pGrid, HiddenMultiType multiType, Logs *logs)
 {
+    Log log;
     utils::CombinationsGen combination;
     std::vector<int> combLst;
     std::vector<int> validCandVec;
+    size_t multiplicity(static_cast<size_t>(multiType));
 
-    const auto processCandidates = [&](int i, size_t multiplicity, const auto &availableCandVec, int type,
-                                       const auto &sourceDataFunc) -> bool {
+    const auto processCandidates = [&](int i, const auto &availableCandVec, int type, const auto &sourceDataFunc) -> bool
+    {
         validCandVec.clear();
         for (const auto vIdx : availableCandVec)
         {
@@ -59,9 +61,46 @@ bool hiddenMulti(Grid &pGrid, int iniMultiplicity, int maxMultiplicity)
                     {
                         pGrid.setNotes(i, j, type, Cell::Notes(notes & combCandidates));
                         changed = true;
-                        // std::cout << "Found hidden at i: " << i << " type: " << type << std::endl;
+
+                        if (logs)
+                        {
+                            int l, c;
+                            pGrid.translateCoordinates(i, j, l, c, type);
+
+                            const auto relatedNotes = Cell::Notes(notes & combCandidates);
+                            for (const auto vIdx : utils::bitset_it(relatedNotes))
+                            {
+                                log.cellLogs.emplace_back(l, c, CellAction::RelatedNote, vIdx + 1);
+                            }
+
+                            const auto removedNotes = Cell::Notes(relatedNotes ^ notes);
+                            for (const auto vIdx : utils::bitset_it(removedNotes))
+                            {
+                                log.cellLogs.emplace_back(l, c, CellAction::RemovedNote, vIdx + 1);
+                            }
+                        }
                     }
                 }
+
+                if (changed && logs)
+                {
+                    switch (multiType)
+                    {
+                    case HiddenMultiType::Pair:
+                        log.technique = Technique::HiddenPair;
+                        break;
+                    case HiddenMultiType::Triple:
+                        log.technique = Technique::HiddenTriple;
+                        break;
+                    case HiddenMultiType::Quadruple:
+                        log.technique = Technique::HiddenQuadruple;
+                        break;
+                    default:
+                        break;
+                    }
+                    logs->push_back(std::move(log));
+                }
+
                 return changed;
             }
         }
@@ -70,38 +109,31 @@ bool hiddenMulti(Grid &pGrid, int iniMultiplicity, int maxMultiplicity)
 
     const auto &summary(pGrid.getSummary());
 
-    combLst.reserve(maxMultiplicity);
+    combLst.reserve(multiplicity);
     validCandVec.reserve(9);
 
-    // For each size of combinations.
-    for (int multiplicity = iniMultiplicity; (multiplicity <= maxMultiplicity); ++multiplicity)
+    // For each row
+    for (int i = 0; i < 9; ++i)
     {
-        // For each row
-        for (int i = 0; i < 9; ++i)
+        if (summary.getNotesByRow(i).size() > multiplicity)
         {
-            if (summary.getNotesByRow(i).size() > multiplicity)
-            {
-                if (processCandidates(
-                        i, multiplicity, summary.getNotesByRow(i), Grid::T_LINE,
-                        [&summary](int i, int vIdx) { return summary.getColsByRowNote(i, vIdx); }))
-                    return true;
-            }
+            if (processCandidates(i, summary.getNotesByRow(i), Grid::T_LINE,
+                                  [&summary](int i, int vIdx) { return summary.getColsByRowNote(i, vIdx); }))
+                return true;
+        }
 
-            if (summary.getNotesByCol(i).size() > multiplicity)
-            {
-                if (processCandidates(
-                        i, multiplicity, summary.getNotesByCol(i), Grid::T_COLUMN,
-                        [&summary](int i, int vIdx) { return summary.getRowsByColNote(i, vIdx); }))
-                    return true;
-            }
+        if (summary.getNotesByCol(i).size() > multiplicity)
+        {
+            if (processCandidates(i, summary.getNotesByCol(i), Grid::T_COLUMN,
+                                  [&summary](int i, int vIdx) { return summary.getRowsByColNote(i, vIdx); }))
+                return true;
+        }
 
-            if (summary.getNotesByBlk(i).size() > multiplicity)
-            {
-                if (processCandidates(
-                        i, multiplicity, summary.getNotesByBlk(i), Grid::T_BLOCK,
-                        [&summary](int i, int vIdx) { return summary.getElmsByBlkNote(i, vIdx); }))
-                    return true;
-            }
+        if (summary.getNotesByBlk(i).size() > multiplicity)
+        {
+            if (processCandidates(i, summary.getNotesByBlk(i), Grid::T_BLOCK,
+                                  [&summary](int i, int vIdx) { return summary.getElmsByBlkNote(i, vIdx); }))
+                return true;
         }
     }
 

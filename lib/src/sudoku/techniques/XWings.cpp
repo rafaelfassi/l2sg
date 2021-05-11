@@ -4,8 +4,9 @@
 namespace sudoku::solver::techniques
 {
 
-bool xWings(Grid &pGrid)
+bool xWings(Grid &pGrid, Logs *logs)
 {
+    Log log(Technique::XWings);
     const auto &summary(pGrid.getSummary());
 
     const auto processDataFunc = [&](int i, int v, const int type, const auto &dataSet) -> bool {
@@ -22,15 +23,30 @@ bool xWings(Grid &pGrid)
                 {
                     if (type == Grid::T_LINE)
                         changedCount +=
-                            pGrid.clearColNotes(j, v, [i, i2](int r) { return (r != i) && (r != i2); });
+                            pGrid.clearColNotes(j, v, &log.cellLogs, [i, i2](int r) { return (r != i) && (r != i2); });
                     else if (type == Grid::T_COLUMN)
                         changedCount +=
-                            pGrid.clearRowNotes(j, v, [i, i2](int c) { return (c != i) && (c != i2); });
+                            pGrid.clearRowNotes(j, v, &log.cellLogs, [i, i2](int c) { return (c != i) && (c != i2); });
                 }
                 if (changedCount > 0)
+                {
+                    if (logs)
+                    {
+                        for (const auto j : utils::bitset_it(dataSet))
+                        {
+                            int l, c;
+                            pGrid.translateCoordinates(i, j, l, c, type);
+                            log.cellLogs.emplace_back(l, c, CellAction::RelatedNote, v);
+
+                            pGrid.translateCoordinates(i2, j, l, c, type);
+                            log.cellLogs.emplace_back(l, c, CellAction::RelatedNote, v);
+                        }
+                        logs->push_back(std::move(log));
+                    }
                     return true;
-                else
-                    break;
+                }
+
+                break;
             }
         }
         return false;

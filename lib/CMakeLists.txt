@@ -7,6 +7,8 @@ add_library(sudoku_lib STATIC
 # Source
     src/sudoku/Grid.cpp
     src/sudoku/Solver.cpp
+    src/sudoku/Enums.cpp
+    src/sudoku/Logs.cpp
     src/sudoku/techniques/NakedSingles.cpp
     src/sudoku/techniques/HiddenSingles.cpp
     src/sudoku/techniques/LockedCandidates.cpp
@@ -23,6 +25,8 @@ add_library(sudoku_lib STATIC
     include/sudoku/Cell.h
     include/sudoku/Grid.h
     include/sudoku/Solver.h
+    include/sudoku/Enums.h
+    include/sudoku/Logs.h
 )
 
 target_include_directories(sudoku_lib

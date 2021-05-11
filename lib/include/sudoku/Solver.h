@@ -21,18 +21,18 @@ namespace solver
 namespace techniques
 {
 
-bool nakedSingles(Grid &pGrid, bool *check = nullptr);
-bool hiddenSingles(Grid &pGrid);
-bool lockedCandidates(Grid &pGrid);
-bool xWings(Grid &pGrid); // basicFish with size=2 does the same job, but this is more efficient.
-bool xyWing(Grid &pGrid);
-bool basicFish(Grid &pGrid, int iniSize = 3, int maxSize = 4);
-bool hiddenMulti(Grid &pGrid, int iniMultiplicity = 2, int maxMultiplicity = 4);
-bool nakedMulti(Grid &pGrid, int iniMultiplicity = 2, int maxMultiplicity = 4);
+bool nakedSingles(Grid &pGrid, Logs *logs = nullptr, bool *check = nullptr);
+bool hiddenSingles(Grid &pGrid, Logs *logs = nullptr);
+bool lockedCandidates(Grid &pGrid, Logs *logs = nullptr);
+bool xWings(Grid &pGrid, Logs *logs = nullptr); // basicFish with size=2 does the same job, but this is more efficient.
+bool xyWing(Grid &pGrid, Logs *logs = nullptr);
+bool basicFish(Grid &pGrid, BasicFishType fishType, Logs *logs = nullptr);
+bool hiddenMulti(Grid &pGrid, HiddenMultiType multiType, Logs *logs = nullptr);
+bool nakedMulti(Grid &pGrid, NakedMultiType multiType, Logs *logs = nullptr);
 
 } // namespace techniques
 
-Level solveLevel(Grid &pGrid, Level maxLevel = LEV_3_GUESS);
+Level solveLevel(Grid &pGrid, Logs *logs = nullptr, Level maxLevel = LEV_3_GUESS);
 int solveByGuesses(Grid &pGrid, int maxSolutions = 1);
 
 } // namespace solver

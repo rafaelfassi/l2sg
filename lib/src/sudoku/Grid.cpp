@@ -387,7 +387,7 @@ int Grid::countNotes(int _nVal, int _i, int _type)
     return count;
 }
 
-int Grid::clearNotesCascade(int _nLin, int _nCol, int _nValue, bool *check)
+int Grid::clearNotesCascade(int _nLin, int _nCol, int _nValue,  CellLogs *cellLogs, bool *check)
 {
     int cleanedCount(clearNotes(_nLin, _nCol));
 
@@ -403,6 +403,8 @@ int Grid::clearNotesCascade(int _nLin, int _nCol, int _nValue, bool *check)
                 *check = false;
                 return 0;
             }
+            if (cellLogs)
+                cellLogs->emplace_back(l, _nCol, CellAction::RemovedNote, _nValue);
             ++cleanedCount;
         }
     }
@@ -419,6 +421,8 @@ int Grid::clearNotesCascade(int _nLin, int _nCol, int _nValue, bool *check)
                 *check = false;
                 return 0;
             }
+            if (cellLogs)
+                cellLogs->emplace_back(_nLin, c, CellAction::RemovedNote, _nValue);
             ++cleanedCount;
         }
     }
@@ -438,6 +442,8 @@ int Grid::clearNotesCascade(int _nLin, int _nCol, int _nValue, bool *check)
                 *check = false;
                 return 0;
             }
+            if (cellLogs)
+                cellLogs->emplace_back(l, c, CellAction::RemovedNote, _nValue);
             ++cleanedCount;
         }
     }
@@ -450,7 +456,7 @@ int Grid::clearNotesCascade(int _nLin, int _nCol, int _nValue, bool *check)
     return cleanedCount;
 }
 
-int Grid::clearRowNotes(int _row, int _val, const std::function<bool(int)> &_clear)
+int Grid::clearRowNotes(int _row, int _val, CellLogs *cellLogs, const std::function<bool(int)> &_clear)
 {
     int count(0);
     for (int c = 0; c < 9; ++c)
@@ -458,13 +464,15 @@ int Grid::clearRowNotes(int _row, int _val, const std::function<bool(int)> &_cle
         if (hasNote(_row, c, _val) && _clear(c))
         {
             setNote(_row, c, _val, false);
+            if (cellLogs)
+                cellLogs->emplace_back(_row, c, CellAction::RemovedNote, _val);
             ++count;
         }
     }
     return count;
 }
 
-int Grid::clearColNotes(int _col, int _val, const std::function<bool(int)> &_clear)
+int Grid::clearColNotes(int _col, int _val, CellLogs *cellLogs, const std::function<bool(int)> &_clear)
 {
     int count(0);
     for (int l = 0; l < 9; ++l)
@@ -472,13 +480,15 @@ int Grid::clearColNotes(int _col, int _val, const std::function<bool(int)> &_cle
         if (hasNote(l, _col, _val) && _clear(l))
         {
             setNote(l, _col, _val, false);
+            if (cellLogs)
+                cellLogs->emplace_back(l, _col, CellAction::RemovedNote, _val);
             ++count;
         }
     }
     return count;
 }
 
-int Grid::clearBlockNotes(int _blk, int _val, const std::function<bool(int, int, int)> &_clear)
+int Grid::clearBlockNotes(int _blk, int _val, CellLogs *cellLogs, const std::function<bool(int, int, int)> &_clear)
 {
     int count(0);
     for (int e = 0; e < 9; ++e)
@@ -487,6 +497,8 @@ int Grid::clearBlockNotes(int _blk, int _val, const std::function<bool(int, int,
         if (hasNote(l, c, _val) && _clear(e, l, c))
         {
             setNote(l, c, _val, false);
+            if (cellLogs)
+                cellLogs->emplace_back(l, c, CellAction::RemovedNote, _val);
             ++count;
         }
     }

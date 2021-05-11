@@ -5,11 +5,12 @@
 namespace sudoku::solver::techniques
 {
 
-bool xyWing(Grid &pGrid)
+bool xyWing(Grid &pGrid, Logs *logs)
 {
     std::vector<std::pair<int, int>> foundZVec;
 
-    const auto findZInIntersection = [&](int z, int r1, int c1, int r2, int c2) {
+    const auto findZInIntersection = [&](int z, int r1, int c1, int r2, int c2)
+    {
         int b1, e1, b2, e2;
         pGrid.translateCoordinates(r1, c1, b1, e1, Grid::T_BLOCK);
         pGrid.translateCoordinates(r2, c2, b2, e2, Grid::T_BLOCK);
@@ -36,7 +37,8 @@ bool xyWing(Grid &pGrid)
         }
     };
 
-    const auto findPincersForPivot = [&](int r, int c) -> bool {
+    const auto findPincersForPivot = [&](int r, int c) -> bool
+    {
         // pivot with X and Y
         const auto pivot = pGrid.getNotes(r, c);
 
@@ -75,8 +77,7 @@ bool xyWing(Grid &pGrid)
 
                                 // Check whether the pivot and the found pincers are not all in the same row,
                                 // column or block.
-                                if (((r == rP1) && (r == rP2)) || ((c == cP1) && (c == cP2)) ||
-                                    ((b == bP1) && (b == bP2)))
+                                if (((r == rP1) && (r == rP2)) || ((c == cP1) && (c == cP2)) || ((b == bP1) && (b == bP2)))
                                     continue;
 
                                 // Extracts Z
@@ -84,19 +85,31 @@ bool xyWing(Grid &pGrid)
 
                                 // Tries to find Z in the intersection of pincer1 and pincer2
                                 findZInIntersection(z, rP1, cP1, rP2, cP2);
-                                // if (!foundZVec.empty())
-                                // {
-                                //     std::cout << "Found pivot at: " << r << "," << c << std::endl;
-                                //     std::cout << "Pincer 1 at: " << rP1 << "," << cP1 << std::endl;
-                                //     std::cout << "Pincer 2 at: " << rP2 << "," << cP2 << std::endl;
-                                //     std::cout << "Note to remove: " << z << std::endl;
-                                // }
 
                                 // Removes Z from the cells' notes (if any was found)
                                 if (!foundZVec.empty())
                                 {
                                     for (const auto &[rRm, cRm] : foundZVec)
                                         pGrid.setNote(rRm, cRm, z, false);
+
+                                    if (logs)
+                                    {
+                                        Log log(Technique::XYWing);
+                                        for (const auto note : utils::bitset_it(pivot))
+                                            log.cellLogs.emplace_back(r, c, CellAction::RelatedNote, note + 1);
+
+                                        for (const auto note : utils::bitset_it(pincer1))
+                                            log.cellLogs.emplace_back(rP1, cP1, CellAction::RelatedNote, note + 1);
+
+                                        for (const auto note : utils::bitset_it(pincer2))
+                                            log.cellLogs.emplace_back(rP2, cP2, CellAction::RelatedNote, note + 1);
+
+                                        for (const auto &[rRm, cRm] : foundZVec)
+                                            log.cellLogs.emplace_back(rRm, cRm, CellAction::RemovedNote, z);
+
+                                        logs->push_back(std::move(log));
+                                    }
+
                                     return true;
                                 }
                             }

@@ -5,15 +5,19 @@
 namespace sudoku::solver::techniques
 {
 
-bool nakedMulti(Grid &pGrid, int iniMultiplicity, int maxMultiplicity)
+bool nakedMulti(Grid &pGrid, NakedMultiType multiType, Logs *logs)
 {
+    Log log;
     utils::CombinationsGen combination;
     std::vector<int> combLst;
     std::vector<std::pair<int, Cell *>> validCellsVec;
-    validCellsVec.reserve(9);
-    combLst.reserve(maxMultiplicity);
+    size_t multiplicity(static_cast<size_t>(multiType));
 
-    const auto processData = [&](int i, int type, int multiplicity) -> bool {
+    validCellsVec.reserve(9);
+    combLst.reserve(multiplicity);
+
+    const auto processData = [&](int i, int type) -> bool
+    {
         validCellsVec.clear();
         for (int j = 0; j < 9; ++j)
         {
@@ -49,21 +53,52 @@ bool nakedMulti(Grid &pGrid, int iniMultiplicity, int maxMultiplicity)
                 {
                     if (type == Grid::T_LINE)
                     {
-                        changedCnt += pGrid.clearRowNotes(i, vIdx + 1, [&jSet](int c) { return !jSet.test(c); });
+                        changedCnt += pGrid.clearRowNotes(i, vIdx + 1, &log.cellLogs, [&jSet](int c) { return !jSet.test(c); });
                     }
                     else if (type == Grid::T_COLUMN)
                     {
-                        changedCnt += pGrid.clearColNotes(i, vIdx + 1, [&jSet](int r) { return !jSet.test(r); });
+                        changedCnt += pGrid.clearColNotes(i, vIdx + 1, &log.cellLogs, [&jSet](int r) { return !jSet.test(r); });
                     }
                     else if (type == Grid::T_BLOCK)
                     {
-                        changedCnt += pGrid.clearBlockNotes(i, vIdx + 1,
-                                                         [&jSet](int e, int, int) { return !jSet.test(e); });
+                        changedCnt +=
+                            pGrid.clearBlockNotes(i, vIdx + 1, &log.cellLogs, [&jSet](int e, int, int) { return !jSet.test(e); });
                     }
                 }
 
                 if (changedCnt > 0)
+                {
+                    if (logs)
+                    {
+                        switch (multiType)
+                        {
+                        case NakedMultiType::Pair:
+                            log.technique = Technique::NakedPair;
+                            break;
+                        case NakedMultiType::Triple:
+                            log.technique = Technique::NakedTriple;
+                            break;
+                        case NakedMultiType::Quadruple:
+                            log.technique = Technique::NakedQuadruple;
+                            break;
+                        default:
+                            break;
+                        }
+
+                        for (const int cmb : combLst)
+                        {
+                            int l, c;
+                            const auto &[j, cell] = validCellsVec[cmb];
+                            pGrid.translateCoordinates(i, j, l, c, type);
+                            for (const auto vIdx : utils::bitset_it(cell->getNotes()))
+                            {
+                                log.cellLogs.emplace_back(l, c, CellAction::RelatedNote, vIdx + 1);
+                            }
+                        }
+                        logs->push_back(std::move(log));
+                    }
                     return true;
+                }
             }
         }
         return false;
@@ -71,29 +106,25 @@ bool nakedMulti(Grid &pGrid, int iniMultiplicity, int maxMultiplicity)
 
     const auto &summary(pGrid.getSummary());
 
-    // For each size of combinations.
-    for (int multiplicity = iniMultiplicity; (multiplicity <= maxMultiplicity); ++multiplicity)
+    // For each row
+    for (int i = 0; i < 9; ++i)
     {
-        // For each row
-        for (int i = 0; i < 9; ++i)
+        if (summary.getNotesByRow(i).size() > multiplicity)
         {
-            if (summary.getNotesByRow(i).size() > multiplicity)
-            {
-                if (processData(i, Grid::T_LINE, multiplicity))
-                    return true;
-            }
+            if (processData(i, Grid::T_LINE))
+                return true;
+        }
 
-            if (summary.getNotesByCol(i).size() > multiplicity)
-            {
-                if (processData(i, Grid::T_COLUMN, multiplicity))
-                    return true;
-            }
+        if (summary.getNotesByCol(i).size() > multiplicity)
+        {
+            if (processData(i, Grid::T_COLUMN))
+                return true;
+        }
 
-            if (summary.getNotesByBlk(i).size() > multiplicity)
-            {
-                if (processData(i, Grid::T_BLOCK, multiplicity))
-                    return true;
-            }
+        if (summary.getNotesByBlk(i).size() > multiplicity)
+        {
+            if (processData(i, Grid::T_BLOCK))
+                return true;
         }
     }
 

@@ -2,6 +2,7 @@
 #define SUDOKU_GRID_H
 
 #include "Cell.h"
+#include "Logs.h"
 #include <functional>
 #include <memory>
 #include <string>
@@ -66,7 +67,7 @@ public:
         D_ONE_LINE = 0x08 // Prints in one line
     };
 
-    inline void translateCoordinates(int _i, int _j, int &_l, int &_c, int type)
+    static inline void translateCoordinates(int _i, int _j, int &_l, int &_c, int type)
     {
         switch (type)
         {
@@ -112,6 +113,12 @@ public:
     {
         return m_cells[_nLin][_nCol].hasNote(_nVal);
     }
+    inline bool hasNote(int _i, int _j, int _nVal, int type) const
+    {
+        int l, c;
+        translateCoordinates(_i, _j, l, c, type);
+        return m_cells[l][c].hasNote(_nVal);
+    }
     inline void setNote(int _nLin, int _nCol, int _nVal, bool _bActive)
     {
         m_cells[_nLin][_nCol].setNote(_nVal, _bActive);
@@ -125,10 +132,10 @@ public:
     void fillNotes();
     void clearNotes();
     int countNotes(int _nVal, int _i, int _type);
-    int clearNotesCascade(int _nLin, int _nCol, int _nValue, bool *check = nullptr);
-    int clearRowNotes(int _row, int _val, const std::function<bool(int)> &_clear);
-    int clearColNotes(int _col, int _val, const std::function<bool(int)> &_clear);
-    int clearBlockNotes(int _blk, int _val, const std::function<bool(int, int, int)> &_clear);
+    int clearNotesCascade(int _nLin, int _nCol, int _nValue, CellLogs *cellLogs = nullptr, bool *check = nullptr);
+    int clearRowNotes(int _row, int _val, CellLogs *cellLogs = nullptr, const std::function<bool(int)> &_clear = [](int) { return true; });
+    int clearColNotes(int _col, int _val, CellLogs *cellLogs = nullptr, const std::function<bool(int)> &_clear = [](int) { return true; });
+    int clearBlockNotes(int _blk, int _val, CellLogs *cellLogs = nullptr, const std::function<bool(int, int, int)> &_clear = [](int, int, int) { return true; });
     std::string getNotesSignature();
     void forAllCells(const std::function<bool(int, int, int, int)> &_callback);
     bool compareValues(int *_pValues);

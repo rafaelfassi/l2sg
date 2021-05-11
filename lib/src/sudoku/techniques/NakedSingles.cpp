@@ -1,11 +1,12 @@
 #include "Grid.h"
+#include "Solver.h"
 #include "Utils.h"
 
 namespace sudoku::solver::techniques
 {
 
 // Encompasses Full House/Last Digit
-bool nakedSingles(Grid &pGrid, bool *check)
+bool nakedSingles(Grid &pGrid, Logs *logs, bool *check)
 {
     bool changedOverall(false);
     bool changed;
@@ -21,10 +22,18 @@ bool nakedSingles(Grid &pGrid, bool *check)
                 {
                     const auto note = utils::bitset_it(cell.getNotes()).front() + 1;
                     cell.setValue(note);
-                    pGrid.clearNotesCascade(i, j, note, check);
+                    pGrid.clearNotesCascade(i, j, note, nullptr, check);
+
                     if (check && !(*check))
                     {
                         return false;
+                    }
+
+                    if (logs)
+                    {
+                        Log log(Technique::NakedSingles);
+                        log.cellLogs.emplace_back(i, j, CellAction::SetValue, note);
+                        logs->push_back(std::move(log));
                     }
                     changed = true;
                 }

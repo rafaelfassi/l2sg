@@ -4,59 +4,67 @@
 #include <map>
 #include <string>
 
-#define SWITCH_LEVEL(p_newLevel, p_level, p_maxLevel)                                                        \
-    if (p_level == p_maxLevel)                                                                               \
-    {                                                                                                        \
-        p_level = LEV_UNKNOWN;                                                                               \
-        break;                                                                                               \
-    }                                                                                                        \
-    if (p_level < p_newLevel)                                                                                \
+#define SWITCH_LEVEL(p_newLevel, p_level, p_maxLevel)                                                                            \
+    if (p_level == p_maxLevel)                                                                                                   \
+    {                                                                                                                            \
+        p_level = LEV_UNKNOWN;                                                                                                   \
+        break;                                                                                                                   \
+    }                                                                                                                            \
+    if (p_level < p_newLevel)                                                                                                    \
         p_level = p_newLevel;
 
 namespace sudoku
 {
 
-Level solver::solveLevel(Grid &pGrid, Level maxLevel)
+Level solver::solveLevel(Grid &pGrid, Logs *logs, Level maxLevel)
 {
     int level(LEV_0_LOGIC);
 
     while (true)
     {
-        techniques::nakedSingles(pGrid);
+        techniques::nakedSingles(pGrid, logs);
 
         if (pGrid.isFull())
             break;
 
-        if (techniques::hiddenSingles(pGrid))
+        if (techniques::hiddenSingles(pGrid, logs))
             continue;
 
         SWITCH_LEVEL(LEV_1_LOGIC, level, maxLevel)
 
-        if (techniques::lockedCandidates(pGrid))
+        if (techniques::lockedCandidates(pGrid, logs))
             continue;
 
-        if (techniques::hiddenMulti(pGrid, 2, 2))
+        if (techniques::hiddenMulti(pGrid, HiddenMultiType::Pair, logs))
             continue;
 
-        if (techniques::nakedMulti(pGrid, 2, 2))
+        if (techniques::nakedMulti(pGrid, NakedMultiType::Pair, logs))
             continue;
 
         SWITCH_LEVEL(LEV_2_LOGIC, level, maxLevel)
 
-        if (techniques::hiddenMulti(pGrid, 3))
+        if (techniques::hiddenMulti(pGrid, HiddenMultiType::Triple, logs))
             continue;
 
-        if (techniques::nakedMulti(pGrid, 3))
+        if (techniques::nakedMulti(pGrid, NakedMultiType::Triple, logs))
             continue;
 
-        if (techniques::xWings(pGrid))
+        if (techniques::hiddenMulti(pGrid, HiddenMultiType::Quadruple, logs))
             continue;
 
-        // Swordfish and Jellyfish
-        if (techniques::basicFish(pGrid, 3, 4))
+        if (techniques::nakedMulti(pGrid, NakedMultiType::Quadruple, logs))
             continue;
 
-        if (techniques::xyWing(pGrid))
+        if (techniques::xWings(pGrid, logs))
+            continue;
+
+        if (techniques::basicFish(pGrid, solver::BasicFishType::Swordfish, logs))
+            continue;
+
+        if (techniques::basicFish(pGrid, solver::BasicFishType::Jellyfish, logs))
+            continue;
+
+        if (techniques::xyWing(pGrid, logs))
             continue;
 
         SWITCH_LEVEL(LEV_3_GUESS, level, maxLevel)
@@ -79,7 +87,8 @@ int solver::solveByGuesses(Grid &pGrid, int maxSolutions)
     pGrid.resetSummary();
     Grid grid = pGrid;
 
-    const std::function<void(CellsRank::const_iterator)> evalCell = [&](CellsRank::const_iterator it) {
+    const std::function<void(CellsRank::const_iterator)> evalCell = [&](CellsRank::const_iterator it)
+    {
         if (solutions.size() >= maxSolutions)
             return;
 
@@ -99,10 +108,10 @@ int solver::solveByGuesses(Grid &pGrid, int maxSolutions)
                     Grid savedPoint = grid;
                     bool noConflicts(true);
                     grid.setValue(lin, col, candidateIdx + 1);
-                    grid.clearNotesCascade(lin, col, candidateIdx + 1, &noConflicts);
+                    grid.clearNotesCascade(lin, col, candidateIdx + 1, nullptr, &noConflicts);
                     if (noConflicts)
                     {
-                        techniques::nakedSingles(grid, &noConflicts);
+                        techniques::nakedSingles(grid, nullptr, &noConflicts);
                         if (noConflicts)
                         {
                             evalCell(it);

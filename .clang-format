@@ -1,6 +1,6 @@
 ﻿---
 BreakBeforeBraces: Allman
-ColumnLimit: 110
+ColumnLimit: 130
 IndentCaseLabels: true
 IndentWidth: 4
 UseTab: Never

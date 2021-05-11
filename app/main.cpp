@@ -98,7 +98,7 @@ int main(int argc, char *argv[])
                     std::cout << "The puzzle is level: 2 - Hard" << std::endl;
                     break;
                 case Level::LEV_3_GUESS:
-                    std::cout << "The puzzle is level: 3 - Very Hard, and cannot be solved by logic."
+                    std::cout << "The puzzle is level: 3 - Very Hard, and maybe it can't be solved by logic"
                               << std::endl;
                     break;
                 default:

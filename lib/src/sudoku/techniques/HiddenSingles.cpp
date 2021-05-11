@@ -5,15 +5,20 @@
 namespace sudoku::solver::techniques
 {
 
-bool hiddenSingles(Grid &pGrid)
+bool hiddenSingles(Grid &pGrid, Logs *logs)
 {
-    const auto processDataSet = [&pGrid](int vIdx, int i, int type, const auto &dataSet) {
+    const auto processDataSet = [&](int vIdx, int i, int type, const auto &dataSet) {
         int l, c;
         int j = utils::bitset_it(dataSet).front();
         pGrid.translateCoordinates(i, j, l, c, type);
         pGrid.setValue(l, c, vIdx + 1);
         pGrid.clearNotesCascade(l, c, vIdx + 1);
-        //std::cout << "hiddenSingles: " << l << "," << c << " = " << vIdx + 1 << std::endl;
+        if (logs)
+        {
+            Log log(Technique::HiddenSingles);
+            log.cellLogs.emplace_back(l, c, CellAction::SetValue, vIdx + 1);
+            logs->push_back(std::move(log));
+        }
     };
 
     const auto& summary(pGrid.getSummary());

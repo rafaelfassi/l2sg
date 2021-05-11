@@ -5,14 +5,15 @@ namespace sudoku::solver::techniques
 {
 
 // Solves Locked Candidates Type 1 (Pointing) and Locked Candidates Type 2 (Claiming)
-bool lockedCandidates(Grid &pGrid)
+bool lockedCandidates(Grid &pGrid, Logs *logs)
 {
     // Indexes whether the block's parts of the rows/cols contains the candidates.
     std::bitset<3> blocksInRowSet[9][9]; // [Block0, Block1, Block2] = blocksInRowSet[cand-1, row]
     std::bitset<3> blocksInColSet[9][9]; // [Block0, Block1, Block2] = blocksInColSet[cand-1, col]
 
     // Fills the data set indexes.
-    const auto fillDataFunc = [&](int l, int c, int b, int e) -> bool {
+    const auto fillDataFunc = [&](int l, int c, int b, int e) -> bool
+    {
         for (int v = 1; v < 10; ++v)
         {
             if (pGrid.hasNote(l, c, v))
@@ -24,13 +25,15 @@ bool lockedCandidates(Grid &pGrid)
         return true;
     };
 
-    const auto findType1 = [&pGrid](const int vIdx, const int type, const auto &dataSet) -> bool {
+    const auto findType1 = [&pGrid, logs](const int vIdx, const int type, const auto &dataSet) -> bool
+    {
         for (int i = 0; i < 9; i += 3)
         {
             int iFound;
             std::bitset<3> foundSet;
 
-            const auto check = [&](int o1, int o2, int o3) -> bool {
+            const auto check = [&](int o1, int o2, int o3) -> bool
+            {
                 // If the tested row (i+o1) doesn't have candidates in more than one block, there are no
                 // candidates to be removed.
                 if (dataSet[vIdx][i + o1].count() < 2)
@@ -45,8 +48,7 @@ bool lockedCandidates(Grid &pGrid)
                 // 1 0 1 The set of the row being tested (i+o1)
                 // ----- XOR operation
                 // 1 0 0 Result foundSet
-                foundSet = (dataSet[vIdx][i + o1] & (dataSet[vIdx][i + o2] | dataSet[vIdx][i + o3])) ^
-                           dataSet[vIdx][i + o1];
+                foundSet = (dataSet[vIdx][i + o1] & (dataSet[vIdx][i + o2] | dataSet[vIdx][i + o3])) ^ dataSet[vIdx][i + o1];
                 // A valid foundSet must have count=1 (the block with candidate(s) only in one row)
                 if (foundSet.count() == 1)
                 {
@@ -63,26 +65,65 @@ bool lockedCandidates(Grid &pGrid)
 
             // Gets the starting column of the block
             const int j = utils::bitset_it(foundSet).front() * 3;
+            const int v = vIdx + 1;
             if (type == Grid::T_LINE)
             {
-                pGrid.clearRowNotes(iFound, vIdx + 1, [j](int c) { return (c < j) || (c > j + 2); });
+                if (logs)
+                {
+                    Log log(Technique::LockedCandidatesType1);
+                    pGrid.clearRowNotes(iFound, v, &log.cellLogs,
+                                        [iFound, j, v, &log](int c)
+                                        {
+                                            if (!((c < j) || (c > j + 2)))
+                                            {
+                                                log.cellLogs.emplace_back(iFound, c, CellAction::RelatedNote, v);
+                                                return false;
+                                            }
+                                            return true;
+                                        });
+                    logs->push_back(std::move(log));
+                }
+                else
+                {
+                    pGrid.clearRowNotes(iFound, v, nullptr, [j](int c) { return (c < j) || (c > j + 2); });
+                }
             }
             else if (type == Grid::T_COLUMN)
             {
-                pGrid.clearColNotes(iFound, vIdx + 1, [j](int r) { return (r < j) || (r > j + 2); });
+                if (logs)
+                {
+                    Log log(Technique::LockedCandidatesType1);
+                    pGrid.clearColNotes(iFound, v, &log.cellLogs,
+                                        [iFound, j, v, &log](int r)
+                                        {
+                                            if (!((r < j) || (r > j + 2)))
+                                            {
+                                                log.cellLogs.emplace_back(r, iFound, CellAction::RelatedNote, v);
+                                                return false;
+                                            }
+                                            return true;
+                                        });
+                    logs->push_back(std::move(log));
+                }
+                else
+                {
+                    pGrid.clearColNotes(iFound, v, nullptr, [j](int r) { return (r < j) || (r > j + 2); });
+                }
             }
             return true;
         }
         return false;
     };
 
-    const auto findType2 = [&pGrid](const int vIdx, const int type, const auto &dataSet) -> bool {
+    const auto findType2 = [&pGrid, logs](const int vIdx, const int type, const auto &dataSet) -> bool
+    {
         for (int i = 0; i < 9; i += 3)
         {
             int iFound;
             std::bitset<3> foundSet;
 
-            const auto check = [&](int o1, int o2, int o3) -> bool {
+            const auto check = [&](int o1, int o2, int o3) -> bool
+            {
                 // The tested row (i+o1) must have the candidate(s) in only one block
                 if (dataSet[vIdx][i + o1].count() != 1)
                     return false;
@@ -112,15 +153,52 @@ bool lockedCandidates(Grid &pGrid)
 
             // Gets the starting column of the block
             const int j = utils::bitset_it(foundSet).front() * 3;
+            const int v = vIdx + 1;
             if (type == Grid::T_LINE)
             {
                 const int blk = pGrid.getBlockNumber(iFound, j);
-                pGrid.clearBlockNotes(blk, vIdx + 1, [&iFound](int, int r, int) { return (r != iFound); });
+                if (logs)
+                {
+                    Log log(Technique::LockedCandidatesType2);
+                    pGrid.clearBlockNotes(blk, v, &log.cellLogs,
+                                          [v, &iFound, &log](int, int r, int c)
+                                          {
+                                              if (r == iFound)
+                                              {
+                                                  log.cellLogs.emplace_back(r, c, CellAction::RelatedNote, v);
+                                                  return false;
+                                              }
+                                              return true;
+                                          });
+                    logs->push_back(log);
+                }
+                else
+                {
+                    pGrid.clearBlockNotes(blk, v, nullptr, [&iFound](int, int r, int) { return (r != iFound); });
+                }
             }
             else if (type == Grid::T_COLUMN)
             {
                 const int blk = pGrid.getBlockNumber(j, iFound);
-                pGrid.clearBlockNotes(blk, vIdx + 1, [&iFound](int, int, int c) { return (c != iFound); });
+                if (logs)
+                {
+                    Log log(Technique::LockedCandidatesType2);
+                    pGrid.clearBlockNotes(blk, v, &log.cellLogs,
+                                          [v, &iFound, &log](int, int r, int c)
+                                          {
+                                              if (c == iFound)
+                                              {
+                                                  log.cellLogs.emplace_back(r, c, CellAction::RelatedNote, v);
+                                                  return false;
+                                              }
+                                              return true;
+                                          });
+                    logs->push_back(log);
+                }
+                else
+                {
+                    pGrid.clearBlockNotes(blk, v, nullptr, [&iFound](int, int, int c) { return (c != iFound); });
+                }
             }
             return true;
         }
