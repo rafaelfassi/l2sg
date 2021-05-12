@@ -1,13 +1,15 @@
 #include "Test.h"
 
-bool test(const std::string &puzzle, const std::string &board, const std::string &expectedBoard)
+bool test(const std::string &puzzle, const std::string &board, solver::Technique expectedTechnique,
+          const CellLogs &expectedCellLogs)
 {
     Grid grid;
     grid.fillBoard(board);
 
-    bool changed = solver::techniques::xyWing(grid);
+    solver::Logs logs;
+    bool changed = solver::techniques::xyWing(grid, &logs);
 
-    return checkAll(puzzle, grid, board, expectedBoard, changed);
+    return checkAll(puzzle, grid, board, changed, expectedTechnique, expectedCellLogs, logs);
 }
 
 int main(int, char **)
@@ -32,21 +34,17 @@ int main(int, char **)
                 | 15    125  9   | 3  7  6 | 4   12   8   |
                 '----------------'---------'--------------'
               )",
-              R"(
-                .---------------.---------.--------------.
-                | 7    8    5   | 9  6  3 | 2   14   14  |
-                | 9    3    2   | 5  4  1 | 8   6    7   |
-                | 16   4    16  | 2  8  7 | 59  3    59  |
-                :---------------+---------+--------------:
-                | 568  56   468 | 1  2  9 | 7   45   3   |
-                | 25   9    7   | 6  3  4 | 1   8    25  |
-                | 3    1    14  | 7  5  8 | 6   249  249 |
-                :---------------+---------+--------------:
-                | 168  26   168 | 4  9  5 | 3   7    12  |
-                | 4    7    3   | 8  1  2 | 59  59   6   |
-                | 15   125  9   | 3  7  6 | 4   12   8   |
-                '---------------'---------'--------------'
-              )"))
+              solver::Technique::XYWing,
+              {
+                  // Pattern
+                  CL(3, 1, CA::RelatedNote, 5), CL(3, 1, CA::RelatedNote, 6), //
+                  CL(4, 0, CA::RelatedNote, 2), CL(4, 0, CA::RelatedNote, 5), //
+                  CL(6, 1, CA::RelatedNote, 2), CL(6, 1, CA::RelatedNote, 6), //
+
+                  // Remove
+                  CL(5, 1, CA::RemovedNote, 2), //
+                  CL(6, 0, CA::RemovedNote, 2)  //
+              }))
         return failed();
 
     // XY-Wings for values 4, 8, 9 at:
@@ -69,21 +67,17 @@ int main(int, char **)
                 | 4   5  1  | 689  3  68  | 89    7   2   |
                 '-----------'-------------'---------------'
               )",
-              R"(
-                .-----------.-------------.--------------.
-                | 2   8  5  | 67   1  67  | 49   3   39  |
-                | 9   7  3  | 4    5  2   | 6    1   8   |
-                | 6   1  4  | 3    8  9   | 7    2   5   |
-                :-----------+-------------+--------------:
-                | 5   4  9  | 278  6  178 | 128  38  137 |
-                | 17  6  28 | 5    4  3   | 28   9   17  |
-                | 17  3  28 | 278  9  178 | 5    6   4   |
-                :-----------+-------------+--------------:
-                | 3   2  6  | 89   7  5   | 189  48  19  |
-                | 8   9  7  | 1    2  4   | 3    5   6   |
-                | 4   5  1  | 689  3  68  | 89   7   2   |
-                '-----------'-------------'--------------'
-              )"))
+              solver::Technique::XYWing,
+              {
+                  // Pattern
+                  CL(0, 6, CA::RelatedNote, 4), CL(0, 6, CA::RelatedNote, 9), //
+                  CL(6, 7, CA::RelatedNote, 4), CL(6, 7, CA::RelatedNote, 8), //
+                  CL(8, 6, CA::RelatedNote, 8), CL(8, 6, CA::RelatedNote, 9), //
+
+                  // Remove
+                  CL(0, 7, CA::RemovedNote, 4), //
+                  CL(6, 6, CA::RemovedNote, 4)  //
+              }))
         return failed();
 
     // XY-Wings for values 2, 5, 6 at:
@@ -105,21 +99,17 @@ int main(int, char **)
                 | 25   1    3   | 256789  56   25789 | 4   679  79   |
                 '---------------'--------------------'---------------'
               )",
-              R"(
-                .---------------.------------------.---------------.
-                | 3    245  458 | 278    459  278  | 6   1    579  |
-                | 68   256  1   | 3      569  278  | 79  579  4    |
-                | 9    456  7   | 56     1    45   | 2   8    3    |
-                :---------------+------------------+---------------:
-                | 26   7    25  | 1      8    59   | 3   4    569  |
-                | 146  456  9   | 45     7    3    | 8   2    156  |
-                | 148  3    458 | 459    2    6    | 79  579  1579 |
-                :---------------+------------------+---------------:
-                | 45   8    6   | 579    345  4579 | 1   379  2    |
-                | 7    9    4   | 26     346  1    | 5   36   8    |
-                | 25   1    3   | 56789  56   5789 | 4   679  79   |
-                '---------------'------------------'---------------'
-              )"))
+              solver::Technique::XYWing,
+              {
+                  // Pattern
+                  CL(7, 3, CA::RelatedNote, 2), CL(7, 3, CA::RelatedNote, 6),                               //
+                  CL(8, 0, CA::RelatedNote, 2), CL(8, 0, CA::RelatedNote, 5), CL(8, 4, CA::RelatedNote, 5), //
+                  CL(8, 4, CA::RelatedNote, 6),                                                             //
+
+                  // Remove
+                  CL(7, 2, CA::RemovedNote, 2),                              //
+                  CL(8, 3, CA::RemovedNote, 2), CL(8, 5, CA::RemovedNote, 2) //
+              }))
         return failed();
 
     // XY-Wings for values 3, 5, 9 at:
@@ -141,21 +131,16 @@ int main(int, char **)
                 | 3    1   59   | 7    2  58 | 4     6   89  |
                 '---------------'------------'---------------'
               )",
-              R"(
-                .--------------.------------.---------------.
-                | 45  8   35   | 459  1  2  | 39    7   6   |
-                | 1   34  6    | 49   8  7  | 5     39  2   |
-                | 7   59  2    | 59   6  3  | 8     4   1   |
-                :--------------+------------+---------------:
-                | 8   6   17   | 2    4  9  | 137   13  5   |
-                | 2   59  159  | 3    7  16 | 169   8   4   |
-                | 49  34  1379 | 8    5  16 | 1679  2   79  |
-                :--------------+------------+---------------:
-                | 59  2   4    | 6    3  58 | 179   19  789 |
-                | 6   7   8    | 1    9  4  | 2     5   3   |
-                | 3   1   59   | 7    2  58 | 4     6   89  |
-                '--------------'------------'---------------'
-              )"))
+              solver::Technique::XYWing,
+              {
+                  // Pattern
+                  CL(0, 2, CA::RelatedNote, 3), CL(0, 2, CA::RelatedNote, 5), CL(0, 6, CA::RelatedNote, 3), //
+                  CL(0, 6, CA::RelatedNote, 9),                                                             //
+                  CL(2, 1, CA::RelatedNote, 5), CL(2, 1, CA::RelatedNote, 9),                               //
+
+                  // Remove
+                  CL(0, 0, CA::RemovedNote, 9) //
+              }))
         return failed();
 
     // XY-Wings for values 2, 3, 8 at:
@@ -177,21 +162,16 @@ int main(int, char **)
                 | 134  6   134 | 8  9  7 | 5  2   13 |
                 '--------------'---------'-----------'
               )",
-              R"(
-                .--------------.---------.-----------.
-                | 128  5   1   | 4  7  9 | 3  6   28 |
-                | 9    78  47  | 3  6  2 | 1  48  5  |
-                | 24   3   6   | 1  8  5 | 7  9   24 |
-                :--------------+---------+-----------:
-                | 6    4   8   | 7  1  3 | 2  5   9  |
-                | 5    1   9   | 6  2  4 | 8  3   7  |
-                | 37   2   37  | 9  5  8 | 4  1   6  |
-                :--------------+---------+-----------:
-                | 238  9   23  | 5  4  1 | 6  7   38 |
-                | 17   78  5   | 2  3  6 | 9  48  14 |
-                | 134  6   134 | 8  9  7 | 5  2   13 |
-                '--------------'---------'-----------'
-              )"))
+              solver::Technique::XYWing,
+              {
+                  // Pattern
+                  CL(0, 8, CA::RelatedNote, 2), CL(0, 8, CA::RelatedNote, 8),                               //
+                  CL(6, 2, CA::RelatedNote, 2), CL(6, 2, CA::RelatedNote, 3), CL(6, 8, CA::RelatedNote, 3), //
+                  CL(6, 8, CA::RelatedNote, 8),                                                             //
+
+                  // Remove
+                  CL(0, 2, CA::RemovedNote, 2) //
+              }))
         return failed();
 
     // XY-Wings for values 2, 7, 8 at:
@@ -213,21 +193,16 @@ int main(int, char **)
                 | 9    6    5    | 7   1    4    | 2   3   8  |
                 '----------------'---------------'------------'
               )",
-              R"(
-                .----------------.---------------.------------.
-                | 7    1    26   | 5   9    23   | 36  8   4  |
-                | 28   3    269  | 4   78   1    | 67  5   29 |
-                | 5    289  4    | 23  6    78   | 37  1   29 |
-                :----------------+---------------+------------:
-                | 3    279  2379 | 8   27   5    | 4   6   1  |
-                | 6    27   8    | 1   4    2379 | 5   29  37 |
-                | 4    5    1    | 6   237  2379 | 8   29  37 |
-                :----------------+---------------+------------:
-                | 1    278  37   | 23  5    238  | 9   4   6  |
-                | 238  4    23   | 9   238  6    | 1   7   5  |
-                | 9    6    5    | 7   1    4    | 2   3   8  |
-                '----------------'---------------'------------'
-              )"))
+              solver::Technique::XYWing,
+              {
+                  // Pattern
+                  CL(1, 0, CA::RelatedNote, 2), CL(1, 0, CA::RelatedNote, 8), CL(1, 4, CA::RelatedNote, 7), //
+                  CL(1, 4, CA::RelatedNote, 8),                                                             //
+                  CL(3, 4, CA::RelatedNote, 2), CL(3, 4, CA::RelatedNote, 7),                               //
+
+                  // Remove
+                  CL(3, 0, CA::RemovedNote, 2) //
+              }))
         return failed();
 
     return passed();
