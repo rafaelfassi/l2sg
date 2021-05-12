@@ -77,7 +77,19 @@ int main(int argc, char *argv[])
         std::cout << std::endl;
 
         grid.fillNotes(); // Generates the initial notes (clues) to the solver.
-        Level resultLevel = solver::solveLevel(grid);
+
+        solver::Logs logs;
+        Level resultLevel = solver::solveLevel(grid, &logs);
+
+        // Print the solver logs
+        for (auto &log : logs)
+        {
+            log.dump(std::cout);
+        }
+
+        std::cout << std::endl;
+        std::cout << std::string(9 * 4, '*') << std::endl << std::endl;
+
         if (resultLevel == Level::LEV_UNKNOWN)
         {
             std::cout << "The provided puzzle could not be solved." << std::endl;

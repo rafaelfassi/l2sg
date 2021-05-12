@@ -3,6 +3,7 @@
 
 #include "Enums.h"
 #include <vector>
+#include <ostream>
 
 namespace sudoku
 {
@@ -32,6 +33,7 @@ struct Log
 {
     Log(Technique _technique) : technique(_technique) {}
     Log() = default;
+    void dump(std::ostream &out);
     Technique technique;
     CellLogs cellLogs;
 };
