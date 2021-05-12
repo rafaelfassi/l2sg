@@ -66,13 +66,7 @@ bool hiddenMulti(Grid &pGrid, HiddenMultiType multiType, Logs *logs)
                         {
                             int l, c;
                             pGrid.translateCoordinates(i, j, l, c, type);
-
                             const auto relatedNotes = Cell::Notes(notes & combCandidates);
-                            for (const auto vIdx : utils::bitset_it(relatedNotes))
-                            {
-                                log.cellLogs.emplace_back(l, c, CellAction::RelatedNote, vIdx + 1);
-                            }
-
                             const auto removedNotes = Cell::Notes(relatedNotes ^ notes);
                             for (const auto vIdx : utils::bitset_it(removedNotes))
                             {
@@ -97,6 +91,17 @@ bool hiddenMulti(Grid &pGrid, HiddenMultiType multiType, Logs *logs)
                         break;
                     default:
                         break;
+                    }
+
+                    for (const auto j : utils::bitset_it(jFoundCandSet))
+                    {
+                        int l, c;
+                        pGrid.translateCoordinates(i, j, l, c, type);
+                        const auto &notes = pGrid.getNotes(l, c);
+                        for (const auto vIdx : utils::bitset_it(notes & combCandidates))
+                        {
+                            log.cellLogs.emplace_back(l, c, CellAction::RelatedNote, vIdx + 1);
+                        }
                     }
                     logs->push_back(std::move(log));
                 }
