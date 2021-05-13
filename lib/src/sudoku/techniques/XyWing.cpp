@@ -14,6 +14,8 @@ bool xyWing(Grid &pGrid, Logs *logs)
         int b1, e1, b2, e2;
         pGrid.translateCoordinates(r1, c1, b1, e1, Grid::GT_BLK);
         pGrid.translateCoordinates(r2, c2, b2, e2, Grid::GT_BLK);
+
+        foundZVec.clear();
         for (int e = 0; e < 9; ++e)
         {
             int rb, cb;

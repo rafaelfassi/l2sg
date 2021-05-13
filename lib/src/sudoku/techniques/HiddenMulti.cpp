@@ -31,10 +31,9 @@ bool hiddenMulti(Grid &pGrid, HiddenMultiType multiType, Logs *logs)
         combination.reset(validCandVec.size(), multiplicity);
         combLst.clear();
 
-        // For each possible combination of candidates according to the current multiplicity
+        // For each possible combination of candidates according to the multiplicity
         while (combination.getNextCombination(combLst))
         {
-            // For each row (in fact, it's processing 1 row, 1 col and 1 block at once)
             Cell::Notes combCandidates;
             Grid::Group jFoundCandSet;
 
