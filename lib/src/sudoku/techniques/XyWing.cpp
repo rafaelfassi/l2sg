@@ -12,17 +12,17 @@ bool xyWing(Grid &pGrid, Logs *logs)
     const auto findZInIntersection = [&](int z, int r1, int c1, int r2, int c2)
     {
         int b1, e1, b2, e2;
-        pGrid.translateCoordinates(r1, c1, b1, e1, Grid::T_BLOCK);
-        pGrid.translateCoordinates(r2, c2, b2, e2, Grid::T_BLOCK);
+        pGrid.translateCoordinates(r1, c1, b1, e1, Grid::GT_BLK);
+        pGrid.translateCoordinates(r2, c2, b2, e2, Grid::GT_BLK);
         for (int e = 0; e < 9; ++e)
         {
             int rb, cb;
-            pGrid.translateCoordinates(b1, e, rb, cb, Grid::T_BLOCK);
+            pGrid.translateCoordinates(b1, e, rb, cb, Grid::GT_BLK);
             if ((e != e1) && ((rb == r2) || (cb == c2)) && pGrid.hasNote(rb, cb, z))
             {
                 foundZVec.push_back(std::make_pair(rb, cb));
             }
-            pGrid.translateCoordinates(b2, e, rb, cb, Grid::T_BLOCK);
+            pGrid.translateCoordinates(b2, e, rb, cb, Grid::GT_BLK);
             if ((e != e2) && ((rb == r1) || (cb == c1)) && pGrid.hasNote(rb, cb, z))
             {
                 foundZVec.push_back(std::make_pair(rb, cb));
@@ -42,15 +42,15 @@ bool xyWing(Grid &pGrid, Logs *logs)
         // pivot with X and Y
         const auto pivot = pGrid.getNotes(r, c);
 
-        for (int typeP1 = Grid::T_LINE; typeP1 <= Grid::T_BLOCK; ++typeP1)
+        for (int gTypeP1 = Grid::GT_ROW; gTypeP1 <= Grid::GT_BLK; ++gTypeP1)
         {
             int iP1, jP1Ini;
-            pGrid.translateCoordinates(r, c, iP1, jP1Ini, typeP1);
+            pGrid.translateCoordinates(r, c, iP1, jP1Ini, gTypeP1);
             for (int jP1 = 0; jP1 < 9; ++jP1)
             {
                 if (jP1 == jP1Ini)
                     continue;
-                const auto pincer1 = pGrid.getTranslatedNotes(iP1, jP1, typeP1);
+                const auto pincer1 = pGrid.getNotes(iP1, jP1, gTypeP1);
                 if (pincer1.count() != 2)
                     continue;
                 // The pincer1 contains only X and Z?
@@ -58,26 +58,27 @@ bool xyWing(Grid &pGrid, Logs *logs)
                 {
                     // The pincer2 to be found must have only Y and Z
                     const auto pincer2 = (pivot ^ pincer1);
-                    for (int typeP2 = typeP1 + 1; typeP2 <= Grid::T_BLOCK; ++typeP2)
+                    for (int gTypeP2 = gTypeP1 + 1; gTypeP2 <= Grid::GT_BLK; ++gTypeP2)
                     {
                         int iP2, jP2Ini;
-                        pGrid.translateCoordinates(r, c, iP2, jP2Ini, typeP2);
+                        pGrid.translateCoordinates(r, c, iP2, jP2Ini, gTypeP2);
                         for (int jP2 = 0; jP2 < 9; ++jP2)
                         {
                             if (jP2 == jP2Ini)
                                 continue;
-                            if (pincer2 == pGrid.getTranslatedNotes(iP2, jP2, typeP2))
+                            if (pincer2 == pGrid.getNotes(iP2, jP2, gTypeP2))
                             {
                                 int rP1, cP1, rP2, cP2;
-                                pGrid.translateCoordinates(iP1, jP1, rP1, cP1, typeP1);
-                                pGrid.translateCoordinates(iP2, jP2, rP2, cP2, typeP2);
+                                pGrid.translateCoordinates(iP1, jP1, rP1, cP1, gTypeP1);
+                                pGrid.translateCoordinates(iP2, jP2, rP2, cP2, gTypeP2);
                                 const auto b = pGrid.getBlockNumber(r, c);
                                 const auto bP1 = pGrid.getBlockNumber(rP1, cP1);
                                 const auto bP2 = pGrid.getBlockNumber(rP2, cP2);
 
                                 // Check whether the pivot and the found pincers are not all in the same row,
                                 // column or block.
-                                if (((r == rP1) && (r == rP2)) || ((c == cP1) && (c == cP2)) || ((b == bP1) && (b == bP2)))
+                                if (((r == rP1) && (r == rP2)) || ((c == cP1) && (c == cP2)) ||
+                                    ((b == bP1) && (b == bP2)))
                                     continue;
 
                                 // Extracts Z

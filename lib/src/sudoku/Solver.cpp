@@ -134,15 +134,15 @@ int solver::solveByGuesses(Grid &pGrid, int maxSolutions)
         }
     };
 
-    for (int l = 0; l < 9; ++l)
+    for (int r = 0; r < 9; ++r)
     {
         for (int c = 0; c < 9; ++c)
         {
-            const auto &cell = grid.getCell(l, c);
+            const auto &cell = grid.getCell(r, c);
             if (cell.hasAnyNote())
             {
                 // Order by the ones with less candidates
-                guessesCellsRank.insert(std::make_pair(cell.notesCount(), std::make_pair(l, c)));
+                guessesCellsRank.insert(std::make_pair(cell.notesCount(), std::make_pair(r, c)));
             }
         }
     }

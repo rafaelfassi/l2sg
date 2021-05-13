@@ -16,12 +16,12 @@ bool nakedMulti(Grid &pGrid, NakedMultiType multiType, Logs *logs)
     validCellsVec.reserve(9);
     combLst.reserve(multiplicity);
 
-    const auto processData = [&](int i, int type) -> bool
+    const auto processData = [&](int i, int gType) -> bool
     {
         validCellsVec.clear();
         for (int j = 0; j < 9; ++j)
         {
-            auto &cell = pGrid.getTranslatedCell(i, j, type);
+            auto &cell = pGrid.getCell(i, j, gType);
             if (!cell.getValue() && (cell.notesCount() <= multiplicity))
             {
                 validCellsVec.push_back(std::make_pair(j, &cell));
@@ -49,20 +49,20 @@ bool nakedMulti(Grid &pGrid, NakedMultiType multiType, Logs *logs)
             if (mergedSet.count() == multiplicity)
             {
                 int changedCnt(false);
-                for (const auto vIdx : utils::bitset_it(mergedSet))
+                for (const auto nIdx : utils::bitset_it(mergedSet))
                 {
-                    if (type == Grid::T_LINE)
+                    if (gType == Grid::GT_ROW)
                     {
-                        changedCnt += pGrid.clearRowNotes(i, vIdx + 1, &log.cellLogs, [&jSet](int c) { return !jSet.test(c); });
+                        changedCnt += pGrid.clearRowNotes(i, nIdx + 1, &log.cellLogs, [&jSet](int c) { return !jSet.test(c); });
                     }
-                    else if (type == Grid::T_COLUMN)
+                    else if (gType == Grid::GT_COL)
                     {
-                        changedCnt += pGrid.clearColNotes(i, vIdx + 1, &log.cellLogs, [&jSet](int r) { return !jSet.test(r); });
+                        changedCnt += pGrid.clearColNotes(i, nIdx + 1, &log.cellLogs, [&jSet](int r) { return !jSet.test(r); });
                     }
-                    else if (type == Grid::T_BLOCK)
+                    else if (gType == Grid::GT_BLK)
                     {
                         changedCnt +=
-                            pGrid.clearBlockNotes(i, vIdx + 1, &log.cellLogs, [&jSet](int e, int, int) { return !jSet.test(e); });
+                            pGrid.clearBlockNotes(i, nIdx + 1, &log.cellLogs, [&jSet](int e, int, int) { return !jSet.test(e); });
                     }
                 }
 
@@ -87,12 +87,12 @@ bool nakedMulti(Grid &pGrid, NakedMultiType multiType, Logs *logs)
 
                         for (const int cmb : combLst)
                         {
-                            int l, c;
+                            int r, c;
                             const auto &[j, cell] = validCellsVec[cmb];
-                            pGrid.translateCoordinates(i, j, l, c, type);
-                            for (const auto vIdx : utils::bitset_it(cell->getNotes()))
+                            pGrid.translateCoordinates(i, j, r, c, gType);
+                            for (const auto nIdx : utils::bitset_it(cell->getNotes()))
                             {
-                                log.cellLogs.emplace_back(l, c, CellAction::RelatedNote, vIdx + 1);
+                                log.cellLogs.emplace_back(r, c, CellAction::RelatedNote, nIdx + 1);
                             }
                         }
                         logs->push_back(std::move(log));
@@ -111,19 +111,19 @@ bool nakedMulti(Grid &pGrid, NakedMultiType multiType, Logs *logs)
     {
         if (summary.getNotesByRow(i).size() > multiplicity)
         {
-            if (processData(i, Grid::T_LINE))
+            if (processData(i, Grid::GT_ROW))
                 return true;
         }
 
         if (summary.getNotesByCol(i).size() > multiplicity)
         {
-            if (processData(i, Grid::T_COLUMN))
+            if (processData(i, Grid::GT_COL))
                 return true;
         }
 
         if (summary.getNotesByBlk(i).size() > multiplicity)
         {
-            if (processData(i, Grid::T_BLOCK))
+            if (processData(i, Grid::GT_BLK))
                 return true;
         }
     }

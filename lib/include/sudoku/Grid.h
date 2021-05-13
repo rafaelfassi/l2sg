@@ -25,25 +25,16 @@ public:
         std::vector<int> m_notesByBlk[9];
 
         friend class Grid;
-        void updateNote(int l, int c, int vIdx, bool active);
-        void updateNotes(int l, int c, const Cell::Notes &oldNotes, const Cell::Notes &newNotes);
+        void updateNote(int r, int c, int nIdx, bool active);
+        void updateNotes(int r, int c, const Cell::Notes &oldNotes, const Cell::Notes &newNotes);
 
     public:
         Summary(const Grid &pGrid);
         Summary(const Summary &other) = delete;
-        inline const std::bitset<9> &getColsByRowNote(int l, int vIdx) const
-        {
-            return m_colsByRowNote[l][vIdx];
-        }
-        inline const std::bitset<9> &getRowsByColNote(int c, int vIdx) const
-        {
-            return m_rowsByColNote[c][vIdx];
-        }
-        inline const std::bitset<9> &getElmsByBlkNote(int b, int vIdx) const
-        {
-            return m_elmsByBlkNote[b][vIdx];
-        }
-        inline const std::vector<int> &getNotesByRow(int l) const { return m_notesByRow[l]; }
+        inline const std::bitset<9> &getColsByRowNote(int r, int nIdx) const { return m_colsByRowNote[r][nIdx]; }
+        inline const std::bitset<9> &getRowsByColNote(int c, int nIdx) const { return m_rowsByColNote[c][nIdx]; }
+        inline const std::bitset<9> &getElmsByBlkNote(int b, int nIdx) const { return m_elmsByBlkNote[b][nIdx]; }
+        inline const std::vector<int> &getNotesByRow(int r) const { return m_notesByRow[r]; }
         inline const std::vector<int> &getNotesByCol(int c) const { return m_notesByCol[c]; }
         inline const std::vector<int> &getNotesByBlk(int b) const { return m_notesByBlk[b]; }
     };
@@ -52,11 +43,11 @@ public:
     Grid(const Grid &other) = default;
     ~Grid() = default;
 
-    enum TranslateType
+    enum GroupType
     {
-        T_LINE,
-        T_COLUMN,
-        T_BLOCK
+        GT_ROW, // Rows of the grid
+        GT_COL, // Columns of the grid
+        GT_BLK  // Blocks of the grid
     };
 
     enum DumpFlags
@@ -67,83 +58,85 @@ public:
         D_ONE_LINE = 0x08 // Prints in one line
     };
 
-    static inline void translateCoordinates(int _i, int _j, int &_l, int &_c, int type)
+    static inline void translateCoordinates(int _i, int _j, int &_r, int &_c, int gType)
     {
-        switch (type)
+        switch (gType)
         {
-            case T_LINE:
-                _l = _i;
+            case GT_ROW:
+                _r = _i;
                 _c = _j;
                 break;
-            case T_COLUMN:
-                _l = _j;
+            case GT_COL:
+                _r = _j;
                 _c = _i;
                 break;
-            case T_BLOCK:
-                const auto &[l, c] = g_blockElem2RowCol[_i][_j];
-                _l = l;
+            case GT_BLK:
+                const auto &[r, c] = g_blockElem2RowCol[_i][_j];
+                _r = r;
                 _c = c;
                 break;
         }
     }
-    inline Cell &getCell(int _nLin, int _nCol) { return m_cells[_nLin][_nCol]; }
-    inline Cell &getTranslatedCell(int _i, int _j, int type)
+    inline Cell &getCell(int _row, int _col) { return m_cells[_row][_col]; }
+    inline Cell &getCell(int _i, int _j, int gType)
     {
-        int l, c;
-        translateCoordinates(_i, _j, l, c, type);
-        return m_cells[l][c];
+        int r, c;
+        translateCoordinates(_i, _j, r, c, gType);
+        return m_cells[r][c];
     }
-    inline int getBlockNumber(int _l, int _c) const { return g_blockElem2RowCol[_l][_c].first; }
+    inline int getBlockNumber(int _r, int _c) const { return g_blockElem2RowCol[_r][_c].first; }
     void fillValues(int *_pValues);
     bool fillValues(const std::string &values);
     void fillNotes(const std::string &notes);
     void fillBoard(const std::string &board);
     bool fillValuesArrayFormString(const std::string &values, int *array);
-    inline int getValue(int _nLin, int _nCol) const { return m_cells[_nLin][_nCol].getValue(); }
-    inline void setValue(int _nLin, int _nCol, int _nVal) { m_cells[_nLin][_nCol].setValue(_nVal); }
-    inline size_t notesCount(int _nLin, int _nCol) const { return m_cells[_nLin][_nCol].notesCount(); }
-    inline Cell::Notes getNotes(int _nLin, int _nCol) const { return m_cells[_nLin][_nCol].getNotes(); }
-    inline Cell::Notes getTranslatedNotes(int _i, int _j, int type)
+    inline int getValue(int _row, int _col) const { return m_cells[_row][_col].getValue(); }
+    inline void setValue(int _row, int _col, int _val) { m_cells[_row][_col].setValue(_val); }
+    inline size_t notesCount(int _row, int _col) const { return m_cells[_row][_col].notesCount(); }
+    inline Cell::Notes getNotes(int _row, int _col) const { return m_cells[_row][_col].getNotes(); }
+    inline Cell::Notes getNotes(int _i, int _j, int gType)
     {
-        int l, c;
-        translateCoordinates(_i, _j, l, c, type);
-        return m_cells[l][c].getNotes();
+        int r, c;
+        translateCoordinates(_i, _j, r, c, gType);
+        return m_cells[r][c].getNotes();
     }
-    inline bool hasNote(int _nLin, int _nCol, int _nVal) const
+    inline bool hasNote(int _row, int _col, int _note) const { return m_cells[_row][_col].hasNote(_note); }
+    inline bool hasNote(int _i, int _j, int _note, int gType) const
     {
-        return m_cells[_nLin][_nCol].hasNote(_nVal);
+        int r, c;
+        translateCoordinates(_i, _j, r, c, gType);
+        return m_cells[r][c].hasNote(_note);
     }
-    inline bool hasNote(int _i, int _j, int _nVal, int type) const
+    inline void setNote(int _row, int _col, int _note, bool _active)
     {
-        int l, c;
-        translateCoordinates(_i, _j, l, c, type);
-        return m_cells[l][c].hasNote(_nVal);
-    }
-    inline void setNote(int _nLin, int _nCol, int _nVal, bool _bActive)
-    {
-        m_cells[_nLin][_nCol].setNote(_nVal, _bActive);
+        m_cells[_row][_col].setNote(_note, _active);
         if (m_summary)
-            m_summary->updateNote(_nLin, _nCol, _nVal - 1, _bActive);
+            m_summary->updateNote(_row, _col, _note - 1, _active);
     }
-    void setNotes(int _i, int _j, int _type, const Cell::Notes &_nNotes);
-    int clearNotes(int _nLin, int _nCol);
-    bool isAllowedValue(int _nLin, int _nCol, int _nVal);
+    void setNotes(int _i, int _j, int _gType, const Cell::Notes &_notes);
+    int clearNotes(int _row, int _col);
+    bool isAllowedValue(int _row, int _col, int _val);
     bool isFull();
     void fillNotes();
     void clearNotes();
-    int countNotes(int _nVal, int _i, int _type);
-    int clearNotesCascade(int _nLin, int _nCol, int _nValue, CellLogs *cellLogs = nullptr, bool *check = nullptr);
-    int clearRowNotes(int _row, int _val, CellLogs *cellLogs = nullptr, const std::function<bool(int)> &_clear = [](int) { return true; });
-    int clearColNotes(int _col, int _val, CellLogs *cellLogs = nullptr, const std::function<bool(int)> &_clear = [](int) { return true; });
-    int clearBlockNotes(int _blk, int _val, CellLogs *cellLogs = nullptr, const std::function<bool(int, int, int)> &_clear = [](int, int, int) { return true; });
+    int countNotes(int _note, int _i, int _gType);
+    int clearNotesCascade(int _row, int _col, int _value, CellLogs *cellLogs = nullptr, bool *check = nullptr);
+    int clearRowNotes(
+        int _row, int _note, CellLogs *cellLogs = nullptr,
+        const std::function<bool(int)> &_clear = [](int) { return true; });
+    int clearColNotes(
+        int _col, int _note, CellLogs *cellLogs = nullptr,
+        const std::function<bool(int)> &_clear = [](int) { return true; });
+    int clearBlockNotes(
+        int _blk, int _note, CellLogs *cellLogs = nullptr,
+        const std::function<bool(int, int, int)> &_clear = [](int, int, int) { return true; });
     std::string getNotesSignature();
     void forAllCells(const std::function<bool(int, int, int, int)> &_callback);
     bool compareValues(int *_pValues);
     bool compareValues(const Grid &_grid);
     bool compareNotes(const Grid &_grid);
-    void dump(int _dumpFlags = D_VALUES | D_NOTES, const std::string &_empty = ".",
-              const std::string &_numSep = "  ", const std::string &_colSep = "    ",
-              const std::string &_lineSep = "");
+    void dump(int _dumpFlags = D_VALUES | D_NOTES, const std::string &_empty = ".", const std::string &_numSep = "  ",
+              const std::string &_colSep = "    ", const std::string &_lineSep = "");
 
     const Summary &getSummary()
     {

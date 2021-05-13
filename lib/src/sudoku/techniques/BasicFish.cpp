@@ -11,10 +11,10 @@ bool basicFish(Grid &pGrid, BasicFishType fishType, Logs *logs)
     utils::CombinationsGen combination;
     const auto &summary(pGrid.getSummary());
 
-    const auto processSets = [&](int type, int vIdx, int currSize, auto &iCandidatesSet, const auto &jDataFunc) -> bool
+    const auto processSets = [&](int gType, int nIdx, int currSize, auto &iCandidatesSet, const auto &jDataFunc) -> bool
     {
         // Make combinations of {currSize} rows
-        combination.reset(iCandidatesSet[vIdx].size(), currSize);
+        combination.reset(iCandidatesSet[nIdx].size(), currSize);
         combLst.clear();
         // For each combination of rows
         while (combination.getNextCombination(combLst))
@@ -27,8 +27,8 @@ bool basicFish(Grid &pGrid, BasicFishType fishType, Logs *logs)
             for (auto comb : combLst)
             {
                 // Get the row number
-                const int i = iCandidatesSet[vIdx][comb];
-                const auto &jSet = jDataFunc(i, vIdx);
+                const int i = iCandidatesSet[nIdx][comb];
+                const auto &jSet = jDataFunc(i, nIdx);
                 jMergedSet |= jSet;
 
                 if (jMergedSet.count() > currSize)
@@ -76,30 +76,30 @@ bool basicFish(Grid &pGrid, BasicFishType fishType, Logs *logs)
                 {
                     if (jNotesCount[j] > 1)
                     {
-                        if (type == Grid::T_LINE)
+                        if (gType == Grid::GT_ROW)
                         {
                             // Are there notes to be removed?
-                            if (summary.getRowsByColNote(j, vIdx).count() > jNotesCount[j])
+                            if (summary.getRowsByColNote(j, nIdx).count() > jNotesCount[j])
                             {
-                                changedCount += pGrid.clearColNotes(j, vIdx + 1, &log.cellLogs,
-                                                                    [vIdx, &combLst, &iCandidatesSet](int r)
+                                changedCount += pGrid.clearColNotes(j, nIdx + 1, &log.cellLogs,
+                                                                    [nIdx, &combLst, &iCandidatesSet](int r)
                                                                     {
                                                                         for (auto comb : combLst)
-                                                                            if (r == iCandidatesSet[vIdx][comb])
+                                                                            if (r == iCandidatesSet[nIdx][comb])
                                                                                 return false;
                                                                         return true;
                                                                     });
                             }
                         }
-                        else if (type == Grid::T_COLUMN)
+                        else if (gType == Grid::GT_COL)
                         {
-                            if (summary.getColsByRowNote(j, vIdx).count() > jNotesCount[j])
+                            if (summary.getColsByRowNote(j, nIdx).count() > jNotesCount[j])
                             {
-                                changedCount += pGrid.clearRowNotes(j, vIdx + 1, &log.cellLogs,
-                                                                    [vIdx, &combLst, &iCandidatesSet](int c)
+                                changedCount += pGrid.clearRowNotes(j, nIdx + 1, &log.cellLogs,
+                                                                    [nIdx, &combLst, &iCandidatesSet](int c)
                                                                     {
                                                                         for (auto comb : combLst)
-                                                                            if (c == iCandidatesSet[vIdx][comb])
+                                                                            if (c == iCandidatesSet[nIdx][comb])
                                                                                 return false;
                                                                         return true;
                                                                     });
@@ -130,11 +130,11 @@ bool basicFish(Grid &pGrid, BasicFishType fishType, Logs *logs)
                             {
                                 for (auto comb : combLst)
                                 {
-                                    int l, c;
-                                    const auto i = iCandidatesSet[vIdx][comb];
-                                    pGrid.translateCoordinates(i, j, l, c, type);
-                                    if (pGrid.hasNote(l, c, vIdx + 1))
-                                        log.cellLogs.emplace_back(l, c, CellAction::RelatedNote, vIdx + 1);
+                                    int r, c;
+                                    const auto i = iCandidatesSet[nIdx][comb];
+                                    pGrid.translateCoordinates(i, j, r, c, gType);
+                                    if (pGrid.hasNote(r, c, nIdx + 1))
+                                        log.cellLogs.emplace_back(r, c, CellAction::RelatedNote, nIdx + 1);
                                 }
                             }
                         }
@@ -155,32 +155,32 @@ bool basicFish(Grid &pGrid, BasicFishType fishType, Logs *logs)
     // Make sets of candidates rows and cols, where a value appears from two to {currSize} times.
     for (int i = 0; i < 9; ++i)
     {
-        for (int vIdx = 0; vIdx < 9; ++vIdx)
+        for (int nIdx = 0; nIdx < 9; ++nIdx)
         {
-            const int countByRow = summary.getColsByRowNote(i, vIdx).count();
+            const int countByRow = summary.getColsByRowNote(i, nIdx).count();
             if ((countByRow > 1) && (countByRow <= currSize))
-                candidateRows[vIdx].push_back(i);
+                candidateRows[nIdx].push_back(i);
 
-            const int countByCol = summary.getRowsByColNote(i, vIdx).count();
+            const int countByCol = summary.getRowsByColNote(i, nIdx).count();
             if ((countByCol > 1) && (countByCol <= currSize))
-                candidateCols[vIdx].push_back(i);
+                candidateCols[nIdx].push_back(i);
         }
     }
 
-    for (int vIdx = 0; vIdx < 9; ++vIdx)
+    for (int nIdx = 0; nIdx < 9; ++nIdx)
     {
         // If there are {currSize} or more rows with the current candidate.
-        if (candidateRows[vIdx].size() >= currSize)
+        if (candidateRows[nIdx].size() >= currSize)
         {
-            if (processSets(Grid::T_LINE, vIdx, currSize, candidateRows,
-                            [&summary](int i, int vIdx) { return summary.getColsByRowNote(i, vIdx); }))
+            if (processSets(Grid::GT_ROW, nIdx, currSize, candidateRows,
+                            [&summary](int i, int nIdx) { return summary.getColsByRowNote(i, nIdx); }))
                 return true;
         }
 
-        if (candidateCols[vIdx].size() >= currSize)
+        if (candidateCols[nIdx].size() >= currSize)
         {
-            if (processSets(Grid::T_COLUMN, vIdx, currSize, candidateCols,
-                            [&summary](int i, int vIdx) { return summary.getRowsByColNote(i, vIdx); }))
+            if (processSets(Grid::GT_COL, nIdx, currSize, candidateCols,
+                            [&summary](int i, int nIdx) { return summary.getRowsByColNote(i, nIdx); }))
                 return true;
         }
     }

@@ -13,14 +13,14 @@ bool hiddenMulti(Grid &pGrid, HiddenMultiType multiType, Logs *logs)
     std::vector<int> validCandVec;
     size_t multiplicity(static_cast<size_t>(multiType));
 
-    const auto processCandidates = [&](int i, const auto &availableCandVec, int type, const auto &sourceDataFunc) -> bool
+    const auto processCandidates = [&](int i, const auto &availableCandVec, int gType, const auto &sourceDataFunc) -> bool
     {
         validCandVec.clear();
-        for (const auto vIdx : availableCandVec)
+        for (const auto nIdx : availableCandVec)
         {
-            if (sourceDataFunc(i, vIdx).count() <= multiplicity)
+            if (sourceDataFunc(i, nIdx).count() <= multiplicity)
             {
-                validCandVec.push_back(vIdx);
+                validCandVec.push_back(nIdx);
             }
         }
 
@@ -42,9 +42,9 @@ bool hiddenMulti(Grid &pGrid, HiddenMultiType multiType, Logs *logs)
             // The result is the columns where the candidates were found.
             for (const int comb : combLst)
             {
-                const auto vIdx = validCandVec[comb];
-                const auto &jSet = sourceDataFunc(i, vIdx);
-                combCandidates.set(vIdx, true);
+                const auto nIdx = validCandVec[comb];
+                const auto &jSet = sourceDataFunc(i, nIdx);
+                combCandidates.set(nIdx, true);
                 jFoundCandSet |= jSet;
             }
 
@@ -54,23 +54,23 @@ bool hiddenMulti(Grid &pGrid, HiddenMultiType multiType, Logs *logs)
                 bool changed(false);
                 for (const auto j : utils::bitset_it(jFoundCandSet))
                 {
-                    auto &cell = pGrid.getTranslatedCell(i, j, type);
+                    auto &cell = pGrid.getCell(i, j, gType);
                     const auto &notes = cell.getNotes();
                     // Has notes to be removed?
                     if ((notes & combCandidates) != notes)
                     {
-                        pGrid.setNotes(i, j, type, Cell::Notes(notes & combCandidates));
+                        pGrid.setNotes(i, j, gType, Cell::Notes(notes & combCandidates));
                         changed = true;
 
                         if (logs)
                         {
-                            int l, c;
-                            pGrid.translateCoordinates(i, j, l, c, type);
+                            int r, c;
+                            pGrid.translateCoordinates(i, j, r, c, gType);
                             const auto relatedNotes = Cell::Notes(notes & combCandidates);
                             const auto removedNotes = Cell::Notes(relatedNotes ^ notes);
-                            for (const auto vIdx : utils::bitset_it(removedNotes))
+                            for (const auto nIdx : utils::bitset_it(removedNotes))
                             {
-                                log.cellLogs.emplace_back(l, c, CellAction::RemovedNote, vIdx + 1);
+                                log.cellLogs.emplace_back(r, c, CellAction::RemovedNote, nIdx + 1);
                             }
                         }
                     }
@@ -95,12 +95,12 @@ bool hiddenMulti(Grid &pGrid, HiddenMultiType multiType, Logs *logs)
 
                     for (const auto j : utils::bitset_it(jFoundCandSet))
                     {
-                        int l, c;
-                        pGrid.translateCoordinates(i, j, l, c, type);
-                        const auto &notes = pGrid.getNotes(l, c);
-                        for (const auto vIdx : utils::bitset_it(notes & combCandidates))
+                        int r, c;
+                        pGrid.translateCoordinates(i, j, r, c, gType);
+                        const auto &notes = pGrid.getNotes(r, c);
+                        for (const auto nIdx : utils::bitset_it(notes & combCandidates))
                         {
-                            log.cellLogs.emplace_back(l, c, CellAction::RelatedNote, vIdx + 1);
+                            log.cellLogs.emplace_back(r, c, CellAction::RelatedNote, nIdx + 1);
                         }
                     }
                     logs->push_back(std::move(log));
@@ -122,22 +122,22 @@ bool hiddenMulti(Grid &pGrid, HiddenMultiType multiType, Logs *logs)
     {
         if (summary.getNotesByRow(i).size() > multiplicity)
         {
-            if (processCandidates(i, summary.getNotesByRow(i), Grid::T_LINE,
-                                  [&summary](int i, int vIdx) { return summary.getColsByRowNote(i, vIdx); }))
+            if (processCandidates(i, summary.getNotesByRow(i), Grid::GT_ROW,
+                                  [&summary](int i, int nIdx) { return summary.getColsByRowNote(i, nIdx); }))
                 return true;
         }
 
         if (summary.getNotesByCol(i).size() > multiplicity)
         {
-            if (processCandidates(i, summary.getNotesByCol(i), Grid::T_COLUMN,
-                                  [&summary](int i, int vIdx) { return summary.getRowsByColNote(i, vIdx); }))
+            if (processCandidates(i, summary.getNotesByCol(i), Grid::GT_COL,
+                                  [&summary](int i, int nIdx) { return summary.getRowsByColNote(i, nIdx); }))
                 return true;
         }
 
         if (summary.getNotesByBlk(i).size() > multiplicity)
         {
-            if (processCandidates(i, summary.getNotesByBlk(i), Grid::T_BLOCK,
-                                  [&summary](int i, int vIdx) { return summary.getElmsByBlkNote(i, vIdx); }))
+            if (processCandidates(i, summary.getNotesByBlk(i), Grid::GT_BLK,
+                                  [&summary](int i, int nIdx) { return summary.getElmsByBlkNote(i, nIdx); }))
                 return true;
         }
     }
