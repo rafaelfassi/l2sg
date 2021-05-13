@@ -4,10 +4,11 @@ Optimized logic solver for 9x9 sudoku puzzles.
 
 ## Overview
 
-This project implements a bunch of sudoku techniques in order to estimate the puzzle's difficulty level in a very accurate way.
+This project implements a bunch of sudoku techniques in order to estimate the puzzle's difficulty level in a very accurate way.  
+The solver may provide detailed logs of the used techniques, containing the found pattern and applied values, what can be used for analysis purposes as well as providing useful hints to the user.  
 All implemented algorithms are focused in performance.
 
-### Some implemented techniques
+### Implemented techniques so far
 * Naked (Single, Pair, Triple, Quadruple)
 * Hidden (Single, Pair, Triple, Quadruple)
 * Locked Candidates (Pointing, Claiming)
