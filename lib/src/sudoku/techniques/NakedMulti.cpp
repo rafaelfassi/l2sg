@@ -11,7 +11,7 @@ bool nakedMulti(Grid &pGrid, NakedMultiType multiType, Logs *logs)
     utils::CombinationsGen combination;
     std::vector<int> combLst;
     std::vector<std::pair<int, Cell *>> validCellsVec;
-    size_t multiplicity(static_cast<size_t>(multiType));
+    const auto multiplicity(static_cast<size_t>(multiType));
 
     validCellsVec.reserve(9);
     combLst.reserve(multiplicity);

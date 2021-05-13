@@ -11,7 +11,7 @@ bool hiddenMulti(Grid &pGrid, HiddenMultiType multiType, Logs *logs)
     utils::CombinationsGen combination;
     std::vector<int> combLst;
     std::vector<int> validCandVec;
-    size_t multiplicity(static_cast<size_t>(multiType));
+    const auto multiplicity(static_cast<size_t>(multiType));
 
     const auto processCandidates = [&](int i, const auto &availableCandVec, int gType, const auto &sourceDataFunc) -> bool
     {

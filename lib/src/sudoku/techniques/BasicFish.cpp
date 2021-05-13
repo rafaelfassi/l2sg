@@ -10,11 +10,12 @@ bool basicFish(Grid &pGrid, BasicFishType fishType, Logs *logs)
     std::vector<int> combLst;
     utils::CombinationsGen combination;
     const auto &summary(pGrid.getSummary());
+    const auto fishSize(static_cast<int>(fishType));
 
-    const auto processSets = [&](int gType, int nIdx, int currSize, auto &iCandidatesSet, const auto &jDataFunc) -> bool
+    const auto processSets = [&](int gType, int nIdx, auto &iCandidatesSet, const auto &jDataFunc) -> bool
     {
-        // Make combinations of {currSize} rows
-        combination.reset(iCandidatesSet[nIdx].size(), currSize);
+        // Make combinations of {fishSize} rows
+        combination.reset(iCandidatesSet[nIdx].size(), fishSize);
         combLst.clear();
         // For each combination of rows
         while (combination.getNextCombination(combLst))
@@ -31,7 +32,7 @@ bool basicFish(Grid &pGrid, BasicFishType fishType, Logs *logs)
                 const auto &jSet = jDataFunc(i, nIdx);
                 jMergedSet |= jSet;
 
-                if (jMergedSet.count() > currSize)
+                if (jMergedSet.count() > fishSize)
                 {
                     good = false;
                     break;
@@ -68,8 +69,8 @@ bool basicFish(Grid &pGrid, BasicFishType fishType, Logs *logs)
                 }
             }
 
-            // Has {currSize} rows fully connected?
-            if (connectedCount == currSize)
+            // Has {fishSize} rows fully connected?
+            if (connectedCount == fishSize)
             {
                 int changedCount(0);
                 for (const auto j : utils::bitset_it(jMergedSet))
@@ -112,12 +113,12 @@ bool basicFish(Grid &pGrid, BasicFishType fishType, Logs *logs)
                 {
                     if (logs)
                     {
-                        switch (currSize)
+                        switch (fishType)
                         {
-                            case static_cast<int>(BasicFishType::Swordfish):
+                            case BasicFishType::Swordfish:
                                 log.technique = Technique::Swordfish;
                                 break;
-                            case static_cast<int>(BasicFishType::Jellyfish):
+                            case BasicFishType::Jellyfish:
                                 log.technique = Technique::Jellyfish;
                                 break;
                             default:
@@ -148,38 +149,37 @@ bool basicFish(Grid &pGrid, BasicFishType fishType, Logs *logs)
         return false;
     };
 
-    int currSize = static_cast<int>(fishType);
     std::vector<int> candidateRows[9];
     std::vector<int> candidateCols[9];
 
-    // Make sets of candidates rows and cols, where a value appears from two to {currSize} times.
+    // Make sets of candidates rows and cols, where a value appears from two to {fishSize} times.
     for (int i = 0; i < 9; ++i)
     {
         for (int nIdx = 0; nIdx < 9; ++nIdx)
         {
             const int countByRow = summary.getColsByRowNote(i, nIdx).count();
-            if ((countByRow > 1) && (countByRow <= currSize))
+            if ((countByRow > 1) && (countByRow <= fishSize))
                 candidateRows[nIdx].push_back(i);
 
             const int countByCol = summary.getRowsByColNote(i, nIdx).count();
-            if ((countByCol > 1) && (countByCol <= currSize))
+            if ((countByCol > 1) && (countByCol <= fishSize))
                 candidateCols[nIdx].push_back(i);
         }
     }
 
     for (int nIdx = 0; nIdx < 9; ++nIdx)
     {
-        // If there are {currSize} or more rows with the current candidate.
-        if (candidateRows[nIdx].size() >= currSize)
+        // If there are {fishSize} or more rows with the current candidate.
+        if (candidateRows[nIdx].size() >= fishSize)
         {
-            if (processSets(Grid::GT_ROW, nIdx, currSize, candidateRows,
+            if (processSets(Grid::GT_ROW, nIdx, candidateRows,
                             [&summary](int i, int nIdx) { return summary.getColsByRowNote(i, nIdx); }))
                 return true;
         }
 
-        if (candidateCols[nIdx].size() >= currSize)
+        if (candidateCols[nIdx].size() >= fishSize)
         {
-            if (processSets(Grid::GT_COL, nIdx, currSize, candidateCols,
+            if (processSets(Grid::GT_COL, nIdx, candidateCols,
                             [&summary](int i, int nIdx) { return summary.getRowsByColNote(i, nIdx); }))
                 return true;
         }
