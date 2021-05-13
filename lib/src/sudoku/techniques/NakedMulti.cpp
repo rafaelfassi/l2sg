@@ -36,8 +36,8 @@ bool nakedMulti(Grid &pGrid, NakedMultiType multiType, Logs *logs)
 
         while (combination.getNextCombination(combLst))
         {
-            std::bitset<9> jSet;
-            std::bitset<9> mergedSet;
+            Grid::Group jSet;
+            Cell::Notes mergedSet;
 
             for (const int cmb : combLst)
             {

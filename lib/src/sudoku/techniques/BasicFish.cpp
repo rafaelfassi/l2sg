@@ -21,7 +21,7 @@ bool basicFish(Grid &pGrid, BasicFishType fishType, Logs *logs)
         {
             // Count how many times the value appears for each column in the current combination.
             int jNotesCount[9] = {};
-            std::bitset<9> jMergedSet;
+            Grid::Group jMergedSet;
             bool good(true);
 
             for (auto comb : combLst)

@@ -13,13 +13,15 @@ namespace sudoku
 class Grid
 {
 public:
+    using Group = std::bitset<9>;
+
     const static std::pair<int, int> g_blockElem2RowCol[9][9];
 
     class Summary
     {
-        std::bitset<9> m_colsByRowNote[9][9];
-        std::bitset<9> m_rowsByColNote[9][9];
-        std::bitset<9> m_elmsByBlkNote[9][9];
+        Group m_colsByRowNote[9][9];
+        Group m_rowsByColNote[9][9];
+        Group m_elmsByBlkNote[9][9];
         std::vector<int> m_notesByRow[9];
         std::vector<int> m_notesByCol[9];
         std::vector<int> m_notesByBlk[9];
@@ -31,9 +33,9 @@ public:
     public:
         Summary(const Grid &pGrid);
         Summary(const Summary &other) = delete;
-        inline const std::bitset<9> &getColsByRowNote(int r, int nIdx) const { return m_colsByRowNote[r][nIdx]; }
-        inline const std::bitset<9> &getRowsByColNote(int c, int nIdx) const { return m_rowsByColNote[c][nIdx]; }
-        inline const std::bitset<9> &getElmsByBlkNote(int b, int nIdx) const { return m_elmsByBlkNote[b][nIdx]; }
+        inline const Group &getColsByRowNote(int r, int nIdx) const { return m_colsByRowNote[r][nIdx]; }
+        inline const Group &getRowsByColNote(int c, int nIdx) const { return m_rowsByColNote[c][nIdx]; }
+        inline const Group &getElmsByBlkNote(int b, int nIdx) const { return m_elmsByBlkNote[b][nIdx]; }
         inline const std::vector<int> &getNotesByRow(int r) const { return m_notesByRow[r]; }
         inline const std::vector<int> &getNotesByCol(int c) const { return m_notesByCol[c]; }
         inline const std::vector<int> &getNotesByBlk(int b) const { return m_notesByBlk[b]; }

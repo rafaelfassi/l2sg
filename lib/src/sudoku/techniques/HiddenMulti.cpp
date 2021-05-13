@@ -36,7 +36,7 @@ bool hiddenMulti(Grid &pGrid, HiddenMultiType multiType, Logs *logs)
         {
             // For each row (in fact, it's processing 1 row, 1 col and 1 block at once)
             Cell::Notes combCandidates;
-            std::bitset<9> jFoundCandSet;
+            Grid::Group jFoundCandSet;
 
             // Merge the combinations of the candidates for the row.
             // The result is the columns where the candidates were found.
