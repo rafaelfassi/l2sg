@@ -15,7 +15,6 @@ bool xyWing(Grid &pGrid, Logs *logs)
         pGrid.translateCoordinates(r1, c1, b1, e1, Grid::GT_BLK);
         pGrid.translateCoordinates(r2, c2, b2, e2, Grid::GT_BLK);
 
-        foundZVec.clear();
         for (int e = 0; e < 9; ++e)
         {
             int rb, cb;
@@ -68,6 +67,7 @@ bool xyWing(Grid &pGrid, Logs *logs)
                         {
                             if (jP2 == jP2Ini)
                                 continue;
+                            // Found pincer2?
                             if (pincer2 == pGrid.getNotes(iP2, jP2, gTypeP2))
                             {
                                 int rP1, cP1, rP2, cP2;
