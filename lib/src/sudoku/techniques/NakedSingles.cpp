@@ -23,11 +23,8 @@ bool nakedSingles(Grid &pGrid, Logs *logs, bool *check)
                     const auto note = utils::bitset_it(cell.getNotes()).front() + 1;
                     cell.setValue(note);
                     pGrid.clearNotesCascade(i, j, note, nullptr, check);
-
                     if (check && !(*check))
-                    {
                         return false;
-                    }
 
                     if (logs)
                     {
@@ -42,6 +39,8 @@ bool nakedSingles(Grid &pGrid, Logs *logs, bool *check)
         changedOverall |= changed;
     } while (changed);
 
+    if (check)
+        *check = true;
     return changedOverall;
 }
 

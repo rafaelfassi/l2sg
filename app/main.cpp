@@ -79,7 +79,7 @@ int main(int argc, char *argv[])
         grid.fillNotes(); // Generates the initial notes (clues) to the solver.
 
         solver::Logs logs;
-        Level resultLevel = solver::solveLevel(grid, &logs);
+        Level resultLevel = solver::solve(grid, &logs);
 
         // Print the solver logs
         for (auto &log : logs)

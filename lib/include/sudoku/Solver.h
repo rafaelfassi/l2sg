@@ -29,11 +29,12 @@ bool xyWing(Grid &pGrid, Logs *logs = nullptr);
 bool basicFish(Grid &pGrid, BasicFishType fishType, Logs *logs = nullptr);
 bool hiddenMulti(Grid &pGrid, HiddenMultiType multiType, Logs *logs = nullptr);
 bool nakedMulti(Grid &pGrid, NakedMultiType multiType, Logs *logs = nullptr);
+bool simpleGuess(Grid &pGrid, Logs *logs = nullptr);
+int bruteForce(Grid &pGrid, int maxSolutions = 1, Logs *logs = nullptr);
 
 } // namespace techniques
 
-Level solveLevel(Grid &pGrid, Logs *logs = nullptr, Level maxLevel = LEV_3_GUESS);
-int solveByGuesses(Grid &pGrid, int maxSolutions = 1);
+Level solve(Grid &pGrid, Logs *logs = nullptr, Level maxLevel = LEV_3_GUESS);
 
 } // namespace solver
 

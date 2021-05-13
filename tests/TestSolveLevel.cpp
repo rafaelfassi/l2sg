@@ -7,7 +7,7 @@ bool test(int expectedLevel, const std::string &puzzle, const std::string &expec
     grid.fillValues(puzzle);
     grid.fillNotes();
 
-    auto resultLevel = solver::solveLevel(grid);
+    auto resultLevel = solver::solve(grid);
 
     if (!grid.isFull())
     {
@@ -80,6 +80,11 @@ bool testMedium()
               "841276593759431628236598417372685941968143275415729386694317852123854769587962134"))
         return false;
 
+    if (!test(level, //
+              ".3.961.8.16...8.299847..1...2.3.....61.875.42.4...9.7..91.876..47.1...98.5..9....",
+              "732961485165438729984752163827346951619875342543219876291587634476123598358694217"))
+        return false;
+
     return true;
 }
 
@@ -87,9 +92,10 @@ bool testHard()
 {
     constexpr auto level(Level::LEV_2_LOGIC);
 
+    // Swordfish
     if (!test(level, //
-              ".3.961.8.16...8.299847..1...2.3.....61.875.42.4...9.7..91.876..47.1...98.5..9....",
-              "732961485165438729984752163827346951619875342543219876291587634476123598358694217"))
+              "....7.....7.5.2...52..936..13..2..67..7...9..29..6..81..271..59...8.6.2.....5....",
+              "389671245476582193521493678138925467657148932294367581862714359915836724743259816"))
         return false;
 
     // X-Wing and Swordfish

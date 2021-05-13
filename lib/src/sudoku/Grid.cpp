@@ -325,9 +325,9 @@ bool Grid::isAllowedValue(int _row, int _col, int _val)
 
 bool Grid::isFull()
 {
-    for (int i = 0; i < 9; ++i)
-        for (int j = 0; j < 9; ++j)
-            if (getValue(i, j) == 0)
+    for (int r = 0; r < 9; ++r)
+        for (int c = 0; c < 9; ++c)
+            if (getValue(r, c) == 0)
                 return false;
     return true;
 }

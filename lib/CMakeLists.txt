@@ -17,6 +17,8 @@ add_library(sudoku_lib STATIC
     src/sudoku/techniques/BasicFish.cpp
     src/sudoku/techniques/HiddenMulti.cpp
     src/sudoku/techniques/NakedMulti.cpp
+    src/sudoku/techniques/SimpleGuess.cpp
+    src/sudoku/techniques/BruteForce.cpp
 
 # Private headers
     src/sudoku/Utils.h

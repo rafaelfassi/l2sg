@@ -36,6 +36,10 @@ std::string solver::technique2Str(solver::Technique technique)
             return "Jellyfish";
         case Technique::XYWing:
             return "XYWing";
+        case Technique::SimpleGuess:
+            return "SimpleGuess";
+        case Technique::BruteForce:
+            return "BruteForce";
         default:
             throw std::out_of_range("Technique enum not translated on technique2Str");
     }

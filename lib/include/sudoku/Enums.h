@@ -24,7 +24,9 @@ enum class Technique
     XWings,
     Swordfish,
     Jellyfish,
-    XYWing
+    XYWing,
+    SimpleGuess,
+    BruteForce
 };
 
 enum class HiddenMultiType
