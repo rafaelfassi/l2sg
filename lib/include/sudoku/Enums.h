@@ -25,6 +25,7 @@ enum class Technique
     Swordfish,
     Jellyfish,
     XYWing,
+    Skyscraper,
     SimpleGuess,
     BruteForce
 };

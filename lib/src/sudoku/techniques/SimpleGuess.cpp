@@ -12,7 +12,7 @@ bool simpleGuess(Grid &pGrid, Logs *logs)
     using CellsRank = std::multimap<int, std::pair<int, int>>;
     CellsRank rankedCells;
 
-    const auto findConflict = [&](int row, int col, int note, bool &isFull) -> bool
+    const auto checkConflict = [&](int row, int col, int note, bool &isFull) -> bool
     {
         Grid grid(pGrid);
         grid.setValue(row, col, note);
@@ -20,7 +20,7 @@ bool simpleGuess(Grid &pGrid, Logs *logs)
 
         bool ok;
         nakedSingles(grid, nullptr, &ok);
-        if (ok)
+        if (ok && grid.checkAllNotes())
         {
             isFull = grid.isFull();
             return false;
@@ -54,7 +54,7 @@ bool simpleGuess(Grid &pGrid, Logs *logs)
         for (const auto nIdx : utils::bitset_it(notes))
         {
             bool isFull;
-            if (findConflict(r, c, nIdx + 1, isFull))
+            if (checkConflict(r, c, nIdx + 1, isFull))
                 ++conflictCount;
             else if (isFull || (goodValue == 0))
                 goodValue = nIdx + 1;

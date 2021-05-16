@@ -36,6 +36,8 @@ std::string solver::technique2Str(solver::Technique technique)
             return "Jellyfish";
         case Technique::XYWing:
             return "XYWing";
+        case Technique::Skyscraper:
+            return "Skyscraper";
         case Technique::SimpleGuess:
             return "SimpleGuess";
         case Technique::BruteForce:

@@ -14,6 +14,7 @@ All implemented algorithms are focused in performance.
 * Locked Candidates (Pointing, Claiming)
 * Basic Fish (X-Wings, Swordfish, Jellyfish)
 * XY-Wing
+* Skyscraper
 * Guessing
 * Brute Force
 

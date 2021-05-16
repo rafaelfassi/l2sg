@@ -31,27 +31,30 @@ Level solver::solve(Grid &pGrid, Logs *logs, Level maxLevel)
         if (techniques::lockedCandidates(pGrid, logs))
             continue;
 
-        if (techniques::hiddenMulti(pGrid, HiddenMultiType::Pair, logs))
-            continue;
-
         if (techniques::nakedMulti(pGrid, NakedMultiType::Pair, logs))
             continue;
 
-        if (techniques::hiddenMulti(pGrid, HiddenMultiType::Triple, logs))
+        if (techniques::hiddenMulti(pGrid, HiddenMultiType::Pair, logs))
             continue;
 
         if (techniques::nakedMulti(pGrid, NakedMultiType::Triple, logs))
             continue;
 
-        if (techniques::xWings(pGrid, logs))
+        if (techniques::hiddenMulti(pGrid, HiddenMultiType::Triple, logs))
             continue;
 
         SWITCH_LEVEL(LEV_2_LOGIC, level, maxLevel)
 
+        if (techniques::nakedMulti(pGrid, NakedMultiType::Quadruple, logs))
+            continue;
+
         if (techniques::hiddenMulti(pGrid, HiddenMultiType::Quadruple, logs))
             continue;
 
-        if (techniques::nakedMulti(pGrid, NakedMultiType::Quadruple, logs))
+        if (techniques::xWings(pGrid, logs))
+            continue;
+
+        if (techniques::skyscraper(pGrid, logs))
             continue;
 
         if (techniques::basicFish(pGrid, solver::BasicFishType::Swordfish, logs))

@@ -87,6 +87,12 @@ public:
         return m_cells[r][c];
     }
     inline int getBlockNumber(int _r, int _c) const { return g_blockElem2RowCol[_r][_c].first; }
+    inline int getBlockNumber(int _i, int _j, int gType) const
+    {
+        int r, c;
+        translateCoordinates(_i, _j, r, c, gType);
+        return g_blockElem2RowCol[r][c].first;
+    }
     void fillValues(int *_pValues);
     bool fillValues(const std::string &values);
     void fillNotes(const std::string &notes);
@@ -122,6 +128,7 @@ public:
     void fillNotes();
     void clearNotes();
     int countNotes(int _note, int _i, int _gType);
+    bool checkAllNotes();
     int clearNotesCascade(int _row, int _col, int _value, CellLogs *cellLogs = nullptr, bool *check = nullptr);
     int clearRowNotes(
         int _row, int _note, CellLogs *cellLogs = nullptr,
