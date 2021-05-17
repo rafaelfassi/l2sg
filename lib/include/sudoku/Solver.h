@@ -26,6 +26,7 @@ bool hiddenSingles(Grid &pGrid, Logs *logs = nullptr);
 bool lockedCandidates(Grid &pGrid, Logs *logs = nullptr);
 bool xWings(Grid &pGrid, Logs *logs = nullptr); // basicFish with size=2 does the same job, but this is more efficient.
 bool xyWing(Grid &pGrid, Logs *logs = nullptr);
+bool wWing(Grid &pGrid, Logs *logs = nullptr);
 bool basicFish(Grid &pGrid, BasicFishType fishType, Logs *logs = nullptr);
 bool hiddenMulti(Grid &pGrid, HiddenMultiType multiType, Logs *logs = nullptr);
 bool nakedMulti(Grid &pGrid, NakedMultiType multiType, Logs *logs = nullptr);

@@ -122,8 +122,8 @@ bool checkNotes(const std::string &puzzle, Grid &grid, const std::string &initia
     return checkGrid(puzzle, gridIni, grid, gridExpected, false, true);
 }
 
-bool checkAll(const std::string &puzzle, Grid &grid, const std::string &iniBoard, const std::string &expectedBoard,
-              bool changed)
+bool checkAll(const std::string &puzzle, Grid &grid, const std::string &iniBoard, bool changed,
+              const std::string &expectedBoard)
 {
     Grid gridIni;
     gridIni.fillBoard(iniBoard);
