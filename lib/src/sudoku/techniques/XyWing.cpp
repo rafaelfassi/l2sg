@@ -87,6 +87,8 @@ bool xyWing(Grid &pGrid, Logs *logs)
                                 const auto z = utils::bitset_it(pincer1 & pincer2).front() + 1;
 
                                 // Tries to find Z in the intersection of pincer1 and pincer2
+                                // Notice: Grid::forIntersections could be used here, but this specialized
+                                // function is faster.
                                 findZInIntersection(z, rP1, cP1, rP2, cP2);
 
                                 // Removes Z from the cells' notes (if any was found)

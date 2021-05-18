@@ -79,6 +79,8 @@ public:
                 break;
         }
     }
+    static inline int getBlockNumber(int _r, int _c) { return g_blockElem2RowCol[_r][_c].first; }
+
     inline Cell &getCell(int _row, int _col) { return m_cells[_row][_col]; }
     inline Cell &getCell(int _i, int _j, int gType)
     {
@@ -86,7 +88,6 @@ public:
         translateCoordinates(_i, _j, r, c, gType);
         return m_cells[r][c];
     }
-    inline int getBlockNumber(int _r, int _c) const { return g_blockElem2RowCol[_r][_c].first; }
     inline int getBlockNumber(int _i, int _j, int gType) const
     {
         int r, c;
@@ -140,7 +141,9 @@ public:
         int _blk, int _note, CellLogs *cellLogs = nullptr,
         const std::function<bool(int, int, int)> &_clear = [](int, int, int) { return true; });
     std::string getNotesSignature();
-    void forAllCells(const std::function<bool(int, int, int, int)> &_callback);
+    static void forAllCells(const std::function<bool(int, int, int, int)> &_callback);
+    static void forIntersections(const std::vector<std::pair<int, int>> &_cells,
+                                 const std::function<void(int, int)> &_callback);
     bool compareValues(int *_pValues);
     bool compareValues(const Grid &_grid);
     bool compareNotes(const Grid &_grid);

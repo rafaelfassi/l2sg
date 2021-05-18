@@ -395,25 +395,27 @@ bool Grid::checkAllNotes()
     Cell::Notes colGroup[9];
     Cell::Notes blkGroup[9];
 
-    forAllCells([&](int r, int c, int b, int) {
-        const auto& value(getValue(r, c));
-        if (value)
+    forAllCells(
+        [&](int r, int c, int b, int)
         {
-            rowGroup[r].set(value - 1);
-            colGroup[c].set(value - 1);
-            blkGroup[b].set(value - 1);
-        }
-        else
-        {
-            const auto& notes(getNotes(r, c));
-            if (!notes.any())
-                return false;
-            rowGroup[r] |= notes;
-            colGroup[c] |= notes;
-            blkGroup[b] |= notes;
-        }
-        return true;
-    });
+            const auto &value(getValue(r, c));
+            if (value)
+            {
+                rowGroup[r].set(value - 1);
+                colGroup[c].set(value - 1);
+                blkGroup[b].set(value - 1);
+            }
+            else
+            {
+                const auto &notes(getNotes(r, c));
+                if (!notes.any())
+                    return false;
+                rowGroup[r] |= notes;
+                colGroup[c] |= notes;
+                blkGroup[b] |= notes;
+            }
+            return true;
+        });
 
     for (int i = 0; i < 9; ++i)
     {
@@ -569,6 +571,84 @@ void Grid::forAllCells(const std::function<bool(int, int, int, int)> &_callback)
             if (!_callback(r, c, b, e))
             {
                 return;
+            }
+        }
+    }
+}
+
+void Grid::forIntersections(const std::vector<std::pair<int, int>> &_cells, const std::function<void(int, int)> &_callback)
+{
+    std::bitset<9> blocks;
+    std::bitset<9> rows;
+    std::bitset<9> cols;
+    std::bitset<3> bands;
+    std::bitset<3> stacks;
+    std::bitset<9> blockRow[9];
+    std::bitset<9> blockCol[9];
+
+    for (const auto &[r, c] : _cells)
+    {
+        const int b = getBlockNumber(r, c);
+        blocks.set(b);
+        rows.set(r);
+        cols.set(c);
+        bands.set(r / 3);
+        stacks.set(c / 3);
+        blockRow[b].set(r);
+        blockCol[b].set(c);
+    }
+
+    if (blocks.count() == 1)
+    {
+        const auto b = getBlockNumber(_cells[0].first, _cells[0].second);
+        for (int e = 0; e < 9; ++e)
+        {
+            int r, c;
+            translateCoordinates(b, e, r, c, GT_BLK);
+            _callback(r, c);
+        }
+    }
+    else if (bands.count() == 1)
+    {
+        const auto startRow((_cells[0].first / 3) * 3);
+        const auto endRow(startRow + 3);
+        for (int r = startRow; r < endRow; ++r)
+        {
+            if (rows.test(r))
+            {
+                for (int c = 0; c < 9; ++c)
+                {
+                    const int b = getBlockNumber(r, c);
+                    if (blocks.test(b) && !blockRow[b].test(r))
+                        _callback(r, c);
+                }
+            }
+        }
+    }
+    else if (stacks.count() == 1)
+    {
+        const auto startCol((_cells[0].second / 3) * 3);
+        const auto endCol(startCol + 3);
+        for (int c = startCol; c < endCol; ++c)
+        {
+            if (cols.test(c))
+            {
+                for (int r = 0; r < 9; ++r)
+                {
+                    const int b = getBlockNumber(r, c);
+                    if (blocks.test(b) && !blockCol[b].test(c))
+                        _callback(r, c);
+                }
+            }
+        }
+    }
+    else
+    {
+        for (const auto r : utils::bitset_it(rows))
+        {
+            for (const auto c : utils::bitset_it(cols))
+            {
+                _callback(r, c);
             }
         }
     }
