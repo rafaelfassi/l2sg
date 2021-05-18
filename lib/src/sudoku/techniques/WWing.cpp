@@ -5,7 +5,7 @@
 namespace sudoku::solver::techniques
 {
 
-bool removeNotesFromDoubleIntersection(Grid &pGrid, int n, const std::vector<std::pair<int, int>> &cells)
+bool removeNotesFromDoubleIntersection(Grid &pGrid, int n, const std::array<std::pair<int, int>, 2> &cells)
 {
     Grid::Group rGroup;
     Grid::Group cGroup;
@@ -51,9 +51,7 @@ bool removeNotesFromDoubleIntersection(Grid &pGrid, int n, const std::vector<std
                 intersections.set(Grid::GT_BLK);
             }
 
-            // if (!bGroup.test(b) || bjGroup[b].test(j))
-            //     continue;
-            if (intersections.count() > 1 && pGrid.hasNote(r, c, n))
+            if ((intersections.count() > 1) && pGrid.hasNote(r, c, n))
             {
                 pGrid.setNote(r, c, n, false);
                 changed = true;
@@ -84,70 +82,60 @@ bool removeNotesFromDoubleIntersection(Grid &pGrid, int n, const std::vector<std
 
 bool findGroups(Grid &pGrid, int nIdx, int gType, int i, const Grid::Group& jSet)
 {
-    const auto &summary(pGrid.getSummary());
-
     auto jIt = utils::bitset_it(jSet).begin();
-    const auto jN1 = *jIt;
-    const auto jN2 = *(++jIt);
+    const auto jSL1 = *jIt;
+    const auto jSL2 = *(++jIt);
 
-    int rN1, cN1, rN2, cN2;
-    pGrid.translateCoordinates(i, jN1, rN1, cN1, gType);
-    pGrid.translateCoordinates(i, jN2, rN2, cN2, gType);
+    int rSL1, cSL1, rSL2, cSL2;
+    Grid::translateCoordinates(i, jSL1, rSL1, cSL1, gType);
+    Grid::translateCoordinates(i, jSL2, rSL2, cSL2, gType);
 
-    for (int gType1 = Grid::GT_ROW; gType1 <= Grid::GT_BLK; ++gType1)
+    for (int gTypeBV1 = Grid::GT_ROW; gTypeBV1 <= Grid::GT_BLK; ++gTypeBV1)
     {
-        if (gType1 == gType)
+        if (gTypeBV1 == gType)
             continue;
         
-        int r1, c1, i1, j1;
-        pGrid.translateCoordinates(i, jN1, r1, c1, gType);
-        pGrid.translateCoordinates(r1, c1, i1, j1, gType1);
-
-        for (j1 = 0; j1 < 9; ++j1)
+        int iBV1, jBV1;
+        Grid::translateCoordinates(rSL1, cSL1, iBV1, jBV1, gTypeBV1);
+        for (jBV1 = 0; jBV1 < 9; ++jBV1)
         {
-            pGrid.translateCoordinates(i1, j1, r1, c1, gType1);
-            if ((r1 == rN1 && c1 == cN1) || (r1 == rN2 && c1 == cN2))
-                continue;
-
-            const auto& notes1 = pGrid.getNotes(i1, j1, gType1);
-            if (notes1.test(nIdx) && notes1.count() == 2)
+            int rBV1, cBV1;
+            Grid::translateCoordinates(iBV1, jBV1, rBV1, cBV1, gTypeBV1);
+            const auto& notesBV1 = pGrid.getNotes(rBV1, cBV1);
+            if (notesBV1.test(nIdx) && (notesBV1.count() == 2))
             {
-                for (int gType2 = Grid::GT_ROW; gType2 <= Grid::GT_BLK; ++gType2)
+                if ((rBV1 == rSL1 && cBV1 == cSL1) || (rBV1 == rSL2 && cBV1 == cSL2))
+                    continue;
+
+                for (int gTypeBV2 = Grid::GT_ROW; gTypeBV2 <= Grid::GT_BLK; ++gTypeBV2)
                 {
-                    if (gType2 == gType)
+                    if (gTypeBV2 == gType)
                         continue;
 
-                    int r2, c2, i2, j2;
-                    pGrid.translateCoordinates(i, jN2, r2, c2, gType);
-                    pGrid.translateCoordinates(r2, c2, i2, j2, gType2);
-
-                    for (j2 = 0; j2 < 9; ++j2)
+                    int iBV2, jBV2;
+                    Grid::translateCoordinates(rSL2, cSL2, iBV2, jBV2, gTypeBV2);
+                    for (jBV2 = 0; jBV2 < 9; ++jBV2)
                     {
-                        pGrid.translateCoordinates(i2, j2, r2, c2, gType2);
-                        if ((r2 == rN1 && c2 == cN1) || (r2 == rN2 && c2 == cN2))
-                            continue;
-                        const auto& notes2 = pGrid.getNotes(i2, j2, gType2);
-                        if (notes2 == notes1)
+                        int rBV2, cBV2;
+                        Grid::translateCoordinates(iBV2, jBV2, rBV2, cBV2, gTypeBV2);
+                        const auto& notesBV2 = pGrid.getNotes(rBV2, cBV2);
+                        if (notesBV2 == notesBV1)
                         {
-                            pGrid.translateCoordinates(i1, j1, r1, c1, gType1);
-                            pGrid.translateCoordinates(i2, j2, r2, c2, gType2);
+                            if ((rBV2 == rSL1 && cBV2 == cSL1) || (rBV2 == rSL2 && cBV2 == cSL2) || (rBV2 == rBV1 && cBV2 == cBV1))
+                                continue;
+                            // std::cout << "Found: " << nIdx + 1 << " Strong link at: (" << rSL1 << "," << cSL1 << ") (" << rSL2 << "," << cSL2 << ")"
+                            // << " bivalues at: (" << rBV1 << "," << cBV1 << ") (" << rBV2 << "," << cBV2 << ")" << std::endl;
+                            std::array<std::pair<int, int>, 2> foundPatternCells;
+                            foundPatternCells[0] = std::make_pair(rBV1, cBV1);
+                            foundPatternCells[1] = std::make_pair(rBV2, cBV2);
 
-                            // std::cout << "Found: " << nIdx + 1 << " Strong link at: (" << rN1 << "," << cN1 << ") (" << rN2 << "," << cN2 << ")"
-                            // << " bivalues at: (" << r1 << "," << c1 << ") (" << r2 << "," << c2 << ")" << std::endl;
-                            std::vector<std::pair<int, int>> foundPatternCells;
-                            foundPatternCells.emplace_back(r1, c1);
-                            foundPatternCells.emplace_back(r2, c2);
-
-                            Cell::Notes nRm;
-                            nRm.set(nIdx);
-                            nRm = (notes1 ^ nRm);
-
+                            Cell::Notes nRm(notesBV1);
+                            nRm.set(nIdx, false);
                             const auto n = utils::bitset_it(nRm).front()+1;
 
                             if (removeNotesFromDoubleIntersection(pGrid, n, foundPatternCells))
                                 return true;
                         }
-
                     }
                 }
             }
