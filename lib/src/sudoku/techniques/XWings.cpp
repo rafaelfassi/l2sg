@@ -6,7 +6,7 @@ namespace sudoku::solver::techniques
 
 bool xWings(Grid &pGrid, Logs *logs)
 {
-    Log log(Technique::XWings);
+    ScopedLog log(logs, Technique::XWings);
     const auto &summary(pGrid.getSummary());
 
     const auto processDataFunc = [&](int i, int n, const int gType, const auto &dataSet) -> bool
@@ -23,26 +23,25 @@ bool xWings(Grid &pGrid, Logs *logs)
                 for (const auto j : utils::bitset_it(dataSet))
                 {
                     if (gType == Grid::GT_ROW)
-                        changedCount +=
-                            pGrid.clearColNotes(j, n, &log.cellLogs, [i, i2](int r) { return (r != i) && (r != i2); });
+                        changedCount += pGrid.clearColNotes(j, n, log.getCellsPtr(),
+                                                            [i, i2](int r) { return (r != i) && (r != i2); });
                     else if (gType == Grid::GT_COL)
-                        changedCount +=
-                            pGrid.clearRowNotes(j, n, &log.cellLogs, [i, i2](int c) { return (c != i) && (c != i2); });
+                        changedCount += pGrid.clearRowNotes(j, n, log.getCellsPtr(),
+                                                            [i, i2](int c) { return (c != i) && (c != i2); });
                 }
                 if (changedCount > 0)
                 {
-                    if (logs)
+                    if (log.isEnabled())
                     {
                         for (const auto j : utils::bitset_it(dataSet))
                         {
                             int r, c;
                             pGrid.translateCoordinates(i, j, r, c, gType);
-                            log.cellLogs.emplace_back(r, c, CellAction::RelatedNote, n);
+                            log.addCellLog(r, c, CellAction::InPatternN1, n);
 
                             pGrid.translateCoordinates(i2, j, r, c, gType);
-                            log.cellLogs.emplace_back(r, c, CellAction::RelatedNote, n);
+                            log.addCellLog(r, c, CellAction::InPatternN1, n);
                         }
-                        logs->push_back(std::move(log));
                     }
                     return true;
                 }

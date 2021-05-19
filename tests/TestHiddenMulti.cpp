@@ -35,8 +35,8 @@ int main(int, char **)
               solver::Technique::HiddenPair,
               {
                   // Pattern
-                  CL(1, 3, CA::RelatedNote, 2), CL(1, 3, CA::RelatedNote, 8), CL(1, 6, CA::RelatedNote, 2), //
-                  CL(1, 6, CA::RelatedNote, 8),                                                             //
+                  CL(1, 3, CA::InPatternN1, 2), CL(1, 3, CA::InPatternN1, 8), CL(1, 6, CA::InPatternN1, 2), //
+                  CL(1, 6, CA::InPatternN1, 8),                                                             //
 
                   // Remove
                   CL(1, 3, CA::RemovedNote, 7) //
@@ -66,8 +66,8 @@ int main(int, char **)
               solver::Technique::HiddenPair,
               {
                   // Pattern
-                  CL(0, 0, CA::RelatedNote, 4), CL(0, 1, CA::RelatedNote, 4), //
-                  CL(0, 0, CA::RelatedNote, 7), CL(0, 1, CA::RelatedNote, 7), //
+                  CL(0, 0, CA::InPatternN1, 4), CL(0, 1, CA::InPatternN1, 4), //
+                  CL(0, 0, CA::InPatternN1, 7), CL(0, 1, CA::InPatternN1, 7), //
 
                   // Remove
                   CL(0, 0, CA::RemovedNote, 2), CL(0, 1, CA::RemovedNote, 1), //
@@ -100,8 +100,8 @@ int main(int, char **)
               solver::Technique::HiddenPair,
               {
                   // Pattern
-                  CL(4, 8, CA::RelatedNote, 1), CL(4, 8, CA::RelatedNote, 9), //
-                  CL(6, 8, CA::RelatedNote, 1), CL(6, 8, CA::RelatedNote, 9), //
+                  CL(4, 8, CA::InPatternN1, 1), CL(4, 8, CA::InPatternN1, 9), //
+                  CL(6, 8, CA::InPatternN1, 1), CL(6, 8, CA::InPatternN1, 9), //
 
                   // Remove
                   CL(4, 8, CA::RemovedNote, 6) //
@@ -131,8 +131,8 @@ int main(int, char **)
               solver::Technique::HiddenPair,
               {
                   // Pattern
-                  CL(1, 4, CA::RelatedNote, 3), CL(1, 4, CA::RelatedNote, 4), //
-                  CL(2, 4, CA::RelatedNote, 3), CL(2, 4, CA::RelatedNote, 4), //
+                  CL(1, 4, CA::InPatternN1, 3), CL(1, 4, CA::InPatternN1, 4), //
+                  CL(2, 4, CA::InPatternN1, 3), CL(2, 4, CA::InPatternN1, 4), //
 
                   // Remove
                   CL(1, 4, CA::RemovedNote, 5), CL(1, 4, CA::RemovedNote, 7) //
@@ -162,8 +162,8 @@ int main(int, char **)
               solver::Technique::HiddenPair,
               {
                   // Pattern
-                  CL(4, 7, CA::RelatedNote, 6), CL(4, 7, CA::RelatedNote, 9), //
-                  CL(5, 8, CA::RelatedNote, 6), CL(5, 8, CA::RelatedNote, 9), //
+                  CL(4, 7, CA::InPatternN1, 6), CL(4, 7, CA::InPatternN1, 9), //
+                  CL(5, 8, CA::InPatternN1, 6), CL(5, 8, CA::InPatternN1, 9), //
 
                   // Remove
                   CL(4, 7, CA::RemovedNote, 1), CL(4, 7, CA::RemovedNote, 7), //
@@ -192,8 +192,8 @@ int main(int, char **)
               solver::Technique::HiddenTriple,
               {
                   // Pattern
-                  CL(6, 1, CA::RelatedNote, 1), CL(6, 1, CA::RelatedNote, 7), CL(6, 2, CA::RelatedNote, 2), //
-                  CL(6, 2, CA::RelatedNote, 7), CL(6, 4, CA::RelatedNote, 1), CL(6, 4, CA::RelatedNote, 2), //
+                  CL(6, 1, CA::InPatternN1, 1), CL(6, 1, CA::InPatternN1, 7), CL(6, 2, CA::InPatternN1, 2), //
+                  CL(6, 2, CA::InPatternN1, 7), CL(6, 4, CA::InPatternN1, 1), CL(6, 4, CA::InPatternN1, 2), //
 
                   // Remove
                   CL(6, 1, CA::RemovedNote, 5), CL(6, 2, CA::RemovedNote, 3), CL(6, 2, CA::RemovedNote, 4), //
@@ -224,9 +224,9 @@ int main(int, char **)
               solver::Technique::HiddenTriple,
               {
                   // Pattern
-                  CL(3, 5, CA::RelatedNote, 2), CL(3, 5, CA::RelatedNote, 5), CL(3, 5, CA::RelatedNote, 6), //
-                  CL(5, 5, CA::RelatedNote, 2), CL(5, 5, CA::RelatedNote, 5), CL(5, 5, CA::RelatedNote, 6), //
-                  CL(7, 5, CA::RelatedNote, 2), CL(7, 5, CA::RelatedNote, 6),                               //
+                  CL(3, 5, CA::InPatternN1, 2), CL(3, 5, CA::InPatternN1, 5), CL(3, 5, CA::InPatternN1, 6), //
+                  CL(5, 5, CA::InPatternN1, 2), CL(5, 5, CA::InPatternN1, 5), CL(5, 5, CA::InPatternN1, 6), //
+                  CL(7, 5, CA::InPatternN1, 2), CL(7, 5, CA::InPatternN1, 6),                               //
 
                   // Remove
                   CL(3, 5, CA::RemovedNote, 1), CL(3, 5, CA::RemovedNote, 4), CL(3, 5, CA::RemovedNote, 7), //
@@ -260,9 +260,9 @@ int main(int, char **)
               solver::Technique::HiddenTriple,
               {
                   // Pattern
-                  CL(0, 3, CA::RelatedNote, 5), CL(0, 3, CA::RelatedNote, 9), //
-                  CL(5, 3, CA::RelatedNote, 7), CL(5, 3, CA::RelatedNote, 9), //
-                  CL(8, 3, CA::RelatedNote, 5), CL(8, 3, CA::RelatedNote, 7), //
+                  CL(0, 3, CA::InPatternN1, 5), CL(0, 3, CA::InPatternN1, 9), //
+                  CL(5, 3, CA::InPatternN1, 7), CL(5, 3, CA::InPatternN1, 9), //
+                  CL(8, 3, CA::InPatternN1, 5), CL(8, 3, CA::InPatternN1, 7), //
 
                   // Remove
                   CL(0, 3, CA::RemovedNote, 3), //
@@ -293,9 +293,9 @@ int main(int, char **)
               solver::Technique::HiddenTriple,
               {
                   // Pattern
-                  CL(7, 1, CA::RelatedNote, 4), CL(7, 1, CA::RelatedNote, 5),                               //
-                  CL(8, 1, CA::RelatedNote, 2), CL(8, 1, CA::RelatedNote, 4), CL(8, 1, CA::RelatedNote, 5), //
-                  CL(8, 2, CA::RelatedNote, 2), CL(8, 2, CA::RelatedNote, 5),                               //
+                  CL(7, 1, CA::InPatternN1, 4), CL(7, 1, CA::InPatternN1, 5),                               //
+                  CL(8, 1, CA::InPatternN1, 2), CL(8, 1, CA::InPatternN1, 4), CL(8, 1, CA::InPatternN1, 5), //
+                  CL(8, 2, CA::InPatternN1, 2), CL(8, 2, CA::InPatternN1, 5),                               //
 
                   // Remove
                   CL(8, 1, CA::RemovedNote, 1), CL(8, 2, CA::RemovedNote, 6) //
@@ -323,9 +323,9 @@ int main(int, char **)
               solver::Technique::HiddenQuadruple,
               {
                   // Pattern
-                  CL(4, 0, CA::RelatedNote, 5), CL(4, 0, CA::RelatedNote, 7), CL(4, 1, CA::RelatedNote, 6), //
-                  CL(4, 1, CA::RelatedNote, 7), CL(4, 6, CA::RelatedNote, 1), CL(4, 6, CA::RelatedNote, 5), //
-                  CL(4, 6, CA::RelatedNote, 6), CL(4, 8, CA::RelatedNote, 1), CL(4, 8, CA::RelatedNote, 5), //
+                  CL(4, 0, CA::InPatternN1, 5), CL(4, 0, CA::InPatternN1, 7), CL(4, 1, CA::InPatternN1, 6), //
+                  CL(4, 1, CA::InPatternN1, 7), CL(4, 6, CA::InPatternN1, 1), CL(4, 6, CA::InPatternN1, 5), //
+                  CL(4, 6, CA::InPatternN1, 6), CL(4, 8, CA::InPatternN1, 1), CL(4, 8, CA::InPatternN1, 5), //
 
                   // Remove
                   CL(4, 0, CA::RemovedNote, 2), CL(4, 0, CA::RemovedNote, 9), CL(4, 1, CA::RemovedNote, 2) //
@@ -356,11 +356,11 @@ int main(int, char **)
               solver::Technique::HiddenQuadruple,
               {
                   // Pattern
-                  CL(0, 8, CA::RelatedNote, 2), CL(0, 8, CA::RelatedNote, 4), CL(0, 8, CA::RelatedNote, 5), //
-                  CL(0, 8, CA::RelatedNote, 9),                                                             //
-                  CL(1, 8, CA::RelatedNote, 2), CL(1, 8, CA::RelatedNote, 4), CL(1, 8, CA::RelatedNote, 5), //
-                  CL(2, 8, CA::RelatedNote, 2), CL(2, 8, CA::RelatedNote, 5), CL(2, 8, CA::RelatedNote, 9), //
-                  CL(7, 8, CA::RelatedNote, 2), CL(7, 8, CA::RelatedNote, 5),                               //
+                  CL(0, 8, CA::InPatternN1, 2), CL(0, 8, CA::InPatternN1, 4), CL(0, 8, CA::InPatternN1, 5), //
+                  CL(0, 8, CA::InPatternN1, 9),                                                             //
+                  CL(1, 8, CA::InPatternN1, 2), CL(1, 8, CA::InPatternN1, 4), CL(1, 8, CA::InPatternN1, 5), //
+                  CL(2, 8, CA::InPatternN1, 2), CL(2, 8, CA::InPatternN1, 5), CL(2, 8, CA::InPatternN1, 9), //
+                  CL(7, 8, CA::InPatternN1, 2), CL(7, 8, CA::InPatternN1, 5),                               //
 
                   // Remove
                   CL(0, 8, CA::RemovedNote, 6), CL(0, 8, CA::RemovedNote, 7), CL(0, 8, CA::RemovedNote, 8), //
@@ -393,10 +393,10 @@ int main(int, char **)
               solver::Technique::HiddenQuadruple,
               {
                   // Pattern
-                  CL(6, 4, CA::RelatedNote, 4), CL(6, 4, CA::RelatedNote, 5), CL(6, 4, CA::RelatedNote, 8), //
-                  CL(6, 5, CA::RelatedNote, 4), CL(6, 5, CA::RelatedNote, 5), CL(6, 5, CA::RelatedNote, 8), //
-                  CL(7, 4, CA::RelatedNote, 2), CL(7, 4, CA::RelatedNote, 4), CL(7, 4, CA::RelatedNote, 5), //
-                  CL(7, 5, CA::RelatedNote, 2), CL(7, 5, CA::RelatedNote, 4), CL(7, 5, CA::RelatedNote, 5), //
+                  CL(6, 4, CA::InPatternN1, 4), CL(6, 4, CA::InPatternN1, 5), CL(6, 4, CA::InPatternN1, 8), //
+                  CL(6, 5, CA::InPatternN1, 4), CL(6, 5, CA::InPatternN1, 5), CL(6, 5, CA::InPatternN1, 8), //
+                  CL(7, 4, CA::InPatternN1, 2), CL(7, 4, CA::InPatternN1, 4), CL(7, 4, CA::InPatternN1, 5), //
+                  CL(7, 5, CA::InPatternN1, 2), CL(7, 5, CA::InPatternN1, 4), CL(7, 5, CA::InPatternN1, 5), //
 
                   // Remove
                   CL(6, 4, CA::RemovedNote, 3), CL(6, 4, CA::RemovedNote, 6), //

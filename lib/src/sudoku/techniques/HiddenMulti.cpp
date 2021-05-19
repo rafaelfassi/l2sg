@@ -7,7 +7,7 @@ namespace sudoku::solver::techniques
 
 bool hiddenMulti(Grid &pGrid, HiddenMultiType multiType, Logs *logs)
 {
-    Log log;
+    ScopedLog log(logs);
     utils::CombinationsGen combination;
     std::vector<int> combLst;
     std::vector<int> validCandVec;
@@ -61,7 +61,7 @@ bool hiddenMulti(Grid &pGrid, HiddenMultiType multiType, Logs *logs)
                         pGrid.setNotes(i, j, gType, Cell::Notes(notes & combCandidates));
                         changed = true;
 
-                        if (logs)
+                        if (log.isEnabled())
                         {
                             int r, c;
                             pGrid.translateCoordinates(i, j, r, c, gType);
@@ -69,24 +69,24 @@ bool hiddenMulti(Grid &pGrid, HiddenMultiType multiType, Logs *logs)
                             const auto removedNotes = Cell::Notes(relatedNotes ^ notes);
                             for (const auto nIdx : utils::bitset_it(removedNotes))
                             {
-                                log.cellLogs.emplace_back(r, c, CellAction::RemovedNote, nIdx + 1);
+                                log.addCellLog(r, c, CellAction::RemovedNote, nIdx + 1);
                             }
                         }
                     }
                 }
 
-                if (changed && logs)
+                if (changed && log.isEnabled())
                 {
                     switch (multiType)
                     {
                     case HiddenMultiType::Pair:
-                        log.technique = Technique::HiddenPair;
+                        log.setTechnique(Technique::HiddenPair);
                         break;
                     case HiddenMultiType::Triple:
-                        log.technique = Technique::HiddenTriple;
+                        log.setTechnique(Technique::HiddenTriple);
                         break;
                     case HiddenMultiType::Quadruple:
-                        log.technique = Technique::HiddenQuadruple;
+                        log.setTechnique(Technique::HiddenQuadruple);
                         break;
                     default:
                         break;
@@ -99,10 +99,9 @@ bool hiddenMulti(Grid &pGrid, HiddenMultiType multiType, Logs *logs)
                         const auto &notes = pGrid.getNotes(r, c);
                         for (const auto nIdx : utils::bitset_it(notes & combCandidates))
                         {
-                            log.cellLogs.emplace_back(r, c, CellAction::RelatedNote, nIdx + 1);
+                            log.addCellLog(r, c, CellAction::InPatternN1, nIdx + 1);
                         }
                     }
-                    logs->push_back(std::move(log));
                 }
 
                 return changed;

@@ -15,9 +15,8 @@ bool hiddenSingles(Grid &pGrid, Logs *logs)
         pGrid.clearNotesCascade(r, c, nIdx + 1);
         if (logs)
         {
-            Log log(Technique::HiddenSingles);
-            log.cellLogs.emplace_back(r, c, CellAction::SetValue, nIdx + 1);
-            logs->push_back(std::move(log));
+            ScopedLog log(logs, Technique::HiddenSingles);
+            log.addCellLog(r, c, CellAction::AppliedValue, nIdx + 1);
         }
     };
 

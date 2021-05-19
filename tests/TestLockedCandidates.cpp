@@ -35,7 +35,7 @@ int main(int, char **)
               solver::Technique::LockedCandidatesType1,
               {
                   // Pattern
-                  CL(0, 1, CA::RelatedNote, 7), CL(0, 2, CA::RelatedNote, 7), //
+                  CL(0, 1, CA::InPatternN1, 7), CL(0, 2, CA::InPatternN1, 7), //
 
                   // Remove
                   CL(0, 3, CA::RemovedNote, 7), CL(0, 4, CA::RemovedNote, 7) //
@@ -63,7 +63,7 @@ int main(int, char **)
               solver::Technique::LockedCandidatesType1,
               {
                   // Pattern
-                  CL(6, 3, CA::RelatedNote, 3), CL(6, 5, CA::RelatedNote, 3), //
+                  CL(6, 3, CA::InPatternN1, 3), CL(6, 5, CA::InPatternN1, 3), //
 
                   // Remove
                   CL(6, 2, CA::RemovedNote, 3) //
@@ -91,7 +91,7 @@ int main(int, char **)
               solver::Technique::LockedCandidatesType1,
               {
                   // Pattern
-                  CL(5, 6, CA::RelatedNote, 8), CL(5, 7, CA::RelatedNote, 8), //
+                  CL(5, 6, CA::InPatternN1, 8), CL(5, 7, CA::InPatternN1, 8), //
 
                   // Remove
                   CL(5, 0, CA::RemovedNote, 8) //
@@ -119,7 +119,7 @@ int main(int, char **)
               solver::Technique::LockedCandidatesType1,
               {
                   // Pattern
-                  CL(7, 0, CA::RelatedNote, 4), CL(7, 1, CA::RelatedNote, 4), //
+                  CL(7, 0, CA::InPatternN1, 4), CL(7, 1, CA::InPatternN1, 4), //
 
                   // Remove
                   CL(7, 7, CA::RemovedNote, 4) //
@@ -148,8 +148,8 @@ int main(int, char **)
               solver::Technique::LockedCandidatesType1,
               {
                   // Pattern
-                  CL(6, 3, CA::RelatedNote, 2), //
-                  CL(7, 3, CA::RelatedNote, 2), //
+                  CL(6, 3, CA::InPatternN1, 2), //
+                  CL(7, 3, CA::InPatternN1, 2), //
 
                   // Remove
                   CL(0, 3, CA::RemovedNote, 2) //
@@ -178,8 +178,8 @@ int main(int, char **)
               solver::Technique::LockedCandidatesType1,
               {
                   // Pattern
-                  CL(6, 4, CA::RelatedNote, 9), //
-                  CL(7, 4, CA::RelatedNote, 9), //
+                  CL(6, 4, CA::InPatternN1, 9), //
+                  CL(7, 4, CA::InPatternN1, 9), //
 
                   // Remove
                   CL(2, 4, CA::RemovedNote, 9), //
@@ -209,8 +209,8 @@ int main(int, char **)
               solver::Technique::LockedCandidatesType1,
               {
                   // Pattern
-                  CL(7, 2, CA::RelatedNote, 2), //
-                  CL(8, 2, CA::RelatedNote, 2), //
+                  CL(7, 2, CA::InPatternN1, 2), //
+                  CL(8, 2, CA::InPatternN1, 2), //
 
                   // Remove
                   CL(0, 2, CA::RemovedNote, 2), //
@@ -240,8 +240,8 @@ int main(int, char **)
               solver::Technique::LockedCandidatesType1,
               {
                   // Pattern
-                  CL(3, 4, CA::RelatedNote, 8), //
-                  CL(5, 4, CA::RelatedNote, 8), //
+                  CL(3, 4, CA::InPatternN1, 8), //
+                  CL(5, 4, CA::InPatternN1, 8), //
 
                   // Remove
                   CL(1, 4, CA::RemovedNote, 8) //
@@ -269,7 +269,7 @@ int main(int, char **)
               solver::Technique::LockedCandidatesType2,
               {
                   // Pattern
-                  CL(7, 6, CA::RelatedNote, 8), CL(7, 7, CA::RelatedNote, 8), //
+                  CL(7, 6, CA::InPatternN1, 8), CL(7, 7, CA::InPatternN1, 8), //
 
                   // Remove
                   CL(6, 6, CA::RemovedNote, 8), CL(6, 7, CA::RemovedNote, 8) //
@@ -297,7 +297,7 @@ int main(int, char **)
               solver::Technique::LockedCandidatesType2,
               {
                   // Pattern
-                  CL(1, 4, CA::RelatedNote, 8), CL(1, 5, CA::RelatedNote, 8), //
+                  CL(1, 4, CA::InPatternN1, 8), CL(1, 5, CA::InPatternN1, 8), //
 
                   // Remove
                   CL(0, 3, CA::RemovedNote, 8), CL(0, 4, CA::RemovedNote, 8), CL(0, 5, CA::RemovedNote, 8), //
@@ -326,7 +326,7 @@ int main(int, char **)
               solver::Technique::LockedCandidatesType2,
               {
                   // Pattern
-                  CL(2, 3, CA::RelatedNote, 7), CL(2, 5, CA::RelatedNote, 7), //
+                  CL(2, 3, CA::InPatternN1, 7), CL(2, 5, CA::InPatternN1, 7), //
 
                   // Remove
                   CL(0, 4, CA::RemovedNote, 7), //
@@ -355,7 +355,7 @@ int main(int, char **)
               solver::Technique::LockedCandidatesType2,
               {
                   // Pattern
-                  CL(6, 0, CA::RelatedNote, 6), CL(6, 1, CA::RelatedNote, 6), CL(6, 2, CA::RelatedNote, 6), //
+                  CL(6, 0, CA::InPatternN1, 6), CL(6, 1, CA::InPatternN1, 6), CL(6, 2, CA::InPatternN1, 6), //
 
                   // Remove
                   CL(7, 0, CA::RemovedNote, 6), CL(7, 1, CA::RemovedNote, 6), CL(7, 2, CA::RemovedNote, 6) //
@@ -384,8 +384,8 @@ int main(int, char **)
               solver::Technique::LockedCandidatesType2,
               {
                   // Pattern
-                  CL(3, 6, CA::RelatedNote, 6), //
-                  CL(4, 6, CA::RelatedNote, 6), //
+                  CL(3, 6, CA::InPatternN1, 6), //
+                  CL(4, 6, CA::InPatternN1, 6), //
 
                   // Remove
                   CL(3, 8, CA::RemovedNote, 6) //
@@ -414,8 +414,8 @@ int main(int, char **)
               solver::Technique::LockedCandidatesType2,
               {
                   // Pattern
-                  CL(3, 2, CA::RelatedNote, 3), //
-                  CL(5, 2, CA::RelatedNote, 3), //
+                  CL(3, 2, CA::InPatternN1, 3), //
+                  CL(5, 2, CA::InPatternN1, 3), //
 
                   // Remove
                   CL(3, 0, CA::RemovedNote, 3),                              //
@@ -445,8 +445,8 @@ int main(int, char **)
               solver::Technique::LockedCandidatesType2,
               {
                   // Pattern
-                  CL(6, 1, CA::RelatedNote, 9), //
-                  CL(7, 1, CA::RelatedNote, 9), //
+                  CL(6, 1, CA::InPatternN1, 9), //
+                  CL(7, 1, CA::InPatternN1, 9), //
 
                   // Remove
                   CL(6, 2, CA::RemovedNote, 9) //
@@ -475,8 +475,8 @@ int main(int, char **)
               solver::Technique::LockedCandidatesType2,
               {
                   // Pattern
-                  CL(7, 7, CA::RelatedNote, 7), //
-                  CL(8, 7, CA::RelatedNote, 7), //
+                  CL(7, 7, CA::InPatternN1, 7), //
+                  CL(8, 7, CA::InPatternN1, 7), //
 
                   // Remove
                   CL(6, 6, CA::RemovedNote, 7), CL(6, 8, CA::RemovedNote, 7), //
@@ -507,9 +507,9 @@ int main(int, char **)
               solver::Technique::LockedCandidatesType2,
               {
                   // Pattern
-                  CL(6, 5, CA::RelatedNote, 4), //
-                  CL(7, 5, CA::RelatedNote, 4), //
-                  CL(8, 5, CA::RelatedNote, 4), //
+                  CL(6, 5, CA::InPatternN1, 4), //
+                  CL(7, 5, CA::InPatternN1, 4), //
+                  CL(8, 5, CA::InPatternN1, 4), //
 
                   // Remove
                   CL(6, 4, CA::RemovedNote, 4), //

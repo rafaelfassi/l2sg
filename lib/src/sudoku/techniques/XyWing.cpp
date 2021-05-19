@@ -99,20 +99,26 @@ bool xyWing(Grid &pGrid, Logs *logs)
 
                                     if (logs)
                                     {
-                                        Log log(Technique::XYWing);
+                                        ScopedLog log(logs, Technique::XYWing);
                                         for (const auto note : utils::bitset_it(pivot))
-                                            log.cellLogs.emplace_back(r, c, CellAction::RelatedNote, note + 1);
+                                            log.addCellLog(r, c, CellAction::InPatternN1, note + 1);
 
                                         for (const auto note : utils::bitset_it(pincer1))
-                                            log.cellLogs.emplace_back(rP1, cP1, CellAction::RelatedNote, note + 1);
+                                        {
+                                            CellAction act(note + 1 == z ? CellAction::InPatternN2
+                                                                         : CellAction::InPatternN1);
+                                            log.addCellLog(rP1, cP1, act, note + 1);
+                                        }
 
                                         for (const auto note : utils::bitset_it(pincer2))
-                                            log.cellLogs.emplace_back(rP2, cP2, CellAction::RelatedNote, note + 1);
+                                        {
+                                            CellAction act(note + 1 == z ? CellAction::InPatternN2
+                                                                         : CellAction::InPatternN1);
+                                            log.addCellLog(rP2, cP2, act, note + 1);
+                                        }
 
                                         for (const auto &[rRm, cRm] : foundZVec)
-                                            log.cellLogs.emplace_back(rRm, cRm, CellAction::RemovedNote, z);
-
-                                        logs->push_back(std::move(log));
+                                            log.addCellLog(rRm, cRm, CellAction::RemovedNote, z);
                                     }
 
                                     return true;

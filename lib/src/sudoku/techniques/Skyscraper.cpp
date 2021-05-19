@@ -7,7 +7,7 @@ namespace sudoku::solver::techniques
 
 bool skyscraper(Grid &pGrid, Logs *logs)
 {
-    Log log(Technique::Skyscraper);
+    ScopedLog log(logs, Technique::Skyscraper);
     utils::CombinationsGen combination;
     std::vector<int> combLst;
 
@@ -43,25 +43,20 @@ bool skyscraper(Grid &pGrid, Logs *logs)
                     int r, c;
                     pGrid.translateCoordinates(i, j, r, c, gType);
                     pGrid.setNote(r, c, n, false);
+                    log.addCellLog(r, c, CellAction::RemovedNote, n);
                     changed = true;
-
-                    if (logs)
-                    {
-                        log.cellLogs.emplace_back(r, c, CellAction::RemovedNote, n);
-                    }
                 }
             }
         }
 
-        if (changed && logs)
+        if (changed && log.isEnabled())
         {
             for (const auto &cell : cells)
             {
                 int r, c;
                 pGrid.translateCoordinates(cell.first, cell.second, r, c, gType);
-                log.cellLogs.emplace_back(r, c, CellAction::RelatedNote, n);
+                log.addCellLog(r, c, CellAction::InPatternN1, n);
             }
-            logs->push_back(std::move(log));
         }
 
         return changed;

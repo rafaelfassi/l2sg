@@ -2,8 +2,8 @@
 #define SUDOKU_LOGS_H
 
 #include "Enums.h"
-#include <vector>
 #include <ostream>
+#include <vector>
 
 namespace sudoku
 {
@@ -31,14 +31,39 @@ namespace solver
 
 struct Log
 {
-    Log(Technique _technique) : technique(_technique) {}
-    Log() = default;
+    Log(Technique _technique = Technique::None) : technique(_technique) {}
     void dump(std::ostream &out);
     Technique technique;
     CellLogs cellLogs;
 };
 
 using Logs = std::vector<Log>;
+
+class ScopedLog
+{
+    Log m_log;
+    Logs *m_logs;
+
+public:
+        ScopedLog(Logs *_logs, Technique _technique = Technique::None) : m_logs(_logs), m_log(_technique) {}
+    ~ScopedLog()
+    {
+        if (m_logs && !m_log.cellLogs.empty())
+        {
+            m_logs->push_back(std::move(m_log));
+        }
+    }
+    inline bool isEnabled() { return (m_logs != nullptr); }
+    inline void addCellLog(int _r, int _c, CellAction _act, int _val)
+    {
+        if (m_logs)
+        {
+            m_log.cellLogs.emplace_back(_r, _c, _act, _val);
+        }
+    }
+    inline void setTechnique(Technique _technique) { m_log.technique = _technique; }
+    inline CellLogs *getCellsPtr() { return (m_logs == nullptr ? nullptr : &m_log.cellLogs); }
+};
 
 } // namespace solver
 

@@ -33,7 +33,7 @@ int main(int, char **)
               )",
               solver::Technique::NakedSingles,
               {
-                  CL(1, 1, CA::SetValue, 4) //
+                  CL(1, 1, CA::AppliedValue, 4) //
               }))
         return failed();
 
@@ -56,7 +56,7 @@ int main(int, char **)
               )",
               solver::Technique::NakedSingles,
               {
-                  CL(5, 8, CA::SetValue, 7) //
+                  CL(5, 8, CA::AppliedValue, 7) //
               }))
         return failed();
 
@@ -79,7 +79,7 @@ int main(int, char **)
               )",
               solver::Technique::NakedSingles,
               {
-                  CL(2, 0, CA::SetValue, 1) //
+                  CL(2, 0, CA::AppliedValue, 1) //
               }))
         return failed();
 
@@ -102,7 +102,7 @@ int main(int, char **)
               )",
               solver::Technique::NakedSingles,
               {
-                  CL(8, 0, CA::SetValue, 4) //
+                  CL(8, 0, CA::AppliedValue, 4) //
               }))
         return failed();
 
@@ -125,7 +125,7 @@ int main(int, char **)
               )",
               solver::Technique::NakedSingles,
               {
-                  CL(3, 6, CA::SetValue, 5) //
+                  CL(3, 6, CA::AppliedValue, 5) //
               }))
         return failed();
 

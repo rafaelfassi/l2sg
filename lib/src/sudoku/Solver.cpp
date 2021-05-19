@@ -66,6 +66,9 @@ Level solver::solve(Grid &pGrid, Logs *logs, Level maxLevel)
         if (techniques::xyWing(pGrid, logs))
             continue;
 
+        if (techniques::wWing(pGrid, logs))
+            continue;
+
         SWITCH_LEVEL(LEV_3_GUESS, level, maxLevel)
 
         if(solver::techniques::simpleGuess(pGrid, logs))

@@ -213,7 +213,7 @@ bool checkAll(const std::string &puzzle, Grid &grid, const std::string &iniBoard
                 }
                 gridExpected.setNote(it->cell.first, it->cell.second, it->value, false);
             }
-            else if (it->action == CellAction::SetValue)
+            else if (it->action == CellAction::AppliedValue)
             {
                 if (gridExpected.getValue(it->cell.first, it->cell.second) > 0)
                 {
@@ -313,7 +313,7 @@ void generateCellLogsCodeForTesting(const std::string &puzzle, solver::Logs &log
     std::cout << "solver::Technique::" << solver::technique2Str(logs.front().technique) << "," << std::endl;
     std::cout << "{" << std::endl;
 
-    processCellAction("Pattern", {CA::RelatedNote, CA::SetValue});
+    processCellAction("Pattern", {CA::InPatternN1, CA::InPatternN2, CA::AppliedValue});
     std::cout << ", //" << std::endl << std::endl;
     processCellAction("Remove", {CA::RemovedNote});
     std::cout << "  //" << std::endl;

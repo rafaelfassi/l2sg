@@ -28,9 +28,8 @@ bool nakedSingles(Grid &pGrid, Logs *logs, bool *check)
 
                     if (logs)
                     {
-                        Log log(Technique::NakedSingles);
-                        log.cellLogs.emplace_back(i, j, CellAction::SetValue, note);
-                        logs->push_back(std::move(log));
+                        ScopedLog log(logs, Technique::NakedSingles);
+                        log.addCellLog(i, j, CellAction::AppliedValue, note);
                     }
                     changed = true;
                 }

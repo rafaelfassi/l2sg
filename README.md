@@ -13,7 +13,7 @@ All implemented algorithms are focused in performance.
 * Hidden (Single, Pair, Triple, Quadruple)
 * Locked Candidates (Pointing, Claiming)
 * Basic Fish (X-Wings, Swordfish, Jellyfish)
-* XY-Wing
+* Wings (XY-Wing, W-Wing)
 * Skyscraper
 * Guessing
 * Brute Force

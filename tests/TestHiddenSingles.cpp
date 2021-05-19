@@ -33,7 +33,7 @@ int main(int, char **)
               )",
               solver::Technique::HiddenSingles,
               {
-                  CL(1, 6, CA::SetValue, 5) //
+                  CL(1, 6, CA::AppliedValue, 5) //
               }))
         return failed();
 
@@ -56,7 +56,7 @@ int main(int, char **)
               )",
               solver::Technique::HiddenSingles,
               {
-                  CL(8, 1, CA::SetValue, 5) //
+                  CL(8, 1, CA::AppliedValue, 5) //
               }))
         return failed();
 
@@ -79,7 +79,7 @@ int main(int, char **)
               )",
               solver::Technique::HiddenSingles,
               {
-                  CL(8, 7, CA::SetValue, 5) //
+                  CL(8, 7, CA::AppliedValue, 5) //
               }))
         return failed();
 
@@ -102,7 +102,7 @@ int main(int, char **)
               )",
               solver::Technique::HiddenSingles,
               {
-                  CL(1, 2, CA::SetValue, 9) //
+                  CL(1, 2, CA::AppliedValue, 9) //
               }))
         return failed();
 
@@ -125,7 +125,7 @@ int main(int, char **)
               )",
               solver::Technique::HiddenSingles,
               {
-                  CL(7, 2, CA::SetValue, 9) //
+                  CL(7, 2, CA::AppliedValue, 9) //
               }))
         return failed();
 

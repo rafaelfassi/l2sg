@@ -7,6 +7,7 @@ namespace sudoku::solver::techniques
 // Solves Locked Candidates Type 1 (Pointing) and Locked Candidates Type 2 (Claiming)
 bool lockedCandidates(Grid &pGrid, Logs *logs)
 {
+    ScopedLog log(logs);
     // Indexes whether the block's parts of the rows/cols contains the candidates.
     std::bitset<3> blocksInRowSet[9][9]; // [Block0, Block1, Block2] = blocksInRowSet[cand-1, row]
     std::bitset<3> blocksInColSet[9][9]; // [Block0, Block1, Block2] = blocksInColSet[cand-1, col]
@@ -25,7 +26,7 @@ bool lockedCandidates(Grid &pGrid, Logs *logs)
         return true;
     };
 
-    const auto findType1 = [&pGrid, logs](const int nIdx, const int gType, const auto &dataSet) -> bool
+    const auto findType1 = [&pGrid, &log](const int nIdx, const int gType, const auto &dataSet) -> bool
     {
         for (int i = 0; i < 9; i += 3)
         {
@@ -48,7 +49,8 @@ bool lockedCandidates(Grid &pGrid, Logs *logs)
                 // 1 0 1 The set of the row being tested (i+o1)
                 // ----- XOR operation
                 // 1 0 0 Result foundSet
-                foundSet = (dataSet[nIdx][i + o1] & (dataSet[nIdx][i + o2] | dataSet[nIdx][i + o3])) ^ dataSet[nIdx][i + o1];
+                foundSet =
+                    (dataSet[nIdx][i + o1] & (dataSet[nIdx][i + o2] | dataSet[nIdx][i + o3])) ^ dataSet[nIdx][i + o1];
                 // A valid foundSet must have count=1 (the block with candidate(s) only in one row)
                 if (foundSet.count() == 1)
                 {
@@ -63,59 +65,43 @@ bool lockedCandidates(Grid &pGrid, Logs *logs)
                     if (!check(2, 1, 0))
                         continue;
 
+            log.setTechnique(Technique::LockedCandidatesType1);
+
             // Gets the starting column of the block
             const int j = utils::bitset_it(foundSet).front() * 3;
             const int n = nIdx + 1;
             if (gType == Grid::GT_ROW)
             {
-                if (logs)
-                {
-                    Log log(Technique::LockedCandidatesType1);
-                    pGrid.clearRowNotes(iFound, n, &log.cellLogs,
-                                        [iFound, j, n, &log](int c)
+                pGrid.clearRowNotes(iFound, n, log.getCellsPtr(),
+                                    [iFound, j, n, &log](int c)
+                                    {
+                                        if (!((c < j) || (c > j + 2)))
                                         {
-                                            if (!((c < j) || (c > j + 2)))
-                                            {
-                                                log.cellLogs.emplace_back(iFound, c, CellAction::RelatedNote, n);
-                                                return false;
-                                            }
-                                            return true;
-                                        });
-                    logs->push_back(std::move(log));
-                }
-                else
-                {
-                    pGrid.clearRowNotes(iFound, n, nullptr, [j](int c) { return (c < j) || (c > j + 2); });
-                }
+                                            log.addCellLog(iFound, c, CellAction::InPatternN1, n);
+                                            return false;
+                                        }
+                                        return true;
+                                    });
             }
             else if (gType == Grid::GT_COL)
             {
-                if (logs)
-                {
-                    Log log(Technique::LockedCandidatesType1);
-                    pGrid.clearColNotes(iFound, n, &log.cellLogs,
-                                        [iFound, j, n, &log](int r)
+                pGrid.clearColNotes(iFound, n, log.getCellsPtr(),
+                                    [iFound, j, n, &log](int r)
+                                    {
+                                        if (!((r < j) || (r > j + 2)))
                                         {
-                                            if (!((r < j) || (r > j + 2)))
-                                            {
-                                                log.cellLogs.emplace_back(r, iFound, CellAction::RelatedNote, n);
-                                                return false;
-                                            }
-                                            return true;
-                                        });
-                    logs->push_back(std::move(log));
-                }
-                else
-                {
-                    pGrid.clearColNotes(iFound, n, nullptr, [j](int r) { return (r < j) || (r > j + 2); });
-                }
+                                            log.addCellLog(r, iFound, CellAction::InPatternN1, n);
+                                            return false;
+                                        }
+                                        return true;
+                                    });
             }
             return true;
         }
         return false;
     };
 
-    const auto findType2 = [&pGrid, logs](const int nIdx, const int gType, const auto &dataSet) -> bool
+    const auto findType2 = [&pGrid, &log](const int nIdx, const int gType, const auto &dataSet) -> bool
     {
         for (int i = 0; i < 9; i += 3)
         {
@@ -151,54 +137,38 @@ bool lockedCandidates(Grid &pGrid, Logs *logs)
                     if (!check(2, 1, 0))
                         continue;
 
+            log.setTechnique(Technique::LockedCandidatesType2);
+
             // Gets the starting column of the block
             const int j = utils::bitset_it(foundSet).front() * 3;
             const int n = nIdx + 1;
             if (gType == Grid::GT_ROW)
             {
                 const int blk = pGrid.getBlockNumber(iFound, j);
-                if (logs)
-                {
-                    Log log(Technique::LockedCandidatesType2);
-                    pGrid.clearBlockNotes(blk, n, &log.cellLogs,
-                                          [n, &iFound, &log](int, int r, int c)
+                pGrid.clearBlockNotes(blk, n, log.getCellsPtr(),
+                                      [n, &iFound, &log](int, int r, int c)
+                                      {
+                                          if (r == iFound)
                                           {
-                                              if (r == iFound)
-                                              {
-                                                  log.cellLogs.emplace_back(r, c, CellAction::RelatedNote, n);
-                                                  return false;
-                                              }
-                                              return true;
-                                          });
-                    logs->push_back(log);
-                }
-                else
-                {
-                    pGrid.clearBlockNotes(blk, n, nullptr, [&iFound](int, int r, int) { return (r != iFound); });
-                }
+                                              log.addCellLog(r, c, CellAction::InPatternN1, n);
+                                              return false;
+                                          }
+                                          return true;
+                                      });
             }
             else if (gType == Grid::GT_COL)
             {
                 const int blk = pGrid.getBlockNumber(j, iFound);
-                if (logs)
-                {
-                    Log log(Technique::LockedCandidatesType2);
-                    pGrid.clearBlockNotes(blk, n, &log.cellLogs,
-                                          [n, &iFound, &log](int, int r, int c)
+                pGrid.clearBlockNotes(blk, n, log.getCellsPtr(),
+                                      [n, &iFound, &log](int, int r, int c)
+                                      {
+                                          if (c == iFound)
                                           {
-                                              if (c == iFound)
-                                              {
-                                                  log.cellLogs.emplace_back(r, c, CellAction::RelatedNote, n);
-                                                  return false;
-                                              }
-                                              return true;
-                                          });
-                    logs->push_back(log);
-                }
-                else
-                {
-                    pGrid.clearBlockNotes(blk, n, nullptr, [&iFound](int, int, int c) { return (c != iFound); });
-                }
+                                              log.addCellLog(r, c, CellAction::InPatternN1, n);
+                                              return false;
+                                          }
+                                          return true;
+                                      });
             }
             return true;
         }

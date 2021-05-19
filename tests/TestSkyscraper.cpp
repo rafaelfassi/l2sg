@@ -36,8 +36,8 @@ int main(int, char **)
               solver::Technique::Skyscraper,
               {
                   // Pattern
-                  CL(0, 2, CA::RelatedNote, 9), CL(0, 5, CA::RelatedNote, 9), //
-                  CL(8, 2, CA::RelatedNote, 9), CL(8, 3, CA::RelatedNote, 9), //
+                  CL(0, 2, CA::InPatternN1, 9), CL(0, 5, CA::InPatternN1, 9), //
+                  CL(8, 2, CA::InPatternN1, 9), CL(8, 3, CA::InPatternN1, 9), //
 
                   // Remove
                   CL(1, 3, CA::RemovedNote, 9), //
@@ -67,8 +67,8 @@ int main(int, char **)
               solver::Technique::Skyscraper,
               {
                   // Pattern
-                  CL(1, 2, CA::RelatedNote, 6), CL(1, 8, CA::RelatedNote, 6), //
-                  CL(8, 1, CA::RelatedNote, 6), CL(8, 8, CA::RelatedNote, 6), //
+                  CL(1, 2, CA::InPatternN1, 6), CL(1, 8, CA::InPatternN1, 6), //
+                  CL(8, 1, CA::InPatternN1, 6), CL(8, 8, CA::InPatternN1, 6), //
 
                   // Remove
                   CL(0, 1, CA::RemovedNote, 6), //
@@ -98,8 +98,8 @@ int main(int, char **)
               solver::Technique::Skyscraper,
               {
                   // Pattern
-                  CL(1, 1, CA::RelatedNote, 2), CL(1, 3, CA::RelatedNote, 2), //
-                  CL(4, 2, CA::RelatedNote, 2), CL(4, 3, CA::RelatedNote, 2), //
+                  CL(1, 1, CA::InPatternN1, 2), CL(1, 3, CA::InPatternN1, 2), //
+                  CL(4, 2, CA::InPatternN1, 2), CL(4, 3, CA::InPatternN1, 2), //
 
                   // Remove
                   CL(0, 2, CA::RemovedNote, 2), //
@@ -129,8 +129,8 @@ int main(int, char **)
               solver::Technique::Skyscraper,
               {
                   // Pattern
-                  CL(4, 2, CA::RelatedNote, 2), CL(4, 6, CA::RelatedNote, 2), //
-                  CL(8, 2, CA::RelatedNote, 2), CL(8, 7, CA::RelatedNote, 2), //
+                  CL(4, 2, CA::InPatternN1, 2), CL(4, 6, CA::InPatternN1, 2), //
+                  CL(8, 2, CA::InPatternN1, 2), CL(8, 7, CA::InPatternN1, 2), //
 
                   // Remove
                   CL(3, 7, CA::RemovedNote, 2), //
@@ -160,8 +160,8 @@ int main(int, char **)
               solver::Technique::Skyscraper,
               {
                   // Pattern
-                  CL(3, 5, CA::RelatedNote, 2), CL(3, 8, CA::RelatedNote, 2), //
-                  CL(8, 5, CA::RelatedNote, 2), CL(8, 7, CA::RelatedNote, 2), //
+                  CL(3, 5, CA::InPatternN1, 2), CL(3, 8, CA::InPatternN1, 2), //
+                  CL(8, 5, CA::InPatternN1, 2), CL(8, 7, CA::InPatternN1, 2), //
 
                   // Remove
                   CL(4, 7, CA::RemovedNote, 2), //
@@ -193,9 +193,9 @@ int main(int, char **)
               solver::Technique::Skyscraper,
               {
                   // Pattern
-                  CL(2, 2, CA::RelatedNote, 9), CL(2, 6, CA::RelatedNote, 9), //
-                  CL(7, 2, CA::RelatedNote, 9),                               //
-                  CL(8, 6, CA::RelatedNote, 9),                               //
+                  CL(2, 2, CA::InPatternN1, 9), CL(2, 6, CA::InPatternN1, 9), //
+                  CL(7, 2, CA::InPatternN1, 9),                               //
+                  CL(8, 6, CA::InPatternN1, 9),                               //
 
                   // Remove
                   CL(7, 8, CA::RemovedNote, 9), //
@@ -226,9 +226,9 @@ int main(int, char **)
               solver::Technique::Skyscraper,
               {
                   // Pattern
-                  CL(1, 5, CA::RelatedNote, 6), CL(1, 6, CA::RelatedNote, 6), //
-                  CL(3, 6, CA::RelatedNote, 6),                               //
-                  CL(4, 5, CA::RelatedNote, 6),                               //
+                  CL(1, 5, CA::InPatternN1, 6), CL(1, 6, CA::InPatternN1, 6), //
+                  CL(3, 6, CA::InPatternN1, 6),                               //
+                  CL(4, 5, CA::InPatternN1, 6),                               //
 
                   // Remove
                   CL(3, 3, CA::RemovedNote, 6), //
@@ -259,9 +259,9 @@ int main(int, char **)
               solver::Technique::Skyscraper,
               {
                   // Pattern
-                  CL(1, 5, CA::RelatedNote, 1),                               //
-                  CL(2, 0, CA::RelatedNote, 1),                               //
-                  CL(6, 0, CA::RelatedNote, 1), CL(6, 5, CA::RelatedNote, 1), //
+                  CL(1, 5, CA::InPatternN1, 1),                               //
+                  CL(2, 0, CA::InPatternN1, 1),                               //
+                  CL(6, 0, CA::InPatternN1, 1), CL(6, 5, CA::InPatternN1, 1), //
 
                   // Remove
                   CL(1, 1, CA::RemovedNote, 1), //
@@ -292,9 +292,9 @@ int main(int, char **)
               solver::Technique::Skyscraper,
               {
                   // Pattern
-                  CL(3, 5, CA::RelatedNote, 6),                               //
-                  CL(4, 8, CA::RelatedNote, 6),                               //
-                  CL(7, 5, CA::RelatedNote, 6), CL(7, 8, CA::RelatedNote, 6), //
+                  CL(3, 5, CA::InPatternN1, 6),                               //
+                  CL(4, 8, CA::InPatternN1, 6),                               //
+                  CL(7, 5, CA::InPatternN1, 6), CL(7, 8, CA::InPatternN1, 6), //
 
                   // Remove
                   CL(3, 7, CA::RemovedNote, 6), //

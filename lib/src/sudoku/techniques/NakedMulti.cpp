@@ -7,7 +7,7 @@ namespace sudoku::solver::techniques
 
 bool nakedMulti(Grid &pGrid, NakedMultiType multiType, Logs *logs)
 {
-    Log log;
+    ScopedLog log(logs);
     utils::CombinationsGen combination;
     std::vector<int> combLst;
     std::vector<std::pair<int, Cell *>> validCellsVec;
@@ -53,36 +53,38 @@ bool nakedMulti(Grid &pGrid, NakedMultiType multiType, Logs *logs)
                 {
                     if (gType == Grid::GT_ROW)
                     {
-                        changedCnt += pGrid.clearRowNotes(i, nIdx + 1, &log.cellLogs, [&jSet](int c) { return !jSet.test(c); });
+                        changedCnt += pGrid.clearRowNotes(i, nIdx + 1, log.getCellsPtr(),
+                                                          [&jSet](int c) { return !jSet.test(c); });
                     }
                     else if (gType == Grid::GT_COL)
                     {
-                        changedCnt += pGrid.clearColNotes(i, nIdx + 1, &log.cellLogs, [&jSet](int r) { return !jSet.test(r); });
+                        changedCnt += pGrid.clearColNotes(i, nIdx + 1, log.getCellsPtr(),
+                                                          [&jSet](int r) { return !jSet.test(r); });
                     }
                     else if (gType == Grid::GT_BLK)
                     {
-                        changedCnt +=
-                            pGrid.clearBlockNotes(i, nIdx + 1, &log.cellLogs, [&jSet](int e, int, int) { return !jSet.test(e); });
+                        changedCnt += pGrid.clearBlockNotes(i, nIdx + 1, log.getCellsPtr(),
+                                                            [&jSet](int e, int, int) { return !jSet.test(e); });
                     }
                 }
 
                 if (changedCnt > 0)
                 {
-                    if (logs)
+                    if (log.isEnabled())
                     {
                         switch (multiType)
                         {
-                        case NakedMultiType::Pair:
-                            log.technique = Technique::NakedPair;
-                            break;
-                        case NakedMultiType::Triple:
-                            log.technique = Technique::NakedTriple;
-                            break;
-                        case NakedMultiType::Quadruple:
-                            log.technique = Technique::NakedQuadruple;
-                            break;
-                        default:
-                            break;
+                            case NakedMultiType::Pair:
+                                log.setTechnique(Technique::NakedPair);
+                                break;
+                            case NakedMultiType::Triple:
+                                log.setTechnique(Technique::NakedTriple);
+                                break;
+                            case NakedMultiType::Quadruple:
+                                log.setTechnique(Technique::NakedQuadruple);
+                                break;
+                            default:
+                                break;
                         }
 
                         for (const int cmb : combLst)
@@ -92,10 +94,9 @@ bool nakedMulti(Grid &pGrid, NakedMultiType multiType, Logs *logs)
                             pGrid.translateCoordinates(i, j, r, c, gType);
                             for (const auto nIdx : utils::bitset_it(cell->getNotes()))
                             {
-                                log.cellLogs.emplace_back(r, c, CellAction::RelatedNote, nIdx + 1);
+                                log.addCellLog(r, c, CellAction::InPatternN1, nIdx + 1);
                             }
                         }
-                        logs->push_back(std::move(log));
                     }
                     return true;
                 }

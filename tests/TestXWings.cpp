@@ -36,8 +36,8 @@ int main(int, char **)
               solver::Technique::XWings,
               {
                   // Pattern
-                  CL(2, 4, CA::RelatedNote, 6), CL(2, 8, CA::RelatedNote, 6), //
-                  CL(6, 4, CA::RelatedNote, 6), CL(6, 8, CA::RelatedNote, 6), //
+                  CL(2, 4, CA::InPatternN1, 6), CL(2, 8, CA::InPatternN1, 6), //
+                  CL(6, 4, CA::InPatternN1, 6), CL(6, 8, CA::InPatternN1, 6), //
 
                   // Remove
                   CL(0, 4, CA::RemovedNote, 6), //
@@ -68,8 +68,8 @@ int main(int, char **)
               solver::Technique::XWings,
               {
                   // Pattern
-                  CL(1, 4, CA::RelatedNote, 8), CL(1, 7, CA::RelatedNote, 8), //
-                  CL(3, 4, CA::RelatedNote, 8), CL(3, 7, CA::RelatedNote, 8), //
+                  CL(1, 4, CA::InPatternN1, 8), CL(1, 7, CA::InPatternN1, 8), //
+                  CL(3, 4, CA::InPatternN1, 8), CL(3, 7, CA::InPatternN1, 8), //
 
                   // Remove
                   CL(2, 4, CA::RemovedNote, 8),                              //
@@ -99,8 +99,8 @@ int main(int, char **)
               solver::Technique::XWings,
               {
                   // Pattern
-                  CL(5, 0, CA::RelatedNote, 8), CL(5, 6, CA::RelatedNote, 8), //
-                  CL(8, 0, CA::RelatedNote, 8), CL(8, 6, CA::RelatedNote, 8), //
+                  CL(5, 0, CA::InPatternN1, 8), CL(5, 6, CA::InPatternN1, 8), //
+                  CL(8, 0, CA::InPatternN1, 8), CL(8, 6, CA::InPatternN1, 8), //
 
                   // Remove
                   CL(3, 0, CA::RemovedNote, 8), //
@@ -130,8 +130,8 @@ int main(int, char **)
               solver::Technique::XWings,
               {
                   // Pattern
-                  CL(2, 0, CA::RelatedNote, 9), CL(2, 5, CA::RelatedNote, 9), //
-                  CL(6, 0, CA::RelatedNote, 9), CL(6, 5, CA::RelatedNote, 9), //
+                  CL(2, 0, CA::InPatternN1, 9), CL(2, 5, CA::InPatternN1, 9), //
+                  CL(6, 0, CA::InPatternN1, 9), CL(6, 5, CA::InPatternN1, 9), //
 
                   // Remove
                   CL(2, 4, CA::RemovedNote, 9), //
@@ -161,8 +161,8 @@ int main(int, char **)
               solver::Technique::XWings,
               {
                   // Pattern
-                  CL(2, 0, CA::RelatedNote, 5), CL(2, 3, CA::RelatedNote, 5), //
-                  CL(3, 0, CA::RelatedNote, 5), CL(3, 3, CA::RelatedNote, 5), //
+                  CL(2, 0, CA::InPatternN1, 5), CL(2, 3, CA::InPatternN1, 5), //
+                  CL(3, 0, CA::InPatternN1, 5), CL(3, 3, CA::InPatternN1, 5), //
 
                   // Remove
                   CL(3, 5, CA::RemovedNote, 5), CL(3, 8, CA::RemovedNote, 5) //

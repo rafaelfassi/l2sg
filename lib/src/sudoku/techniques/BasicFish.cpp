@@ -6,7 +6,7 @@ namespace sudoku::solver::techniques
 
 bool basicFish(Grid &pGrid, BasicFishType fishType, Logs *logs)
 {
-    Log log;
+    ScopedLog log(logs);
     std::vector<int> combLst;
     utils::CombinationsGen combination;
     const auto &summary(pGrid.getSummary());
@@ -82,7 +82,7 @@ bool basicFish(Grid &pGrid, BasicFishType fishType, Logs *logs)
                             // Are there notes to be removed?
                             if (summary.getRowsByColNote(j, nIdx).count() > jNotesCount[j])
                             {
-                                changedCount += pGrid.clearColNotes(j, nIdx + 1, &log.cellLogs,
+                                changedCount += pGrid.clearColNotes(j, nIdx + 1, log.getCellsPtr(),
                                                                     [nIdx, &combLst, &iCandidatesSet](int r)
                                                                     {
                                                                         for (auto comb : combLst)
@@ -96,7 +96,7 @@ bool basicFish(Grid &pGrid, BasicFishType fishType, Logs *logs)
                         {
                             if (summary.getColsByRowNote(j, nIdx).count() > jNotesCount[j])
                             {
-                                changedCount += pGrid.clearRowNotes(j, nIdx + 1, &log.cellLogs,
+                                changedCount += pGrid.clearRowNotes(j, nIdx + 1, log.getCellsPtr(),
                                                                     [nIdx, &combLst, &iCandidatesSet](int c)
                                                                     {
                                                                         for (auto comb : combLst)
@@ -111,15 +111,15 @@ bool basicFish(Grid &pGrid, BasicFishType fishType, Logs *logs)
 
                 if (changedCount > 0)
                 {
-                    if (logs)
+                    if (log.isEnabled())
                     {
                         switch (fishType)
                         {
                             case BasicFishType::Swordfish:
-                                log.technique = Technique::Swordfish;
+                                log.setTechnique(Technique::Swordfish);
                                 break;
                             case BasicFishType::Jellyfish:
-                                log.technique = Technique::Jellyfish;
+                                log.setTechnique(Technique::Jellyfish);
                                 break;
                             default:
                                 break;
@@ -135,11 +135,10 @@ bool basicFish(Grid &pGrid, BasicFishType fishType, Logs *logs)
                                     const auto i = iCandidatesSet[nIdx][comb];
                                     pGrid.translateCoordinates(i, j, r, c, gType);
                                     if (pGrid.hasNote(r, c, nIdx + 1))
-                                        log.cellLogs.emplace_back(r, c, CellAction::RelatedNote, nIdx + 1);
+                                        log.addCellLog(r, c, CellAction::InPatternN1, nIdx + 1);
                                 }
                             }
                         }
-                        logs->push_back(std::move(log));
                     }
 
                     return true;

@@ -68,9 +68,8 @@ bool simpleGuess(Grid &pGrid, Logs *logs)
 
                 if (logs)
                 {
-                    Log log(Technique::SimpleGuess);
-                    log.cellLogs.emplace_back(r, c, CellAction::SetValue, goodValue);
-                    logs->push_back(std::move(log));
+                    ScopedLog log(logs, Technique::SimpleGuess);
+                    log.addCellLog(r, c, CellAction::AppliedValue, goodValue);
                 }
                 return true;
             }

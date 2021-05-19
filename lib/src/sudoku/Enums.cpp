@@ -36,6 +36,8 @@ std::string solver::technique2Str(solver::Technique technique)
             return "Jellyfish";
         case Technique::XYWing:
             return "XYWing";
+        case Technique::WWing:
+            return "WWing";
         case Technique::Skyscraper:
             return "Skyscraper";
         case Technique::SimpleGuess:
@@ -51,12 +53,14 @@ std::string cellAction2Str(CellAction action)
 {
     switch (action)
     {
-        case CellAction::SetValue:
-            return "SetValue";
+        case CellAction::AppliedValue:
+            return "AppliedValue";
         case CellAction::RemovedNote:
             return "RemovedNote";
-        case CellAction::RelatedNote:
-            return "RelatedNote";
+        case CellAction::InPatternN1:
+            return "InPatternN1";
+        case CellAction::InPatternN2:
+            return "InPatternN2";
         default:
             throw std::out_of_range("CellAction enum not translated on cellAction2Str");
     }

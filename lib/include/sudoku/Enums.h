@@ -11,6 +11,7 @@ namespace solver
 
 enum class Technique
 {
+    None,
     NakedSingles,
     NakedPair,
     NakedTriple,
@@ -25,6 +26,7 @@ enum class Technique
     Swordfish,
     Jellyfish,
     XYWing,
+    WWing,
     Skyscraper,
     SimpleGuess,
     BruteForce
@@ -56,10 +58,10 @@ std::string technique2Str(solver::Technique technique);
 
 enum class CellAction
 {
-    SetValue,
-    //NoteMatchedWithPattern,
+    AppliedValue,
     RemovedNote,
-    RelatedNote
+    InPatternN1,
+    InPatternN2
 };
 
 std::string cellAction2Str(CellAction action);
