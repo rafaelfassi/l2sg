@@ -122,6 +122,89 @@ bool checkNotes(const std::string &puzzle, Grid &grid, const std::string &initia
     return checkGrid(puzzle, gridIni, grid, gridExpected, false, true);
 }
 
+void extractCellLogsFromBoard(const std::string &board, CellLogs &cellLogs)
+{
+    const auto isValidDigit = [](char ch) { return (std::isdigit(ch) && (ch > '0')); };
+    const auto char2Int = [](char ch) { return ch - '0'; };
+    const auto isOpen = [](char ch) { return (ch == '(' || ch == '{' || ch == '['); };
+    const auto isClose = [](char ch) { return (ch == ')' || ch == '}' || ch == ']'); };
+    const auto isAction = [](char ch) { return (ch == '*' || ch == '^' || ch == '-' || ch == '='); };
+
+    int r(0);
+    int c(0);
+    size_t i(0);
+    while (i < board.size())
+    {
+        if (c == 9)
+        {
+            c = 0;
+            if (++r == 9)
+                break;
+        }
+
+        if (!isValidDigit(board[i]) && !isOpen(board[i]))
+        {
+            ++i;
+            continue;
+        }
+
+        size_t notesCount(0);
+        char act = 0;
+
+        while (i < board.size())
+        {
+            auto noteChar = board[i++];
+            if (std::isspace(noteChar))
+                break;
+
+            if (isOpen(noteChar))
+            {
+                act = 'o';
+                continue;
+            }
+
+            if(isClose(noteChar))
+            {
+                act = 0;
+                continue;
+            }
+
+            if (act && isAction(noteChar))
+            {
+                act = noteChar;
+                continue;
+            }
+
+            if (isValidDigit(noteChar))
+            {
+                switch (act)
+                {
+                case '=':
+                    cellLogs.emplace_back(r, c, CellAction::AppliedValue, char2Int(noteChar));
+                    break;
+                case '-':
+                    cellLogs.emplace_back(r, c, CellAction::RemovedNote, char2Int(noteChar));
+                    break;
+                case '*':
+                    cellLogs.emplace_back(r, c, CellAction::InPatternN1, char2Int(noteChar));
+                    break;
+                case '^':
+                    cellLogs.emplace_back(r, c, CellAction::InPatternN2, char2Int(noteChar));
+                    break;
+                default:
+                    break;
+                }
+
+                if(++notesCount == 9)
+                    break;
+            }
+        }
+
+        if (notesCount > 0)
+            ++c;
+    }
+}
+
 bool checkAll(const std::string &puzzle, Grid &grid, const std::string &iniBoard, bool changed,
               const std::string &expectedBoard)
 {
@@ -149,7 +232,7 @@ bool checkAll(const std::string &puzzle, Grid &grid, const std::string &iniBoard
 
     Grid gridExpected(gridIni);
 
-    for (int i = 0; i < 9; ++i)
+    for (int i = 0; ok && (i < 9); ++i)
     {
         for (int j = 0; j < 9; ++j)
         {
@@ -157,6 +240,7 @@ bool checkAll(const std::string &puzzle, Grid &grid, const std::string &iniBoard
             {
                 printMsg(puzzle, "The provided puzzle and board don't match");
                 ok &= false;
+                break;
             }
         }
     }
@@ -256,6 +340,14 @@ bool checkAll(const std::string &puzzle, Grid &grid, const std::string &iniBoard
     ok &= checkGrid(puzzle, gridIni, grid, gridExpected, true, true);
 
     return ok;
+}
+
+bool checkAll(const std::string &puzzle, Grid &grid, const std::string &iniBoard, bool changed,
+              solver::Technique expectedTechnique, solver::Logs &solverLogs)
+{
+    CellLogs expectedLogs;
+    extractCellLogsFromBoard(iniBoard, expectedLogs);
+    return checkAll(puzzle, grid, iniBoard, changed, expectedTechnique, expectedLogs, solverLogs);
 }
 
 void generateCellLogsCodeForTesting(const std::string &puzzle, solver::Logs &logs)

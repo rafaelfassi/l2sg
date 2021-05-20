@@ -200,22 +200,20 @@ void Grid::fillBoard(const std::string &board)
             continue;
         }
 
-        int notesCount(0);
+        size_t notesCount(0);
         while (i < board.size())
         {
-            const auto noteChar = board[i];
-            if (!isValidDigit(noteChar) || (++notesCount > 9))
+            const auto noteChar = board[i++];
+            if (std::isspace(noteChar))
                 break;
-            setNote(r, c, char2Int(noteChar), true);
-            ++i;
+            if (isValidDigit(noteChar))
+            {
+                setNote(r, c, char2Int(noteChar), true);
+                if(++notesCount == 9)
+                    break;
+            }
         }
-
-        if (++c == 9)
-        {
-            c = 0;
-            if (++r == 9)
-                break;
-        }
+        ++c;
     }
 
     for (int i = 0; i < 9; ++i)
