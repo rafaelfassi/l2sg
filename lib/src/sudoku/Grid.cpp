@@ -45,9 +45,6 @@ Grid::Summary::Summary(const Grid &pGrid)
 {
     for (int r = 0; r < 9; ++r)
     {
-        m_notesByRow[r].reserve(9);
-        m_notesByCol[r].reserve(9);
-        m_notesByBlk[r].reserve(9);
         for (int c = 0; c < 9; ++c)
         {
             const auto [b, e] = g_blockElem2RowCol[r][c];
@@ -55,19 +52,9 @@ Grid::Summary::Summary(const Grid &pGrid)
             {
                 if (pGrid.hasNote(r, c, nIdx + 1))
                 {
-                    if (!m_colsByRowNote[r][nIdx].any())
-                    {
-                        m_notesByRow[r].push_back(nIdx);
-                    }
-                    if (!m_rowsByColNote[c][nIdx].any())
-                    {
-                        m_notesByCol[c].push_back(nIdx);
-                    }
-                    if (!m_elmsByBlkNote[b][nIdx].any())
-                    {
-                        m_notesByBlk[b].push_back(nIdx);
-                    }
-
+                    m_notesByRow[r].set(nIdx, true);
+                    m_notesByCol[c].set(nIdx, true);
+                    m_notesByBlk[b].set(nIdx, true);
                     m_colsByRowNote[r][nIdx].set(c, true);
                     m_rowsByColNote[c][nIdx].set(r, true);
                     m_elmsByBlkNote[b][nIdx].set(e, true);
@@ -94,35 +81,24 @@ void Grid::Summary::updateNote(int r, int c, int nIdx, bool active)
     if (active)
     {
         if (!m_colsByRowNote[r][nIdx].any())
-            m_notesByRow[r].push_back(nIdx);
+            m_notesByRow[r].set(nIdx, true);
         if (!m_rowsByColNote[c][nIdx].any())
-            m_notesByCol[c].push_back(nIdx);
+            m_notesByCol[c].set(nIdx, true);
         if (!m_elmsByBlkNote[be.first][nIdx].any())
-            m_notesByBlk[be.first].push_back(nIdx);
+            m_notesByBlk[be.first].set(nIdx, true);
 
         updateSets();
     }
     else
     {
-        const auto removeNoteFromVec = [nIdx](std::vector<int> &vec)
-        {
-            auto it = std::find(vec.begin(), vec.end(), nIdx);
-            if (it != vec.end())
-            {
-                if (it != vec.end() - 1)
-                    *it = vec.back();
-                vec.pop_back();
-            }
-        };
-
         updateSets();
 
         if (!m_colsByRowNote[r][nIdx].any())
-            removeNoteFromVec(m_notesByRow[r]);
+            m_notesByRow[r].set(nIdx, false);
         if (!m_rowsByColNote[c][nIdx].any())
-            removeNoteFromVec(m_notesByCol[c]);
+            m_notesByCol[c].set(nIdx, false);
         if (!m_elmsByBlkNote[be.first][nIdx].any())
-            removeNoteFromVec(m_notesByBlk[be.first]);
+            m_notesByBlk[be.first].set(nIdx, false);
     }
 }
 
@@ -209,7 +185,7 @@ void Grid::fillBoard(const std::string &board)
             if (isValidDigit(noteChar))
             {
                 setNote(r, c, char2Int(noteChar), true);
-                if(++notesCount == 9)
+                if (++notesCount == 9)
                     break;
             }
         }
@@ -574,8 +550,9 @@ void Grid::forAllCells(const std::function<bool(int, int, int, int)> &_callback)
     }
 }
 
-void Grid::forIntersections(const std::vector<std::pair<int, int>> &_cells, const std::function<void(int, int)> &_callback)
+bool Grid::removeNotesFromIntersections(int n, const std::vector<std::pair<int, int>> &_cells, CellLogs *cellLogs)
 {
+    bool changed(false);
     std::bitset<9> blocks;
     std::bitset<9> rows;
     std::bitset<9> cols;
@@ -583,6 +560,9 @@ void Grid::forIntersections(const std::vector<std::pair<int, int>> &_cells, cons
     std::bitset<3> stacks;
     std::bitset<9> blockRow[9];
     std::bitset<9> blockCol[9];
+
+    const auto isNotTheGivens = [&_cells](const int r, const int c) -> bool
+    { return (std::find(_cells.begin(), _cells.end(), std::make_pair(r, c)) == _cells.end()); };
 
     for (const auto &[r, c] : _cells)
     {
@@ -603,39 +583,45 @@ void Grid::forIntersections(const std::vector<std::pair<int, int>> &_cells, cons
         {
             int r, c;
             translateCoordinates(b, e, r, c, GT_BLK);
-            _callback(r, c);
+            if (hasNote(r, c, n) && isNotTheGivens(r, c))
+            {
+                setNote(r, c, n, false);
+                changed = true;
+                if (cellLogs)
+                    cellLogs->emplace_back(r, c, CellAction::RemovedNote, n);
+            }
         }
     }
     else if (bands.count() == 1)
     {
-        const auto startRow((_cells[0].first / 3) * 3);
-        const auto endRow(startRow + 3);
-        for (int r = startRow; r < endRow; ++r)
+        for (const int r : utils::bitset_it(rows))
         {
-            if (rows.test(r))
+            for (int c = 0; c < 9; ++c)
             {
-                for (int c = 0; c < 9; ++c)
+                const int b = getBlockNumber(r, c);
+                if (blocks.test(b) && !blockRow[b].test(r) && hasNote(r, c, n) && isNotTheGivens(r, c))
                 {
-                    const int b = getBlockNumber(r, c);
-                    if (blocks.test(b) && !blockRow[b].test(r))
-                        _callback(r, c);
+                    setNote(r, c, n, false);
+                    changed = true;
+                    if (cellLogs)
+                        cellLogs->emplace_back(r, c, CellAction::RemovedNote, n);
                 }
             }
         }
     }
     else if (stacks.count() == 1)
     {
-        const auto startCol((_cells[0].second / 3) * 3);
-        const auto endCol(startCol + 3);
-        for (int c = startCol; c < endCol; ++c)
+        for (const int c : utils::bitset_it(cols))
         {
-            if (cols.test(c))
+            for (int r = 0; r < 9; ++r)
             {
-                for (int r = 0; r < 9; ++r)
+                const int b = getBlockNumber(r, c);
+                if (blocks.test(b) && !blockCol[b].test(c) && hasNote(r, c, n) && isNotTheGivens(r, c))
                 {
-                    const int b = getBlockNumber(r, c);
-                    if (blocks.test(b) && !blockCol[b].test(c))
-                        _callback(r, c);
+                    setNote(r, c, n, false);
+                    changed = true;
+                    if (cellLogs)
+                        cellLogs->emplace_back(r, c, CellAction::RemovedNote, n);
                 }
             }
         }
@@ -646,10 +632,18 @@ void Grid::forIntersections(const std::vector<std::pair<int, int>> &_cells, cons
         {
             for (const auto c : utils::bitset_it(cols))
             {
-                _callback(r, c);
+                if (hasNote(r, c, n) && isNotTheGivens(r, c))
+                {
+                    setNote(r, c, n, false);
+                    changed = true;
+                    if (cellLogs)
+                        cellLogs->emplace_back(r, c, CellAction::RemovedNote, n);
+                }
             }
         }
     }
+
+    return changed;
 }
 
 bool Grid::compareValues(int *_pValues)

@@ -61,6 +61,13 @@ public:
             m_log.cellLogs.emplace_back(_r, _c, _act, _val);
         }
     }
+    inline void addCellLog(const std::pair<int, int> &_cell, CellAction _act, int _val)
+    {
+        if (m_logs)
+        {
+            m_log.cellLogs.emplace_back(_cell, _act, _val);
+        }
+    }
     inline void setTechnique(Technique _technique) { m_log.technique = _technique; }
     inline CellLogs *getCellsPtr() { return (m_logs == nullptr ? nullptr : &m_log.cellLogs); }
 };

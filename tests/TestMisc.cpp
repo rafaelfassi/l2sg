@@ -6,7 +6,12 @@ bool noSolution()
     Grid grid;
     grid.fillValues("...76.......4...718...................7...9..6..3..12..7.....4......6......97....");
     grid.fillNotes();
-    return (solver::solve(grid) == Level::LEV_UNKNOWN);
+    if (solver::solve(grid) != Level::LEV_UNKNOWN)
+    {
+        printMsg(__func__, "Test failed");
+        return false;
+    }
+    return true;
 }
 
 bool multipleSolutions()
@@ -28,7 +33,13 @@ bool multipleSolutions()
         | 123456789 23456789  13456789  | 123456789 123456789 12345689  | 123456789 1234678   123456789 |
         +-------------------------------+-------------------------------+-------------------------------+
     )");
-    return (solver::solve(grid) == Level::LEV_3_GUESS);
+
+    if (solver::solve(grid) != Level::LEV_3_GUESS)
+    {
+        printMsg(__func__, "Test failed");
+        return false;
+    }
+    return true;
 }
 
 bool onlyNotes()
@@ -50,7 +61,13 @@ bool onlyNotes()
         | 235679    | 123456789 | 89        | 23456789  | 456789    | 12346789  | 356789    | 123456789 | 456789    |
         +-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+
     )");
-    return (solver::solve(grid) == Level::LEV_2_LOGIC);
+
+    if (solver::solve(grid) != Level::LEV_2_LOGIC)
+    {
+        printMsg(__func__, "Test failed");
+        return false;
+    }
+    return true;
 }
 
 int main(int, char **)

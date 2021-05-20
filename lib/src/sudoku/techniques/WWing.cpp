@@ -16,9 +16,9 @@ bool wWing(Grid &pGrid, Logs *logs)
         const auto jSL1 = *jIt;
         const auto jSL2 = *(++jIt);
 
-        int rSL1, cSL1, rSL2, cSL2;
-        Grid::translateCoordinates(i, jSL1, rSL1, cSL1, gType);
-        Grid::translateCoordinates(i, jSL2, rSL2, cSL2, gType);
+        std::pair<int, int> rcSL1, rcSL2;
+        Grid::translateCoordinates(i, jSL1, rcSL1.first, rcSL1.second, gType);
+        Grid::translateCoordinates(i, jSL2, rcSL2.first, rcSL2.second, gType);
 
         for (int gTypeBV1 = Grid::GT_ROW; gTypeBV1 <= Grid::GT_BLK; ++gTypeBV1)
         {
@@ -26,15 +26,15 @@ bool wWing(Grid &pGrid, Logs *logs)
                 continue;
 
             int iBV1, jBV1;
-            Grid::translateCoordinates(rSL1, cSL1, iBV1, jBV1, gTypeBV1);
+            Grid::translateCoordinates(rcSL1.first, rcSL1.second, iBV1, jBV1, gTypeBV1);
             for (jBV1 = 0; jBV1 < 9; ++jBV1)
             {
-                int rBV1, cBV1;
-                Grid::translateCoordinates(iBV1, jBV1, rBV1, cBV1, gTypeBV1);
-                const auto notesBV1 = pGrid.getNotes(rBV1, cBV1);
+                std::pair<int, int> rcBV1;
+                Grid::translateCoordinates(iBV1, jBV1, rcBV1.first, rcBV1.second, gTypeBV1);
+                const auto notesBV1 = pGrid.getNotes(rcBV1.first, rcBV1.second);
                 if (notesBV1.test(nIdx) && (notesBV1.count() == 2))
                 {
-                    if ((rBV1 == rSL1 && cBV1 == cSL1) || (rBV1 == rSL2 && cBV1 == cSL2))
+                    if ((rcBV1 == rcSL1) || (rcBV1 == rcSL2))
                         continue;
 
                     for (int gTypeBV2 = Grid::GT_ROW; gTypeBV2 <= Grid::GT_BLK; ++gTypeBV2)
@@ -43,58 +43,37 @@ bool wWing(Grid &pGrid, Logs *logs)
                             continue;
 
                         int iBV2, jBV2;
-                        Grid::translateCoordinates(rSL2, cSL2, iBV2, jBV2, gTypeBV2);
+                        Grid::translateCoordinates(rcSL2.first, rcSL2.second, iBV2, jBV2, gTypeBV2);
                         for (jBV2 = 0; jBV2 < 9; ++jBV2)
                         {
-                            int rBV2, cBV2;
-                            Grid::translateCoordinates(iBV2, jBV2, rBV2, cBV2, gTypeBV2);
-                            const auto notesBV2 = pGrid.getNotes(rBV2, cBV2);
+                            std::pair<int, int> rcBV2;
+                            Grid::translateCoordinates(iBV2, jBV2, rcBV2.first, rcBV2.second, gTypeBV2);
+                            const auto notesBV2 = pGrid.getNotes(rcBV2.first, rcBV2.second);
                             if (notesBV2 == notesBV1)
                             {
-                                if ((rBV2 == rSL1 && cBV2 == cSL1) || (rBV2 == rSL2 && cBV2 == cSL2) ||
-                                    (rBV2 == rBV1 && cBV2 == cBV1))
+                                if ((rcBV2 == rcSL1) || (rcBV2 == rcSL2) || (rcBV2 == rcBV1))
                                     continue;
-                                // std::cout << "Found: " << nIdx + 1 << " Strong link at: (" << rSL1 << "," << cSL1 <<
-                                // ")
-                                // (" << rSL2 << "," << cSL2 << ")"
-                                // << " bivalues at: (" << rBV1 << "," << cBV1 << ") (" << rBV2 << "," << cBV2 << ")" <<
-                                // std::endl;
+
                                 std::vector<std::pair<int, int>> bVCells;
-                                bVCells.emplace_back(rBV1, cBV1);
-                                bVCells.emplace_back(rBV2, cBV2);
+                                bVCells.emplace_back(rcBV1);
+                                bVCells.emplace_back(rcBV2);
 
                                 Cell::Notes noteBVRem(notesBV1);
                                 noteBVRem.set(nIdx, false);
                                 const auto nRm = utils::bitset_it(noteBVRem).front() + 1;
 
-                                bool changed(false);
-                                Grid::forIntersections(bVCells,
-                                                       [&bVCells, &pGrid, &changed, nRm, &log](int r, int c)
-                                                       {
-                                                           if (pGrid.hasNote(r, c, nRm) &&
-                                                               (std::find(bVCells.begin(), bVCells.end(),
-                                                                          std::make_pair(r, c)) == bVCells.end()))
-                                                           {
-                                                               pGrid.setNote(r, c, nRm, false);
-                                                               log.addCellLog(r, c, CellAction::RemovedNote, nRm);
-                                                               changed = true;
-
-                                                               // std::cout << r << "," << c << std::endl;
-                                                           }
-                                                       });
-
-                                if (changed)
+                                if (pGrid.removeNotesFromIntersections(nRm, bVCells, log.getCellsPtr()))
                                 {
                                     if (log.isEnabled())
                                     {
-                                        log.addCellLog(rSL1, cSL1, CellAction::InPatternN2, nIdx + 1);
-                                        log.addCellLog(rSL2, cSL2, CellAction::InPatternN2, nIdx + 1);
+                                        log.addCellLog(rcSL1, CellAction::InPatternN2, nIdx + 1);
+                                        log.addCellLog(rcSL2, CellAction::InPatternN2, nIdx + 1);
 
-                                        log.addCellLog(rBV1, cBV1, CellAction::InPatternN2, nIdx + 1);
-                                        log.addCellLog(rBV1, cBV1, CellAction::InPatternN1, nRm);
+                                        log.addCellLog(rcBV1, CellAction::InPatternN2, nIdx + 1);
+                                        log.addCellLog(rcBV1, CellAction::InPatternN1, nRm);
 
-                                        log.addCellLog(rBV2, cBV2, CellAction::InPatternN2, nIdx + 1);
-                                        log.addCellLog(rBV2, cBV2, CellAction::InPatternN1, nRm);
+                                        log.addCellLog(rcBV2, CellAction::InPatternN2, nIdx + 1);
+                                        log.addCellLog(rcBV2, CellAction::InPatternN1, nRm);
                                     }
                                     return true;
                                 }

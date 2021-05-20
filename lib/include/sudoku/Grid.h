@@ -22,9 +22,9 @@ public:
         Group m_colsByRowNote[9][9];
         Group m_rowsByColNote[9][9];
         Group m_elmsByBlkNote[9][9];
-        std::vector<int> m_notesByRow[9];
-        std::vector<int> m_notesByCol[9];
-        std::vector<int> m_notesByBlk[9];
+        Cell::Notes m_notesByRow[9];
+        Cell::Notes m_notesByCol[9];
+        Cell::Notes m_notesByBlk[9];
 
         friend class Grid;
         void updateNote(int r, int c, int nIdx, bool active);
@@ -36,9 +36,9 @@ public:
         inline const Group &getColsByRowNote(int r, int nIdx) const { return m_colsByRowNote[r][nIdx]; }
         inline const Group &getRowsByColNote(int c, int nIdx) const { return m_rowsByColNote[c][nIdx]; }
         inline const Group &getElmsByBlkNote(int b, int nIdx) const { return m_elmsByBlkNote[b][nIdx]; }
-        inline const std::vector<int> &getNotesByRow(int r) const { return m_notesByRow[r]; }
-        inline const std::vector<int> &getNotesByCol(int c) const { return m_notesByCol[c]; }
-        inline const std::vector<int> &getNotesByBlk(int b) const { return m_notesByBlk[b]; }
+        inline const Cell::Notes &getNotesByRow(int r) const { return m_notesByRow[r]; }
+        inline const Cell::Notes &getNotesByCol(int c) const { return m_notesByCol[c]; }
+        inline const Cell::Notes &getNotesByBlk(int b) const { return m_notesByBlk[b]; }
     };
 
     Grid() = default;
@@ -142,8 +142,8 @@ public:
         const std::function<bool(int, int, int)> &_clear = [](int, int, int) { return true; });
     std::string getNotesSignature();
     static void forAllCells(const std::function<bool(int, int, int, int)> &_callback);
-    static void forIntersections(const std::vector<std::pair<int, int>> &_cells,
-                                 const std::function<void(int, int)> &_callback);
+    bool removeNotesFromIntersections(int n, const std::vector<std::pair<int, int>> &_cells,
+                                      CellLogs *cellLogs = nullptr);
     bool compareValues(int *_pValues);
     bool compareValues(const Grid &_grid);
     bool compareNotes(const Grid &_grid);

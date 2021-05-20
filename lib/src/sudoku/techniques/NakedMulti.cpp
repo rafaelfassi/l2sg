@@ -110,19 +110,19 @@ bool nakedMulti(Grid &pGrid, NakedMultiType multiType, Logs *logs)
     // For each row
     for (int i = 0; i < 9; ++i)
     {
-        if (summary.getNotesByRow(i).size() > multiplicity)
+        if (summary.getNotesByRow(i).count() > multiplicity)
         {
             if (processData(i, Grid::GT_ROW))
                 return true;
         }
 
-        if (summary.getNotesByCol(i).size() > multiplicity)
+        if (summary.getNotesByCol(i).count() > multiplicity)
         {
             if (processData(i, Grid::GT_COL))
                 return true;
         }
 
-        if (summary.getNotesByBlk(i).size() > multiplicity)
+        if (summary.getNotesByBlk(i).count() > multiplicity)
         {
             if (processData(i, Grid::GT_BLK))
                 return true;

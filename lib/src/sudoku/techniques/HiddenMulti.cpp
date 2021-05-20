@@ -13,10 +13,10 @@ bool hiddenMulti(Grid &pGrid, HiddenMultiType multiType, Logs *logs)
     std::vector<int> validCandVec;
     const auto multiplicity(static_cast<size_t>(multiType));
 
-    const auto processCandidates = [&](int i, const auto &availableCandVec, int gType, const auto &sourceDataFunc) -> bool
+    const auto processCandidates = [&](int i, const auto &availableCandSet, int gType, const auto &sourceDataFunc) -> bool
     {
         validCandVec.clear();
-        for (const auto nIdx : availableCandVec)
+        for (const auto nIdx : utils::bitset_it(availableCandSet))
         {
             if (sourceDataFunc(i, nIdx).count() <= multiplicity)
             {
@@ -118,21 +118,21 @@ bool hiddenMulti(Grid &pGrid, HiddenMultiType multiType, Logs *logs)
     // For each row
     for (int i = 0; i < 9; ++i)
     {
-        if (summary.getNotesByRow(i).size() > multiplicity)
+        if (summary.getNotesByRow(i).count() > multiplicity)
         {
             if (processCandidates(i, summary.getNotesByRow(i), Grid::GT_ROW,
                                   [&summary](int i, int nIdx) { return summary.getColsByRowNote(i, nIdx); }))
                 return true;
         }
 
-        if (summary.getNotesByCol(i).size() > multiplicity)
+        if (summary.getNotesByCol(i).count() > multiplicity)
         {
             if (processCandidates(i, summary.getNotesByCol(i), Grid::GT_COL,
                                   [&summary](int i, int nIdx) { return summary.getRowsByColNote(i, nIdx); }))
                 return true;
         }
 
-        if (summary.getNotesByBlk(i).size() > multiplicity)
+        if (summary.getNotesByBlk(i).count() > multiplicity)
         {
             if (processCandidates(i, summary.getNotesByBlk(i), Grid::GT_BLK,
                                   [&summary](int i, int nIdx) { return summary.getElmsByBlkNote(i, nIdx); }))
