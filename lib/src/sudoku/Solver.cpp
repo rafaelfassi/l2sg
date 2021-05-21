@@ -57,16 +57,19 @@ Level solver::solve(Grid &pGrid, Logs *logs, Level maxLevel)
         if (techniques::skyscraper(pGrid, logs))
             continue;
 
-        if (techniques::basicFish(pGrid, solver::BasicFishType::Swordfish, logs))
-            continue;
-
-        if (techniques::basicFish(pGrid, solver::BasicFishType::Jellyfish, logs))
+        if (techniques::twoStringKite(pGrid, logs))
             continue;
 
         if (techniques::xyWing(pGrid, logs))
             continue;
 
         if (techniques::wWing(pGrid, logs))
+            continue;
+
+        if (techniques::basicFish(pGrid, solver::BasicFishType::Swordfish, logs))
+            continue;
+
+        if (techniques::basicFish(pGrid, solver::BasicFishType::Jellyfish, logs))
             continue;
 
         SWITCH_LEVEL(LEV_3_GUESS, level, maxLevel)

@@ -65,8 +65,6 @@ bool lockedCandidates(Grid &pGrid, Logs *logs)
                     if (!check(2, 1, 0))
                         continue;
 
-            log.setTechnique(Technique::LockedCandidatesType1);
-
             // Gets the starting column of the block
             const int j = utils::bitset_it(foundSet).front() * 3;
             const int n = nIdx + 1;
@@ -96,6 +94,8 @@ bool lockedCandidates(Grid &pGrid, Logs *logs)
                                         return true;
                                     });
             }
+
+            log.setTechnique(Technique::LockedCandidatesType1);
             return true;
         }
         return false;
@@ -137,8 +137,6 @@ bool lockedCandidates(Grid &pGrid, Logs *logs)
                     if (!check(2, 1, 0))
                         continue;
 
-            log.setTechnique(Technique::LockedCandidatesType2);
-
             // Gets the starting column of the block
             const int j = utils::bitset_it(foundSet).front() * 3;
             const int n = nIdx + 1;
@@ -170,6 +168,8 @@ bool lockedCandidates(Grid &pGrid, Logs *logs)
                                           return true;
                                       });
             }
+
+            log.setTechnique(Technique::LockedCandidatesType2);
             return true;
         }
         return false;

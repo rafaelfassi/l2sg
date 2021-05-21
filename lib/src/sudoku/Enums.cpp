@@ -40,6 +40,8 @@ std::string solver::technique2Str(solver::Technique technique)
             return "WWing";
         case Technique::Skyscraper:
             return "Skyscraper";
+        case Technique::TwoStringKite:
+            return "TwoStringKite";
         case Technique::SimpleGuess:
             return "SimpleGuess";
         case Technique::BruteForce:

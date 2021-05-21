@@ -28,6 +28,7 @@ enum class Technique
     XYWing,
     WWing,
     Skyscraper,
+    TwoStringKite,
     SimpleGuess,
     BruteForce
 };

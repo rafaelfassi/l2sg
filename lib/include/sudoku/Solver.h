@@ -31,6 +31,7 @@ bool basicFish(Grid &pGrid, BasicFishType fishType, Logs *logs = nullptr);
 bool hiddenMulti(Grid &pGrid, HiddenMultiType multiType, Logs *logs = nullptr);
 bool nakedMulti(Grid &pGrid, NakedMultiType multiType, Logs *logs = nullptr);
 bool skyscraper(Grid &pGrid, Logs *logs = nullptr);
+bool twoStringKite(Grid &pGrid, Logs *logs = nullptr);
 bool simpleGuess(Grid &pGrid, Logs *logs = nullptr);
 int bruteForce(Grid &pGrid, int maxSolutions = 1, Logs *logs = nullptr);
 
