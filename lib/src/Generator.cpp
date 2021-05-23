@@ -239,7 +239,7 @@ void generator::generateByTechnique(Grid &grid, solver::Technique technique)
              {
                  std::unordered_set<solver::Technique> usedTechniques;
                  solvingGrid.fillNotes();
-                 if (solver::solveByTechniques(solvingGrid, allowedTechniques, usedTechniques))
+                 if (solver::solveByTechniques(solvingGrid, allowedTechniques, &usedTechniques))
                  {
                      if (usedTechniques.find(technique) != usedTechniques.end())
                          return 0;

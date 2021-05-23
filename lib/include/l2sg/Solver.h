@@ -10,6 +10,8 @@ namespace l2sg
 namespace solver
 {
 
+using TechniqueSet = std::unordered_set<solver::Technique>;
+
 namespace techniques
 {
 
@@ -29,9 +31,10 @@ int bruteForce(Grid &pGrid, int maxSolutions = 1, Logs *logs = nullptr);
 
 } // namespace techniques
 
+void getTechniquesForLevel(Level level, TechniqueSet &techniques);
 Level solve(Grid &pGrid, Logs *logs = nullptr, Level maxLevel = LEV_3_GUESS);
-bool solveByTechniques(Grid &pGrid, const std::unordered_set<solver::Technique> &allowedTechniques,
-                       std::unordered_set<solver::Technique> &usedTechniques, Logs *logs = nullptr);
+bool solveByTechniques(Grid &pGrid, const TechniqueSet &allowedTechniques, TechniqueSet *usedTechniques = nullptr,
+                       Logs *logs = nullptr);
 
 } // namespace solver
 
