@@ -57,6 +57,15 @@ std::string technique2Str(solver::Technique technique);
 
 } // namespace solver
 
+enum Level
+{
+    LEV_0_LOGIC,
+    LEV_1_LOGIC,
+    LEV_2_LOGIC,
+    LEV_3_GUESS,
+    LEV_UNKNOWN
+};
+
 enum class CellAction
 {
     AppliedValue,
