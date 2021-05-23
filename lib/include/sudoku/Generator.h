@@ -9,6 +9,7 @@ namespace sudoku
 namespace generator
 {
 
+void generateRandomFullGrid(Grid &grid);
 void generate(Grid &grid, const std::function<int(Grid &)> _solve, bool symmetric = true);
 void generateByLevel(Grid &grid, Level targetLevel);
 void generateByTechnique(Grid &grid, solver::Technique technique);

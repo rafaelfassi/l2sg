@@ -33,6 +33,12 @@ enum class Technique
     BruteForce
 };
 
+enum class LockedCandidatesType
+{
+    Type1Pointing,
+    Type2Claiming
+};
+
 enum class HiddenMultiType
 {
     Pair = 2,

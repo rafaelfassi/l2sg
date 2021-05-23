@@ -3,12 +3,13 @@
 
 #include <iostream>
 #include <random>
+#include <unordered_set>
 #include <stack>
 
 namespace sudoku
 {
 
-void generateRandomFullGrid(Grid &grid)
+void generator::generateRandomFullGrid(Grid &grid)
 {
     constexpr int clues(15);
     std::random_device dev;
@@ -72,13 +73,17 @@ void generator::generate(Grid &grid, const std::function<int(Grid &)> _solve, bo
 
     const int iniRemoval(symmetric ? 20 : 40); // For symmetric, each removal will remove 2 clues
     constexpr int maxRemoval(81 - 17);
-    std::random_device dev;
-    std::mt19937 rng(dev());
+    std::mt19937 rng(std::random_device{}());
     std::vector<ClueTp> cluesToRemove;
     std::stack<ClueTp> removedClues;
-
     Grid fullGrid;
-    generateRandomFullGrid(fullGrid);
+
+    const auto generateFullGrid = [&fullGrid, &rng]()
+    {
+        fullGrid = Grid();
+        generateRandomFullGrid(fullGrid);
+        rng.seed(std::random_device{}());
+    };
 
     const auto removeOneClue = [&](Grid &grid)
     {
@@ -150,12 +155,23 @@ void generator::generate(Grid &grid, const std::function<int(Grid &)> _solve, bo
     };
 
     size_t solveCount(0);
+    size_t resetCount(0);
+    size_t resetFullGridCount(0);
+
+    // generateRandomFullGrid(fullGrid);
+    generateFullGrid();
 
     int solveRes;
     do
     {
         if (cluesToRemove.empty())
         {
+            if (++resetCount == 5000)
+            {
+                generateFullGrid();
+                resetCount = 0;
+                ++resetFullGridCount;
+            }
             resetGrid(grid);
         }
 
@@ -170,9 +186,10 @@ void generator::generate(Grid &grid, const std::function<int(Grid &)> _solve, bo
 
     } while (solveRes != 0);
 
-    grid.dump(Grid::D_VALUES);
+    // grid.dump(Grid::D_VALUES);
 
     std::cout << "solveCount: " << solveCount << std::endl;
+    std::cout << "resetFullGridCount: " << resetFullGridCount << std::endl;
 }
 
 void generator::generateByLevel(Grid &grid, Level targetLevel)
@@ -196,28 +213,43 @@ void generator::generateByLevel(Grid &grid, Level targetLevel)
 
 void generator::generateByTechnique(Grid &grid, solver::Technique technique)
 {
-    const auto hasTechnique = [technique](solver::Logs &logs) -> bool
-    {
-        return (std::find_if(logs.begin(), logs.end(),
-                             [technique](const solver::Log &log)
-                             { return (log.technique == technique); }) != logs.end());
+    static const std::unordered_set<solver::Technique> allowedTechniques{
+        //
+        solver::Technique::NakedSingles,
+        solver::Technique::NakedPair,
+        solver::Technique::NakedTriple,
+        solver::Technique::NakedQuadruple,
+        solver::Technique::HiddenSingles,
+        solver::Technique::HiddenPair,
+        solver::Technique::HiddenTriple,
+        solver::Technique::HiddenQuadruple,
+        solver::Technique::LockedCandidatesType1,
+        solver::Technique::LockedCandidatesType2,
+        solver::Technique::XWings,
+        solver::Technique::Swordfish,
+        solver::Technique::Jellyfish,
+        solver::Technique::XYWing,
+        solver::Technique::WWing,
+        solver::Technique::Skyscraper,
+        solver::Technique::TwoStringKite
+        //
     };
-
     generate(grid,
-             [technique, &hasTechnique](Grid &solvingGrid) -> int
+             [technique](Grid &solvingGrid) -> int
              {
-                 solver::Logs logs;
+                 std::unordered_set<solver::Technique> usedTechniques;
                  solvingGrid.fillNotes();
-                 Level level = solver::solve(solvingGrid, &logs, Level::LEV_2_LOGIC);
-                 if (level > Level::LEV_2_LOGIC)
+                 if (solver::solveByTechniques(solvingGrid, allowedTechniques, usedTechniques))
+                 {
+                     if (usedTechniques.find(technique) != usedTechniques.end())
+                         return 0;
+                     else
+                         return -1;
+                 }
+                 else
                  {
                      return 1;
                  }
-                 else if (!hasTechnique(logs))
-                 {
-                     return -1;
-                 }
-                 return 0;
              });
 }
 
