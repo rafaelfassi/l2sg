@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 3.10)
-project(sudoku LANGUAGES CXX)
+project(l2sg LANGUAGES CXX)
 
 SET(CMAKE_CXX_FLAGS "-std=c++17")
 
 function(add_to_test _name _source)
     add_executable(${_name} ${_source} Test.h)
-    target_link_libraries(${_name} PRIVATE sudoku_lib)
+    target_link_libraries(${_name} PRIVATE l2sg_lib)
     add_test(NAME ${_name} COMMAND ${_name})
 endfunction()
 

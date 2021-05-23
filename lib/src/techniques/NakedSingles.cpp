@@ -2,7 +2,7 @@
 #include "Solver.h"
 #include "Utils.h"
 
-namespace sudoku::solver::techniques
+namespace l2sg::solver::techniques
 {
 
 // Encompasses Full House/Last Digit
@@ -43,4 +43,4 @@ bool nakedSingles(Grid &pGrid, Logs *logs, bool *check)
     return changedOverall;
 }
 
-} // namespace sudoku::solver::techniques
+} // namespace l2sg::solver::techniques

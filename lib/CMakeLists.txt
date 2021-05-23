@@ -1,45 +1,45 @@
 cmake_minimum_required(VERSION 3.10)
-project(sudoku LANGUAGES CXX)
+project(l2sg LANGUAGES CXX)
 
 SET(CMAKE_CXX_FLAGS "-std=c++17")
 
-add_library(sudoku_lib STATIC
+add_library(l2sg_lib STATIC
 # Source
-    src/sudoku/Grid.cpp
-    src/sudoku/Solver.cpp
-    src/sudoku/Generator.cpp
-    src/sudoku/Enums.cpp
-    src/sudoku/Logs.cpp
-    src/sudoku/techniques/NakedSingles.cpp
-    src/sudoku/techniques/HiddenSingles.cpp
-    src/sudoku/techniques/LockedCandidates.cpp
-    src/sudoku/techniques/XWings.cpp
-    src/sudoku/techniques/XyWing.cpp
-    src/sudoku/techniques/WWing.cpp
-    src/sudoku/techniques/BasicFish.cpp
-    src/sudoku/techniques/HiddenMulti.cpp
-    src/sudoku/techniques/NakedMulti.cpp
-    src/sudoku/techniques/Skyscraper.cpp
-    src/sudoku/techniques/TwoStringKite.cpp
-    src/sudoku/techniques/SimpleGuess.cpp
-    src/sudoku/techniques/BruteForce.cpp
+    src/Grid.cpp
+    src/Solver.cpp
+    src/Generator.cpp
+    src/Enums.cpp
+    src/Logs.cpp
+    src/techniques/NakedSingles.cpp
+    src/techniques/HiddenSingles.cpp
+    src/techniques/LockedCandidates.cpp
+    src/techniques/XWings.cpp
+    src/techniques/XyWing.cpp
+    src/techniques/WWing.cpp
+    src/techniques/BasicFish.cpp
+    src/techniques/HiddenMulti.cpp
+    src/techniques/NakedMulti.cpp
+    src/techniques/Skyscraper.cpp
+    src/techniques/TwoStringKite.cpp
+    src/techniques/SimpleGuess.cpp
+    src/techniques/BruteForce.cpp
 
 # Private headers
-    src/sudoku/Utils.h
+    src/Utils.h
 
 # Public headers
-    include/sudoku/Cell.h
-    include/sudoku/Grid.h
-    include/sudoku/Solver.h
-    include/sudoku/Generator.h
-    include/sudoku/Enums.h
-    include/sudoku/Logs.h
+    include/l2sg/Cell.h
+    include/l2sg/Grid.h
+    include/l2sg/Solver.h
+    include/l2sg/Generator.h
+    include/l2sg/Enums.h
+    include/l2sg/Logs.h
 )
 
-target_include_directories(sudoku_lib
+target_include_directories(l2sg_lib
     PRIVATE
-        src/sudoku
-        include/sudoku
+        src
+        include/l2sg
     PUBLIC
         include
 )

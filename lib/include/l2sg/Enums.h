@@ -1,9 +1,9 @@
-#ifndef SUDOKU_ENUMS_H
-#define SUDOKU_ENUMS_H
+#ifndef L2SG_ENUMS_H
+#define L2SG_ENUMS_H
 
 #include <string>
 
-namespace sudoku
+namespace l2sg
 {
 
 namespace solver
@@ -82,6 +82,6 @@ enum class CellAction
 
 std::string cellAction2Str(CellAction action);
 
-} // namespace sudoku
+} // namespace l2sg
 
-#endif // SUDOKU_ENUMS_H
+#endif // L2SG_ENUMS_H

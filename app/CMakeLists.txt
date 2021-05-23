@@ -1,12 +1,12 @@
 cmake_minimum_required(VERSION 3.10)
-project(sudoku LANGUAGES CXX)
+project(l2sg LANGUAGES CXX)
 
 SET(CMAKE_CXX_FLAGS "-std=c++17")
 
-add_executable(sudoku_app
+add_executable(l2sg_app
     main.cpp
 )
 
-target_link_libraries(sudoku_app PRIVATE
-    sudoku_lib
+target_link_libraries(l2sg_app PRIVATE
+    l2sg_lib
 )

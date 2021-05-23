@@ -1,10 +1,10 @@
-#ifndef SUDOKU_CELL_H
-#define SUDOKU_CELL_H
+#ifndef L2SG_CELL_H
+#define L2SG_CELL_H
 
 #include <bitset>
 #include <vector>
 
-namespace sudoku
+namespace l2sg
 {
 
 class Cell
@@ -39,6 +39,6 @@ private:
     Notes m_notes;
 };
 
-} // namespace sudoku
+} // namespace l2sg
 
-#endif // SUDOKU_CELL_H
+#endif // L2SG_CELL_H

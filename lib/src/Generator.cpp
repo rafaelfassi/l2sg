@@ -6,7 +6,7 @@
 #include <unordered_set>
 #include <stack>
 
-namespace sudoku
+namespace l2sg
 {
 
 void generator::generateRandomFullGrid(Grid &grid)
@@ -253,4 +253,4 @@ void generator::generateByTechnique(Grid &grid, solver::Technique technique)
              });
 }
 
-} // namespace sudoku
+} // namespace l2sg

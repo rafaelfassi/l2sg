@@ -1,10 +1,10 @@
-#include "sudoku/Solver.h"
-#include "sudoku/Generator.h"
+#include "l2sg/Solver.h"
+#include "l2sg/Generator.h"
 #include <filesystem>
 #include <fstream>
 #include <iostream>
 
-using namespace sudoku;
+using namespace l2sg;
 
 int main(int argc, char *argv[])
 {

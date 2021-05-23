@@ -1,7 +1,7 @@
 #include "Enums.h"
 #include <stdexcept>
 
-namespace sudoku
+namespace l2sg
 {
 
 std::string solver::technique2Str(solver::Technique technique)
@@ -68,4 +68,4 @@ std::string cellAction2Str(CellAction action)
     }
 }
 
-} // namespace sudoku
+} // namespace l2sg

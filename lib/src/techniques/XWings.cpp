@@ -1,7 +1,7 @@
 #include "Grid.h"
 #include "Utils.h"
 
-namespace sudoku::solver::techniques
+namespace l2sg::solver::techniques
 {
 
 bool xWings(Grid &pGrid, Logs *logs)
@@ -74,4 +74,4 @@ bool xWings(Grid &pGrid, Logs *logs)
     return false;
 }
 
-} // namespace sudoku::solver::techniques
+} // namespace l2sg::solver::techniques

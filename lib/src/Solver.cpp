@@ -1,6 +1,6 @@
 #include "Solver.h"
 
-namespace sudoku::solver
+namespace l2sg::solver
 {
 
 #define SWITCH_LEVEL(p_newLevel, p_level, p_maxLevel)                                                                  \
@@ -169,4 +169,4 @@ bool solveByTechniques(Grid &pGrid, const std::unordered_set<solver::Technique> 
     }
 }
 
-} // namespace sudoku::solver
+} // namespace l2sg::solver

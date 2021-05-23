@@ -13,7 +13,7 @@
 // r = (j / 3) + (i / 3) * 3;
 // c = (j % 3) + ((i - (r / 3) * 3) * 3);
 // The symmetry of the puzzle makes this map bidirectional. (row->block, block->row)
-const std::pair<int, int> sudoku::Grid::g_blockElem2RowCol[9][9] = {
+const std::pair<int, int> l2sg::Grid::g_blockElem2RowCol[9][9] = {
     {{0, 0} ,{0, 1}, {0, 2},   {1, 0}, {1, 1}, {1, 2},   {2, 0}, {2, 1}, {2, 2}},
     {{0, 3} ,{0, 4}, {0, 5},   {1, 3}, {1, 4}, {1, 5},   {2, 3}, {2, 4}, {2, 5}},
     {{0, 6} ,{0, 7}, {0, 8},   {1, 6}, {1, 7}, {1, 8},   {2, 6}, {2, 7}, {2, 8}},
@@ -28,7 +28,7 @@ const std::pair<int, int> sudoku::Grid::g_blockElem2RowCol[9][9] = {
 
 // clang-format on
 
-namespace sudoku
+namespace l2sg
 {
 
 bool isValidDigit(char ch)
@@ -768,4 +768,4 @@ void Grid::dump(int _dumpFlags, const std::string &_empty, const std::string &_n
     }
 }
 
-} // namespace sudoku
+} // namespace l2sg

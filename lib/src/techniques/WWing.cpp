@@ -3,7 +3,7 @@
 #include "iostream"
 #include <unordered_map>
 
-namespace sudoku::solver::techniques
+namespace l2sg::solver::techniques
 {
 
 bool wWing(Grid &pGrid, Logs *logs)
@@ -138,4 +138,4 @@ bool wWing(Grid &pGrid, Logs *logs)
     return false;
 }
 
-} // namespace sudoku::solver::techniques
+} // namespace l2sg::solver::techniques

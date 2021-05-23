@@ -1,9 +1,9 @@
-#ifndef SUDOKU_UTILS_H
-#define SUDOKU_UTILS_H
+#ifndef L2SG_UTILS_H
+#define L2SG_UTILS_H
 
 #include <bitset>
 
-namespace sudoku::utils
+namespace l2sg::utils
 {
 
 class CombinationsGen
@@ -160,6 +160,6 @@ template <std::size_t N> bitset_iterator<N, const std::bitset<N>> bitset_it(std:
     return bitset_iterator<N, const std::bitset<N>>(bitset);
 }
 
-} // namespace sudoku::utils
+} // namespace l2sg::utils
 
-#endif // SUDOKU_UTILS_H
+#endif // L2SG_UTILS_H

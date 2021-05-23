@@ -2,7 +2,7 @@
 #include "Utils.h"
 #include <iostream>
 
-namespace sudoku::solver::techniques
+namespace l2sg::solver::techniques
 {
 
 bool nakedMulti(Grid &pGrid, NakedMultiType multiType, Logs *logs)
@@ -132,4 +132,4 @@ bool nakedMulti(Grid &pGrid, NakedMultiType multiType, Logs *logs)
     return false;
 }
 
-} // namespace sudoku::solver::techniques
+} // namespace l2sg::solver::techniques

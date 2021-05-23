@@ -1,7 +1,7 @@
 #include "Grid.h"
 #include "Utils.h"
 
-namespace sudoku::solver::techniques
+namespace l2sg::solver::techniques
 {
 
 // Solves Locked Candidates Type 1 (Pointing) and Locked Candidates Type 2 (Claiming)
@@ -201,4 +201,4 @@ bool lockedCandidates(Grid &pGrid, LockedCandidatesType lcType, Logs *logs)
     return false;
 }
 
-} // namespace sudoku::solver::techniques
+} // namespace l2sg::solver::techniques

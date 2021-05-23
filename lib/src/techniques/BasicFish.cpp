@@ -1,7 +1,7 @@
 #include "Grid.h"
 #include "Utils.h"
 
-namespace sudoku::solver::techniques
+namespace l2sg::solver::techniques
 {
 
 bool basicFish(Grid &pGrid, BasicFishType fishType, Logs *logs)
@@ -187,4 +187,4 @@ bool basicFish(Grid &pGrid, BasicFishType fishType, Logs *logs)
     return false;
 }
 
-} // namespace sudoku::solver::techniques
+} // namespace l2sg::solver::techniques

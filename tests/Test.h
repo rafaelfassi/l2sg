@@ -1,12 +1,12 @@
-#ifndef SUDOKU_TEST_H
-#define SUDOKU_TEST_H
+#ifndef L2SG_TEST_H
+#define L2SG_TEST_H
 
-#include "sudoku/Solver.h"
+#include "l2sg/Solver.h"
 #include <iostream>
 #include <set>
 #include <sstream>
 
-using namespace sudoku;
+using namespace l2sg;
 using CL = CellLog;
 using CA = CellAction;
 
@@ -414,4 +414,4 @@ void generateCellLogsCodeForTesting(const std::string &puzzle, solver::Logs &log
     std::cout << std::endl;
 }
 
-#endif // SUDOKU_TEST_H
+#endif // L2SG_TEST_H

@@ -4,7 +4,7 @@
 #include <iostream>
 #include <map>
 
-namespace sudoku::solver::techniques
+namespace l2sg::solver::techniques
 {
 
 bool simpleGuess(Grid &pGrid, Logs *logs)
@@ -79,4 +79,4 @@ bool simpleGuess(Grid &pGrid, Logs *logs)
     return false;
 }
 
-} // namespace sudoku::solver::techniques
+} // namespace l2sg::solver::techniques

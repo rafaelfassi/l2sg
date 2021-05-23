@@ -1,9 +1,9 @@
-#ifndef SUDOKU_GENERATOR_H
-#define SUDOKU_GENERATOR_H
+#ifndef L2SG_GENERATOR_H
+#define L2SG_GENERATOR_H
 
 #include "Grid.h"
 
-namespace sudoku
+namespace l2sg
 {
 
 namespace generator
@@ -16,6 +16,6 @@ void generateByTechnique(Grid &grid, solver::Technique technique);
 
 } // namespace generator
 
-} // namespace sudoku
+} // namespace l2sg
 
-#endif // SUDOKU_GENERATOR_H
+#endif // L2SG_GENERATOR_H

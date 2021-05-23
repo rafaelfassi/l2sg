@@ -1,5 +1,5 @@
-#ifndef SUDOKU_GRID_H
-#define SUDOKU_GRID_H
+#ifndef L2SG_GRID_H
+#define L2SG_GRID_H
 
 #include "Cell.h"
 #include "Logs.h"
@@ -7,7 +7,7 @@
 #include <memory>
 #include <string>
 
-namespace sudoku
+namespace l2sg
 {
 
 class Grid
@@ -163,6 +163,6 @@ private:
     std::shared_ptr<Summary> m_summary;
 };
 
-} // namespace sudoku
+} // namespace l2sg
 
-#endif // SUDOKU_GRID_H
+#endif // L2SG_GRID_H

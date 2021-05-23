@@ -1,4 +1,4 @@
- # Sudoku Solver
+ # L2SG - Logical Sudoku Solver and Generator
 
 Logical solver and generator for 9x9 sudoku puzzles.
 
@@ -41,17 +41,17 @@ The project is supposed to be used as a library by other projects, but it includ
 
 Solve a puzzle:
 ```
-app/sudoku_app -p 8.......5.16...79..9.4.1.3...25.96......3......18.79...4.7.8.1..68...37.9.......8
+app/l2sg_app -p 8.......5.16...79..9.4.1.3...25.96......3......18.79...4.7.8.1..68...37.9.......8
 ```
 
 Load puzzle from file and solve it:
 ```
-app/sudoku_app -f puzzle.txt
+app/l2sg_app -f puzzle.txt
 ```
 
 Generate a puzzle level 2 (Hard)
 ```
-app/sudoku_app -g 2
+app/l2sg_app -g 2
 ```
 
 Type `--help` or `-h` to see more options and details.

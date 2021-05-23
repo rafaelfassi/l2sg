@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(sudoku LANGUAGES CXX)
+project(l2sg LANGUAGES CXX)
 include(CTest)
 
 add_subdirectory(lib)

@@ -1,10 +1,10 @@
-#ifndef SUDOKU_SOLVER_H
-#define SUDOKU_SOLVER_H
+#ifndef L2SG_SOLVER_H
+#define L2SG_SOLVER_H
 
 #include "Grid.h"
 #include <unordered_set>
 
-namespace sudoku
+namespace l2sg
 {
 
 namespace solver
@@ -35,6 +35,6 @@ bool solveByTechniques(Grid &pGrid, const std::unordered_set<solver::Technique> 
 
 } // namespace solver
 
-} // namespace sudoku
+} // namespace l2sg
 
-#endif // SUDOKU_SOLVER_H
+#endif // L2SG_SOLVER_H

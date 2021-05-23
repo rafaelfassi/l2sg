@@ -2,7 +2,7 @@
 #include "Utils.h"
 #include <iostream>
 
-namespace sudoku::solver::techniques
+namespace l2sg::solver::techniques
 {
 
 bool hiddenMulti(Grid &pGrid, HiddenMultiType multiType, Logs *logs)
@@ -143,4 +143,4 @@ bool hiddenMulti(Grid &pGrid, HiddenMultiType multiType, Logs *logs)
     return false;
 }
 
-} // namespace sudoku::solver::techniques
+} // namespace l2sg::solver::techniques

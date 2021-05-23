@@ -1,11 +1,11 @@
-#ifndef SUDOKU_LOGS_H
-#define SUDOKU_LOGS_H
+#ifndef L2SG_LOGS_H
+#define L2SG_LOGS_H
 
 #include "Enums.h"
 #include <ostream>
 #include <vector>
 
-namespace sudoku
+namespace l2sg
 {
 
 struct CellLog
@@ -74,6 +74,6 @@ public:
 
 } // namespace solver
 
-} // namespace sudoku
+} // namespace l2sg
 
-#endif // SUDOKU_LOGS_H
+#endif // L2SG_LOGS_H

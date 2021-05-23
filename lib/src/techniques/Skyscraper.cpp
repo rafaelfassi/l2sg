@@ -2,7 +2,7 @@
 #include "Utils.h"
 #include <iostream>
 
-namespace sudoku::solver::techniques
+namespace l2sg::solver::techniques
 {
 
 bool skyscraper(Grid &pGrid, Logs *logs)
@@ -150,4 +150,4 @@ bool skyscraper(Grid &pGrid, Logs *logs)
     return false;
 }
 
-} // namespace sudoku::solver::techniques
+} // namespace l2sg::solver::techniques

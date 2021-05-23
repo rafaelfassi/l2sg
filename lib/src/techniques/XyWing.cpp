@@ -2,7 +2,7 @@
 #include "Utils.h"
 #include <iostream>
 
-namespace sudoku::solver::techniques
+namespace l2sg::solver::techniques
 {
 
 bool xyWing(Grid &pGrid, Logs *logs)
@@ -147,4 +147,4 @@ bool xyWing(Grid &pGrid, Logs *logs)
     return false;
 }
 
-} // namespace sudoku::solver::techniques
+} // namespace l2sg::solver::techniques

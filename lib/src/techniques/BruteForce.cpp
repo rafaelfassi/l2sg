@@ -4,7 +4,7 @@
 #include <iostream>
 #include <map>
 
-namespace sudoku::solver::techniques
+namespace l2sg::solver::techniques
 {
 
 int bruteForce(Grid &pGrid, int maxSolutions, Logs *logs)
@@ -97,4 +97,4 @@ int bruteForce(Grid &pGrid, int maxSolutions, Logs *logs)
     return solutions.size();
 }
 
-} // namespace sudoku::solver::techniques
+} // namespace l2sg::solver::techniques

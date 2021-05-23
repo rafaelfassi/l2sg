@@ -1,7 +1,7 @@
 #include "Logs.h"
 #include <algorithm>
 
-namespace sudoku
+namespace l2sg
 {
 
 void solver::Log::dump(std::ostream &out)
@@ -28,4 +28,4 @@ void solver::Log::dump(std::ostream &out)
     }
 }
 
-} // namespace sudoku
+} // namespace l2sg
