@@ -1,4 +1,5 @@
 #include "sudoku/Solver.h"
+#include "sudoku/Generator.h"
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -56,9 +57,38 @@ int main(int argc, char *argv[])
             puzzle.assign((std::istreambuf_iterator<char>(inFile)), std::istreambuf_iterator<char>());
             inFile.close();
         }
-        else if (opt.size() >= 9 * 9)
+        else if ((opt == "-p") || (opt == "--puzzle"))
         {
-            puzzle = opt;
+            if (argc < 3)
+            {
+                std::cerr << "Missing puzzle" << std::endl;
+                return -1;
+            }
+            puzzle = argv[2];
+        }
+        else if ((opt == "-g") || (opt == "--generate"))
+        {
+            if (argc < 3)
+            {
+                std::cerr << "Missing level" << std::endl;
+                return -1;
+            }
+
+            int level = ::std::stoi(argv[2]);
+            if (level < Level::LEV_0_LOGIC || level > Level::LEV_3_GUESS)
+            {
+                std::cerr << "Invalid level. Please select a level from 0 to 3" << std::endl;
+                return -1;
+            }
+
+            Grid grid;
+            generator::generateByLevel(grid, static_cast<Level>(level));
+            grid.dump(Grid::D_VALUES);
+            std::cout << std::endl;
+            std::cout << "In one line:" << std::endl;;
+            grid.dump(Grid::D_VALUES | Grid::D_ONE_LINE, ".", "", "", "");
+            std::cout << std::endl;
+            return 0;
         }
         else
         {
@@ -92,12 +122,27 @@ int main(int argc, char *argv[])
 
         if (resultLevel == Level::LEV_UNKNOWN)
         {
-            std::cout << "The provided puzzle could not be solved." << std::endl;
+            std::cout << "The provided puzzle is not valid." << std::endl;
             std::cout << std::endl;
             grid.dump(Grid::D_VALUES | Grid::D_NOTES);
         }
         else
         {
+            if (resultLevel >= Level::LEV_3_GUESS)
+            {
+                Grid gridCheckUnicity;
+                gridCheckUnicity.fillValues(puzzle);
+                gridCheckUnicity.fillNotes();
+                if (solver::techniques::bruteForce(gridCheckUnicity, 2) > 1)
+                {
+                    std::cout << "The provided puzzle has more than one solution." << std::endl;
+                    std::cout << "Showing the first solution." << std::endl;
+                    std::cout << std::endl;
+                    grid.dump(Grid::D_VALUES);
+                    return 0;
+                }
+            }
+
             switch (resultLevel)
             {
                 case Level::LEV_0_LOGIC:
@@ -110,8 +155,7 @@ int main(int argc, char *argv[])
                     std::cout << "The puzzle is level: 2 - Hard" << std::endl;
                     break;
                 case Level::LEV_3_GUESS:
-                    std::cout << "The puzzle is level: 3 - Very Hard, and maybe it can't be solved by logic"
-                              << std::endl;
+                    std::cout << "The puzzle is level: 3 - Very Hard" << std::endl;
                     break;
                 default:
                     break;

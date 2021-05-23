@@ -154,9 +154,9 @@ void generator::generate(Grid &grid, const std::function<int(Grid &)> _solve, bo
             removeOneClue(grid);
     };
 
-    size_t solveCount(0);
+    //size_t solveCount(0);
     size_t resetCount(0);
-    size_t resetFullGridCount(0);
+    //size_t resetFullGridCount(0);
 
     // generateRandomFullGrid(fullGrid);
     generateFullGrid();
@@ -170,7 +170,7 @@ void generator::generate(Grid &grid, const std::function<int(Grid &)> _solve, bo
             {
                 generateFullGrid();
                 resetCount = 0;
-                ++resetFullGridCount;
+                //++resetFullGridCount;
             }
             resetGrid(grid);
         }
@@ -182,14 +182,14 @@ void generator::generate(Grid &grid, const std::function<int(Grid &)> _solve, bo
         else if (solveRes > 0)
             restoreRemovedClue(grid);
 
-        ++solveCount;
+        //++solveCount;
 
     } while (solveRes != 0);
 
     // grid.dump(Grid::D_VALUES);
 
-    std::cout << "solveCount: " << solveCount << std::endl;
-    std::cout << "resetFullGridCount: " << resetFullGridCount << std::endl;
+    // std::cout << "solveCount: " << solveCount << std::endl;
+    // std::cout << "resetFullGridCount: " << resetFullGridCount << std::endl;
 }
 
 void generator::generateByLevel(Grid &grid, Level targetLevel)

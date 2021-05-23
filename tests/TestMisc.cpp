@@ -17,6 +17,20 @@ bool noSolution()
 bool multipleSolutions()
 {
     Grid grid;
+    grid.fillValues("......574.4.15...35......62....64.9.....157.6.6...28.5....49.1.......4....67813..");
+    grid.fillNotes();
+
+    if (solver::techniques::bruteForce(grid, 2) != 2)
+    {
+        printMsg(__func__, "Test failed");
+        return false;
+    }
+    return true;
+}
+
+bool multipleSolutionsFromNotes()
+{
+    Grid grid;
     grid.fillBoard(
     R"(
         +-------------------------------+-------------------------------+-------------------------------+
@@ -76,6 +90,9 @@ int main(int, char **)
         return failed();
 
     if (!multipleSolutions())
+        return failed();
+
+    if (!multipleSolutionsFromNotes())
         return failed();
 
     if (!onlyNotes())
