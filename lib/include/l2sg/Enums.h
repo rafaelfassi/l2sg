@@ -33,7 +33,7 @@ enum class Technique
     BruteForce
 };
 
-enum class LockedCandidatesType
+enum class LockedCandType
 {
     Type1Pointing,
     Type2Claiming

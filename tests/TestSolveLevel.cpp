@@ -1,7 +1,7 @@
 #include "Test.h"
 #include <sstream>
 
-bool test(int expectedLevel, const std::string &puzzle, const std::string &expectedResult)
+bool test(Level expectedLevel, const std::string &puzzle, const std::string &expectedResult)
 {
     Grid grid;
     grid.fillValues(puzzle);

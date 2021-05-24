@@ -5,7 +5,7 @@ namespace l2sg::solver::techniques
 {
 
 // Solves Locked Candidates Type 1 (Pointing) and Locked Candidates Type 2 (Claiming)
-bool lockedCandidates(Grid &pGrid, LockedCandidatesType lcType, Logs *logs)
+bool lockedCandidates(Grid &pGrid, LockedCandType lcType, Logs *logs)
 {
     ScopedLog log(logs);
     // Indexes whether the block's parts of the rows/cols contains the candidates.
@@ -179,7 +179,7 @@ bool lockedCandidates(Grid &pGrid, LockedCandidatesType lcType, Logs *logs)
 
     for (int nIdx = 0; nIdx < 9; ++nIdx)
     {
-        if (lcType == LockedCandidatesType::Type1Pointing)
+        if (lcType == LockedCandType::Type1Pointing)
         {
             if (findType1(nIdx, Grid::GT_ROW, blocksInRowSet))
                 return true;
@@ -188,7 +188,7 @@ bool lockedCandidates(Grid &pGrid, LockedCandidatesType lcType, Logs *logs)
                 return true;
         }
 
-        if (lcType == LockedCandidatesType::Type2Claiming)
+        if (lcType == LockedCandType::Type2Claiming)
         {
             if (findType2(nIdx, Grid::GT_ROW, blocksInRowSet))
                 return true;

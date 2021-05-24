@@ -213,31 +213,33 @@ void generator::generateByLevel(Grid &grid, Level targetLevel)
 
 void generator::generateByTechnique(Grid &grid, solver::Technique technique)
 {
-    static const std::unordered_set<solver::Technique> allowedTechniques{
+    static const solver::TechniqueSet baseAllowedTechniques{
         //
         solver::Technique::NakedSingles,
         solver::Technique::NakedPair,
         solver::Technique::NakedTriple,
-        solver::Technique::NakedQuadruple,
         solver::Technique::HiddenSingles,
         solver::Technique::HiddenPair,
         solver::Technique::HiddenTriple,
-        solver::Technique::HiddenQuadruple,
         solver::Technique::LockedCandidatesType1,
         solver::Technique::LockedCandidatesType2,
         solver::Technique::XWings,
         solver::Technique::Swordfish,
-        solver::Technique::Jellyfish,
         solver::Technique::XYWing,
         solver::Technique::WWing,
         solver::Technique::Skyscraper,
         solver::Technique::TwoStringKite
         //
     };
+
+    solver::TechniqueSet allowedTechniques(baseAllowedTechniques);
+    // Ensures the requested technique will be in the list.
+    allowedTechniques.insert(technique);
+
     generate(grid,
-             [technique](Grid &solvingGrid) -> int
+             [technique, &allowedTechniques](Grid &solvingGrid) -> int
              {
-                 std::unordered_set<solver::Technique> usedTechniques;
+                 solver::TechniqueSet usedTechniques;
                  solvingGrid.fillNotes();
                  if (solver::solveByTechniques(solvingGrid, allowedTechniques, &usedTechniques))
                  {

@@ -1,6 +1,6 @@
 #include "Test.h"
 
-bool test(solver::LockedCandidatesType lcType, const std::string &puzzle, const std::string &board,
+bool test(solver::LockedCandType lcType, const std::string &puzzle, const std::string &board,
           solver::Technique expectedTechnique)
 {
     Grid grid;
@@ -15,7 +15,7 @@ bool test(solver::LockedCandidatesType lcType, const std::string &puzzle, const 
 int main(int, char **)
 {
     // Row
-    if (!test(solver::LockedCandidatesType::Type1Pointing,
+    if (!test(solver::LockedCandType::Type1Pointing,
               "2....39.183.6.172..51.2.3..1629458373.....2..785236149.2....593.135.2.785.83...12",
               R"(
                 .--------------------.----------------------.-------------.
@@ -36,7 +36,7 @@ int main(int, char **)
         return failed();
 
     // Row
-    if (!test(solver::LockedCandidatesType::Type1Pointing,
+    if (!test(solver::LockedCandType::Type1Pointing,
               "4357918..16..5..7372..3..516419273855..16.294.92.456172...8.1499.4.1.73..1.4795..",
               R"(
                 .----------------.------------------.-------------.
@@ -57,7 +57,7 @@ int main(int, char **)
         return failed();
 
     // Row
-    if (!test(solver::LockedCandidatesType::Type1Pointing,
+    if (!test(solver::LockedCandType::Type1Pointing,
               "...6145974513792....9825134...5.741.91.48..53.451.....59.2413..1.4963.25236758941",
               R"(
                 .------------------.-----------.-------------------.
@@ -78,7 +78,7 @@ int main(int, char **)
         return failed();
 
     // Row
-    if (!test(solver::LockedCandidatesType::Type1Pointing,
+    if (!test(solver::LockedCandType::Type1Pointing,
               ".6..9..388.3.1......428316...6851.2..52.7.81..8.32.5...3714568....76.3.161.93..7.",
               R"(
                 .----------------------.-------------.---------------------.
@@ -99,7 +99,7 @@ int main(int, char **)
         return failed();
 
     // Column
-    if (!test(solver::LockedCandidatesType::Type1Pointing,
+    if (!test(solver::LockedCandType::Type1Pointing,
               "....3.574...7..891.7981.623761428935..8.7.216.....1748....4315..3...648.2.4.87369",
               R"(
                 .-----------------.-------------------.----------.
@@ -120,7 +120,7 @@ int main(int, char **)
         return failed();
 
     // Column
-    if (!test(solver::LockedCandidatesType::Type1Pointing,
+    if (!test(solver::LockedCandType::Type1Pointing,
               "61..7.25..4.56179..758..61.13.64.5875.7..8461486157932.647.3125..14.5376753216849",
               R"(
                 .-------------.-----------------.-----------.
@@ -141,7 +141,7 @@ int main(int, char **)
         return failed();
 
     // Column
-    if (!test(solver::LockedCandidatesType::Type1Pointing,
+    if (!test(solver::LockedCandType::Type1Pointing,
               "1...6..78...8.2.63.864.75...4.526.......41....1.7.8.24..12.37..73.6.....89.17...6",
               R"(
                 .---------------------.--------------.-------------------.
@@ -162,7 +162,7 @@ int main(int, char **)
         return failed();
 
     // Column
-    if (!test(solver::LockedCandidatesType::Type1Pointing,
+    if (!test(solver::LockedCandType::Type1Pointing,
               "196.42.35.3...6912.251934..5623.9.41.8346152..1.2..6.36.1.283..3.891.2..259634178",
               R"(
                 .-------------.-----------------.------------.
@@ -183,7 +183,7 @@ int main(int, char **)
         return failed();
 
     // Row
-    if (!test(solver::LockedCandidatesType::Type2Claiming,
+    if (!test(solver::LockedCandType::Type2Claiming,
               "9827136453.49..1781..4..932...1397646..8.4.19419.76..374.69...1596.41..7..1..7496",
               R"(
                 .-------------.------------.--------------------.
@@ -204,7 +204,7 @@ int main(int, char **)
         return failed();
 
     // Row
-    if (!test(solver::LockedCandidatesType::Type2Claiming,
+    if (!test(solver::LockedCandType::Type2Claiming,
               "19.....363741..259.2..3914..1..94.6596..5.41245.62198..319...24.89..357174..1..9.",
               R"(
                 .--------------.---------------------------.------------.
@@ -225,7 +225,7 @@ int main(int, char **)
         return failed();
 
     // Row
-    if (!test(solver::LockedCandidatesType::Type2Claiming,
+    if (!test(solver::LockedCandType::Type2Claiming,
               "1.63.548.3.54.8.1.984.1.3.55178...4..4815.........41584.258.6.175194683286.2.15.4",
               R"(
                 .------------.-----------------------.---------------.
@@ -246,7 +246,7 @@ int main(int, char **)
         return failed();
 
     // Row
-    if (!test(solver::LockedCandidatesType::Type2Claiming,
+    if (!test(solver::LockedCandType::Type2Claiming,
               "....359.47...61....8529.......3.9416....1....9.16.2......9.382....12...32375.....",
               R"(
                 .---------------------------.---------------.-------------------.
@@ -267,7 +267,7 @@ int main(int, char **)
         return failed();
 
     // Column
-    if (!test(solver::LockedCandidatesType::Type2Claiming,
+    if (!test(solver::LockedCandType::Type2Claiming,
               ".89..52....46.8.91....9...88.3947.1.41.852.39.9.3168.49.8...1..7315894...427.198.",
               R"(
                 .-----------------.--------------.---------------------.
@@ -288,7 +288,7 @@ int main(int, char **)
         return failed();
 
     // Column
-    if (!test(solver::LockedCandidatesType::Type2Claiming,
+    if (!test(solver::LockedCandType::Type2Claiming,
               ".76..3.2952.9.6137..927.86..5..67.......3.......82..5...2754691641392...795618243",
               R"(
                 .---------------------------.--------------.-----------------.
@@ -309,7 +309,7 @@ int main(int, char **)
         return failed();
 
     // Column
-    if (!test(solver::LockedCandidatesType::Type2Claiming,
+    if (!test(solver::LockedCandType::Type2Claiming,
               "548.263...3..8.2466.239485...346..8286.2.9..442.85.16.2..648...1.6...428384..26.5",
               R"(
                 .--------------------.---------------.-----------------.
@@ -330,7 +330,7 @@ int main(int, char **)
         return failed();
 
     // Column
-    if (!test(solver::LockedCandidatesType::Type2Claiming,
+    if (!test(solver::LockedCandType::Type2Claiming,
               "1.2......35..14.92.4.52.13.239467518687195423514832.6...3.51.8.861.4......5...3.1",
               R"(
                 .--------------.----------------.-------------------------.
@@ -351,7 +351,7 @@ int main(int, char **)
         return failed();
 
     // Column
-    if (!test(solver::LockedCandidatesType::Type2Claiming,
+    if (!test(solver::LockedCandType::Type2Claiming,
               "34..9.....86..5.9797...6..4439.2.......5.3..9.58.192.38..9...5.59.8..6......5.978",
               R"(
                 .------------------.----------------------------.----------------.
