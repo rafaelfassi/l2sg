@@ -9,10 +9,10 @@ namespace l2sg
 namespace generator
 {
 
-void generateRandomFullGrid(Grid &grid);
-void generate(Grid &grid, const std::function<int(Grid &)> _solve, bool symmetric = true);
-void generateByLevel(Grid &grid, Level targetLevel);
-void generateByTechnique(Grid &grid, solver::Technique technique);
+void generateRandomFullGrid(Grid &_grid);
+void generate(Grid &_grid, const std::function<int(Grid &)> _solve, bool _symmetric = true);
+void generateByLevel(Grid &_grid, Level _targetLevel, bool _symmetric = true);
+void generateByTechnique(Grid &_grid, solver::Technique _technique, bool _symmetric = true);
 
 } // namespace generator
 
