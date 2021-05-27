@@ -70,9 +70,9 @@ void generator::generate(Grid &_grid, const std::function<int(Grid &)> _solve, b
 {
     using ClueTp = std::tuple<int, int, int>;
 
-    constexpr int maxRemoval(81 - 17);                          // The minimum valid sudoku must have at least 17 clues
-    constexpr int minRemoval(81 - 40);                          // Don't generate puzzles with more than 40 clues
-    int iniRemoval(_symmetric ? (maxRemoval / 2) : maxRemoval); // For symmetric, each removal will remove 2 clues
+    constexpr int maxRemoval(81 - 17); // The minimum valid sudoku must have at least 17 clues
+    constexpr int minRemoval(81 - 40); // Don't generate puzzles with more than 40 clues
+    int iniRemoval(maxRemoval);
     std::mt19937 rng;
     std::vector<ClueTp> cluesToRemove;
     std::stack<ClueTp> removedClues;
@@ -168,7 +168,7 @@ void generator::generate(Grid &_grid, const std::function<int(Grid &)> _solve, b
             for (int c = 0; c < 9; ++c)
                 cluesToRemove.emplace_back(std::make_tuple(r, c, _grid.getValue(r, c)));
 
-        for (int i = 0; i < iniRemoval; ++i)
+        while (removedClues.size() < iniRemoval)
             removeOneClue();
     };
 
@@ -217,6 +217,9 @@ void generator::generate(Grid &_grid, const std::function<int(Grid &)> _solve, b
 
         while (removedClues.size() < iniRemoval)
             removeOneClue();
+
+        if (--iniRemoval < minRemoval)
+            iniRemoval = maxRemoval;
     };
 
     size_t flippedCount(0);
