@@ -53,7 +53,7 @@ bool simpleGuess(Grid &pGrid, Logs *logs)
 
         for (const auto nIdx : utils::bitset_it(notes))
         {
-            bool isFull;
+            bool isFull(false);
             if (checkConflict(r, c, nIdx + 1, isFull))
                 ++conflictCount;
             else if (isFull || (goodValue == 0))
