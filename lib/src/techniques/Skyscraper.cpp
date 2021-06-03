@@ -1,5 +1,6 @@
 #include "Grid.h"
 #include "Utils.h"
+#include <array>
 #include <iostream>
 
 namespace l2sg::solver::techniques
