@@ -46,15 +46,15 @@ bool checkGrid(const std::string &puzzle, Grid &gridIni, Grid &gridSolved, Grid 
             std::cout << std::endl;
 
             std::cout << "Initial ";
-            gridIni.dump(Grid::D_VALUES);
+            gridIni.dump(std::cout, Grid::D_VALUES);
             std::cout << std::endl;
 
             std::cout << "Expected ";
-            gridExpected.dump(Grid::D_VALUES);
+            gridExpected.dump(std::cout, Grid::D_VALUES);
             std::cout << std::endl;
 
             std::cout << "Actual ";
-            gridSolved.dump(Grid::D_VALUES);
+            gridSolved.dump(std::cout, Grid::D_VALUES);
             std::cout << std::endl;
 
             std::cout << std::string(9 * 9, '*') << std::endl;
@@ -73,15 +73,15 @@ bool checkGrid(const std::string &puzzle, Grid &gridIni, Grid &gridSolved, Grid 
             std::cout << std::endl;
 
             std::cout << "Initial ";
-            gridIni.dump(Grid::D_NOTES);
+            gridIni.dump(std::cout, Grid::D_NOTES);
             std::cout << std::endl;
 
             std::cout << "Expected ";
-            gridExpected.dump(Grid::D_NOTES);
+            gridExpected.dump(std::cout, Grid::D_NOTES);
             std::cout << std::endl;
 
             std::cout << "Actual ";
-            gridSolved.dump(Grid::D_NOTES);
+            gridSolved.dump(std::cout, Grid::D_NOTES);
             std::cout << std::endl;
 
             std::cout << std::string(9 * 9, '*') << std::endl;

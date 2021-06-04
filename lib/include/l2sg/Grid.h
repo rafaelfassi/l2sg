@@ -147,8 +147,8 @@ public:
     bool compareValues(int *_pValues);
     bool compareValues(const Grid &_grid);
     bool compareNotes(const Grid &_grid);
-    void dump(int _dumpFlags = D_VALUES | D_NOTES, const std::string &_empty = ".", const std::string &_numSep = "  ",
-              const std::string &_colSep = "    ", const std::string &_lineSep = "");
+    void dump(std::ostream &_out, int _dumpFlags = D_VALUES, const std::string &_empty = ".",
+              const std::string &_numSep = "  ", const std::string &_colSep = "    ", const std::string &_lineSep = "");
 
     const Summary &getSummary()
     {

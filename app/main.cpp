@@ -83,10 +83,10 @@ int main(int argc, char *argv[])
 
             Grid grid;
             generator::generateByLevel(grid, static_cast<Level>(level));
-            grid.dump(Grid::D_VALUES);
+            grid.dump(std::cout, Grid::D_VALUES);
             std::cout << std::endl;
             std::cout << "In one line:" << std::endl;;
-            grid.dump(Grid::D_VALUES | Grid::D_ONE_LINE, ".", "", "", "");
+            grid.dump(std::cout, Grid::D_VALUES | Grid::D_ONE_LINE, ".", "", "", "");
             std::cout << std::endl;
             return 0;
         }
@@ -124,7 +124,7 @@ int main(int argc, char *argv[])
         {
             std::cout << "The provided puzzle is not valid." << std::endl;
             std::cout << std::endl;
-            grid.dump(Grid::D_VALUES | Grid::D_NOTES);
+            grid.dump(std::cout, Grid::D_VALUES | Grid::D_NOTES);
         }
         else
         {
@@ -138,7 +138,7 @@ int main(int argc, char *argv[])
                     std::cout << "The provided puzzle has more than one solution." << std::endl;
                     std::cout << "Showing the first solution." << std::endl;
                     std::cout << std::endl;
-                    grid.dump(Grid::D_VALUES);
+                    grid.dump(std::cout, Grid::D_VALUES);
                     return 0;
                 }
             }
@@ -161,7 +161,7 @@ int main(int argc, char *argv[])
                     break;
             }
             std::cout << std::endl;
-            grid.dump(Grid::D_VALUES);
+            grid.dump(std::cout, Grid::D_VALUES);
         }
     }
 

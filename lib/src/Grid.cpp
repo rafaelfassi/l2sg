@@ -673,98 +673,94 @@ bool Grid::compareNotes(const Grid &_grid)
     return true;
 }
 
-void Grid::dump(int _dumpFlags, const std::string &_empty, const std::string &_numSep, const std::string &_colSep,
-                const std::string &_lineSep)
+void Grid::dump(std::ostream &_out, int _dumpFlags, const std::string &_empty, const std::string &_numSep,
+                const std::string &_colSep, const std::string &_lineSep)
 {
     const bool oneLine(_dumpFlags & D_ONE_LINE);
-
-    const auto dumpGridFunc = [&](const std::string &title, std::function<void(int, int, std::ostream &out)> printCell)
+    const auto dumpGridFunc = [&](std::function<void(int, int, std::ostream &out)> printCell)
     {
-        if (!oneLine)
-            std::cout << title << std::endl;
-
         for (int i = 0; i < 9; ++i)
         {
             for (int j = 0; j < 9; ++j)
             {
-                printCell(i, j, std::cout);
+                printCell(i, j, _out);
 
                 if (j < 8)
                 {
                     if (j % 3 == 2)
-                        std::cout << _colSep;
+                        _out << _colSep;
                     else
-                        std::cout << _numSep;
+                        _out << _numSep;
                 }
             }
 
             if (i < 8)
             {
-                std::cout << _lineSep;
+                _out << _lineSep;
                 if (!oneLine)
                 {
-                    std::cout << std::endl;
+                    _out << std::endl;
                     if (i % 3 == 2)
-                        std::cout << std::endl;
+                        _out << std::endl;
                 }
             }
         }
-        std::cout << std::endl;
+        _out << std::endl;
         if (!oneLine)
         {
-            std::cout << std::endl;
+            _out << std::endl;
         }
     };
 
     if (_dumpFlags & D_VALUES)
     {
-        dumpGridFunc("Values:",
-                     [this, &_empty](int i, int j, std::ostream &out)
-                     {
-                         if (const int val = getValue(i, j); val)
-                             out << val;
-                         else
-                             out << _empty;
-                     });
+        dumpGridFunc(
+            [this, &_empty](int i, int j, std::ostream &out)
+            {
+                if (const int val = getValue(i, j); val)
+                    out << val;
+                else
+                    out << _empty;
+            });
     }
 
     if (_dumpFlags & D_NOTES)
     {
-        dumpGridFunc("Notes:",
-                     [this, &_empty](int i, int j, std::ostream &out)
-                     {
-                         for (int n = 1; n <= 9; ++n)
-                         {
-                             if (hasNote(i, j, n))
-                                 out << n;
-                             else
-                                 out << _empty;
-                         }
-                     });
+        dumpGridFunc(
+            [this, &_empty](int i, int j, std::ostream &out)
+            {
+                for (int n = 1; n <= 9; ++n)
+                {
+                    if (hasNote(i, j, n))
+                        out << n;
+                    else
+                        out << _empty;
+                }
+            });
     }
 
     if (_dumpFlags & D_BOARD)
     {
-        dumpGridFunc("Board:",
-                     [this, oneLine](int i, int j, std::ostream &out)
-                     {
-                         if (const int val = getValue(i, j); val)
-                         {
-                             out << std::left << std::setfill(' ') << std::setw(oneLine ? 1 : 10) << val;
-                         }
-                         else
-                         {
-                             std::stringstream ssNotes;
-                             for (int n = 1; n <= 9; ++n)
-                             {
-                                 if (hasNote(i, j, n))
-                                 {
-                                     ssNotes << n;
-                                 }
-                             }
-                             out << std::left << std::setfill(' ') << std::setw(oneLine ? 1 : 10) << ssNotes.str();
-                         }
-                     });
+        dumpGridFunc(
+            [this, oneLine](int i, int j, std::ostream &out)
+            {
+                if (const int val = getValue(i, j); val)
+                {
+                    out << std::left << std::setfill(' ') << std::setw(oneLine ? 1 : 10) << val;
+                }
+                else
+                {
+                    std::stringstream ssNotes;
+                    for (int n = 1; n <= 9; ++n)
+                    {
+                        if (hasNote(i, j, n))
+                        {
+                            ssNotes << n;
+                        }
+                    }
+                    out << std::left << std::setfill(' ') << std::setw(oneLine ? 1 : 10) << ssNotes.str();
+                }
+            });
     }
 }
 
