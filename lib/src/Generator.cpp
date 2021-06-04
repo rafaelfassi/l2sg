@@ -30,11 +30,16 @@ void generator::generateRandomFullGrid(Grid &_grid)
         const int pos = randAdd(rng);
         const auto &rc = emptyCells[pos];
         int n(randNote(rng));
+        int i(0);
 
         do
         {
+            if(++i > 9)
+                return;
+
             if (++n > 9)
                 n = 1;
+
         } while (!_grid.isAllowedValue(rc.first, rc.second, n));
 
         _grid.setValue(rc.first, rc.second, n);
@@ -63,7 +68,7 @@ void generator::generateRandomFullGrid(Grid &_grid)
 
         _grid.fillNotes();
 
-    } while (solver::techniques::bruteForce(_grid, 1, nullptr) != 1);
+    } while (solver::techniques::bruteForce(_grid, 1, nullptr) == 0);
 }
 
 void generator::generate(Grid &_grid, const std::function<int(Grid &)> _solve, bool _symmetric)
