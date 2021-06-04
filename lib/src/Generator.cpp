@@ -210,7 +210,7 @@ void generator::generate(Grid &_grid, const std::function<int(Grid &)> _solve, b
                 _grid.setValue(r, c, 0);
                 removedClues.emplace(std::make_tuple(r, c, fullGrid.getValue(r, c)));
 
-                if (_symmetric && (r != 4) || (c != 4))
+                if (_symmetric && ((r != 4) || (c != 4)))
                 {
                     int rSymm = 8 - r;
                     int cSymm = 8 - c;
