@@ -363,6 +363,37 @@ int Grid::countNotes(int _note, int _i, int _gType)
     return count;
 }
 
+bool Grid::checkAllValues()
+{
+    Grid::Group rows[9];
+    Grid::Group cols[9];
+    Grid::Group blks[9];
+    bool ok(true);
+
+    forAllCells(
+        [&](int r, int c, int b, int)
+        {
+            const auto vIdx(getValue(r, c) - 1);
+            if (vIdx != -1)
+            {
+                ok &= !rows[r].test(vIdx);
+                if (ok)
+                    rows[r].set(vIdx);
+
+                ok &= !cols[c].test(vIdx);
+                if (ok)
+                    cols[c].set(vIdx);
+
+                ok &= !blks[b].test(vIdx);
+                if (ok)
+                    blks[b].set(vIdx);
+            }
+            return ok;
+        });
+
+    return ok;
+}
+
 bool Grid::checkAllNotes()
 {
     Cell::Notes rowGroup[9];
@@ -372,12 +403,12 @@ bool Grid::checkAllNotes()
     forAllCells(
         [&](int r, int c, int b, int)
         {
-            const auto &value(getValue(r, c));
-            if (value)
+            const auto vIdx(getValue(r, c) - 1);
+            if (vIdx != -1)
             {
-                rowGroup[r].set(value - 1);
-                colGroup[c].set(value - 1);
-                blkGroup[b].set(value - 1);
+                rowGroup[r].set(vIdx);
+                colGroup[c].set(vIdx);
+                blkGroup[b].set(vIdx);
             }
             else
             {
@@ -400,6 +431,11 @@ bool Grid::checkAllNotes()
     }
 
     return true;
+}
+
+bool Grid::checkAll()
+{
+    return (checkAllValues() && checkAllNotes());
 }
 
 int Grid::clearNotesCascade(int _row, int _col, int _value, CellLogs *cellLogs, bool *check)
@@ -705,7 +741,7 @@ void Grid::dump(std::ostream &_out, int _dumpFlags, const std::string &_empty, c
                 }
             }
         }
-        _out << std::endl;
+
         if (!oneLine)
         {
             _out << std::endl;

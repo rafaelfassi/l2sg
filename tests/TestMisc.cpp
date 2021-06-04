@@ -1,6 +1,19 @@
 #include "Test.h"
 #include <sstream>
 
+bool invalidPuzzle()
+{
+    Grid grid;
+    grid.fillValues(".56.73..2.1.49.....34..48...25..19.4.81.5.72.6.93..15...7...34.....34.1.1..26.58.");
+    grid.fillNotes();
+    if (solver::solve(grid) != Level::LEV_UNKNOWN)
+    {
+        printMsg(__func__, "Test failed");
+        return false;
+    }
+    return true;
+}
+
 bool noSolution()
 {
     Grid grid;
@@ -86,6 +99,9 @@ bool onlyNotes()
 
 int main(int, char **)
 {
+    if (!invalidPuzzle())
+        return failed();
+
     if (!noSolution())
         return failed();
 

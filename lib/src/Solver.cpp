@@ -68,6 +68,11 @@ Level solve(Grid &pGrid, Logs *logs, Level maxLevel)
 {
     Level level(Level::LEV_0_LOGIC);
 
+    if (!pGrid.checkAll())
+    {
+        return Level::LEV_UNKNOWN;
+    }
+
     auto it = g_techniquesVec.begin();
     while (it != g_techniquesVec.end())
     {
@@ -97,6 +102,11 @@ Level solve(Grid &pGrid, Logs *logs, Level maxLevel)
 
 bool solveByTechniques(Grid &pGrid, const TechniqueSet &allowedTechniques, TechniqueSet *usedTechniques, Logs *logs)
 {
+    if (!pGrid.checkAll())
+    {
+        return Level::LEV_UNKNOWN;
+    }
+
     auto it = g_techniquesVec.begin();
     while (it != g_techniquesVec.end())
     {

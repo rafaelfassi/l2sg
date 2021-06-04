@@ -129,7 +129,9 @@ public:
     void fillNotes();
     void clearNotes();
     int countNotes(int _note, int _i, int _gType);
+    bool checkAllValues();
     bool checkAllNotes();
+    bool checkAll();
     int clearNotesCascade(int _row, int _col, int _value, CellLogs *cellLogs = nullptr, bool *check = nullptr);
     int clearRowNotes(
         int _row, int _note, CellLogs *cellLogs = nullptr,
