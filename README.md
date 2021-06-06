@@ -41,7 +41,7 @@ The project is supposed to be used as a library by other projects, but it includ
 
 Solve a puzzle:
 ```
-app/l2sg_app -p 8.......5.16...79..9.4.1.3...25.96......3......18.79...4.7.8.1..68...37.9.......8
+app/l2sg_app -p 2346.............4.......5.....2.4.8..5....6274...9...86.9.5.3.3...1...6........9
 ```
 
 Load puzzle from file and solve it:

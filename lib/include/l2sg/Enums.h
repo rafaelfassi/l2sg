@@ -12,6 +12,7 @@ namespace solver
 enum class Technique
 {
     None,
+    BadPuzzle,
     NakedSingles,
     NakedPair,
     NakedTriple,
@@ -32,6 +33,7 @@ enum class Technique
     SimpleGuess,
     BruteForce
 };
+std::string technique2Str(solver::Technique technique);
 
 enum class LockedCandType
 {
@@ -59,27 +61,33 @@ enum class BasicFishType
     Jellyfish = 4
 };
 
-std::string technique2Str(solver::Technique technique);
-
 } // namespace solver
 
 enum Level
 {
-    LEV_0_LOGIC,
+    LEV_0_NONE,
     LEV_1_LOGIC,
     LEV_2_LOGIC,
-    LEV_3_GUESS,
-    LEV_UNKNOWN
+    LEV_3_LOGIC,
+    LEV_4_GUESS,
+    LEV_5_BRUTE,
+    LEV_6_MULTI,
+    LEV_UNKNOWN,
+    LEV_INVALID
 };
+std::string level2Str(Level level);
 
 enum class CellAction
 {
     AppliedValue,
     RemovedNote,
     InPatternN1,
-    InPatternN2
+    InPatternN2,
+    ConflictedValue,
+    MissingNoteRow,
+    MissingNoteCol,
+    MissingNoteBlk
 };
-
 std::string cellAction2Str(CellAction action);
 
 } // namespace l2sg

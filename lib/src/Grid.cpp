@@ -4,6 +4,7 @@
 #include <iomanip>
 #include <iostream>
 #include <sstream>
+#include <unordered_set>
 
 // clang-format off
 
@@ -130,6 +131,24 @@ bool Grid::fillValues(const std::string &values)
     return false;
 }
 
+void Grid::fillNotes()
+{
+    for (int i = 0; i < 9; ++i)
+    {
+        for (int j = 0; j < 9; ++j)
+        {
+            if (getValue(i, j) == 0)
+            {
+                for (int x = 1; x <= 9; ++x)
+                {
+                    if (isAllowedValue(i, j, x))
+                        setNote(i, j, x, true);
+                }
+            }
+        }
+    }
+}
+
 void Grid::fillNotes(const std::string &notes)
 {
     int r = 0;
@@ -156,7 +175,7 @@ void Grid::fillNotes(const std::string &notes)
     }
 }
 
-void Grid::fillBoard(const std::string &board)
+bool Grid::fillBoard(const std::string &board)
 {
     int r(0);
     int c(0);
@@ -192,6 +211,9 @@ void Grid::fillBoard(const std::string &board)
         ++c;
     }
 
+    if (r != 9)
+        return false;
+
     for (int i = 0; i < 9; ++i)
     {
         for (int j = 0; j < 9; ++j)
@@ -209,6 +231,41 @@ void Grid::fillBoard(const std::string &board)
             }
         }
     }
+
+    return true;
+}
+
+bool Grid::fillAny(const std::string &inStr)
+{
+    if (inStr.size() < 81)
+        return false;
+
+    int cntNum(0);
+    std::unordered_set<char> foundChars;
+
+    for (const auto ch : inStr)
+    {
+        if (std::isspace(ch))
+            continue;
+
+        if (isValidDigit(ch))
+            ++cntNum;
+        else
+            foundChars.insert(ch);
+    }
+
+    // Less or equal 81 values, and only one character for empty positions (usually '.' or '0')?
+    if ((cntNum <= 81) && (foundChars.size() <= 1))
+    {
+        return fillValues(inStr);
+    }
+
+    if ((cntNum >= 81) && (cntNum <= 9 * 81))
+    {
+        return fillBoard(inStr);
+    }
+
+    return false;
 }
 
 bool Grid::fillValuesArrayFormString(const std::string &values, int *array)
@@ -308,22 +365,31 @@ bool Grid::isFull()
     return true;
 }
 
-void Grid::fillNotes()
+bool Grid::isEmpty()
 {
-    for (int i = 0; i < 9; ++i)
-    {
-        for (int j = 0; j < 9; ++j)
-        {
-            if (getValue(i, j) == 0)
-            {
-                for (int x = 1; x <= 9; ++x)
-                {
-                    if (isAllowedValue(i, j, x))
-                        setNote(i, j, x, true);
-                }
-            }
-        }
-    }
+    for (int r = 0; r < 9; ++r)
+        for (int c = 0; c < 9; ++c)
+            if (getValue(r, c))
+                return false;
+    return true;
+}
+
+bool Grid::isNotesEmpty()
+{
+    for (int r = 0; r < 9; ++r)
+        for (int c = 0; c < 9; ++c)
+            if ((getValue(r, c) == 0) && getNotes(r, c).any())
+                return false;
+    return true;
+}
+
+bool Grid::hasFullNotes()
+{
+    for (int r = 0; r < 9; ++r)
+        for (int c = 0; c < 9; ++c)
+            if ((getValue(r, c) == 0) && getNotes(r, c).none())
+                return false;
+    return true;
 }
 
 void Grid::clearNotes()
@@ -363,7 +429,7 @@ int Grid::countNotes(int _note, int _i, int _gType)
     return count;
 }
 
-bool Grid::checkAllValues()
+bool Grid::checkAllValues(CellLogs *cellLogs)
 {
     Grid::Group rows[9];
     Grid::Group cols[9];
@@ -387,6 +453,11 @@ bool Grid::checkAllValues()
                 ok &= !blks[b].test(vIdx);
                 if (ok)
                     blks[b].set(vIdx);
+
+                if (!ok && cellLogs)
+                {
+                    cellLogs->emplace_back(r, c, CellAction::ConflictedValue, vIdx + 1);
+                }
             }
             return ok;
         });
@@ -394,7 +465,7 @@ bool Grid::checkAllValues()
     return ok;
 }
 
-bool Grid::checkAllNotes()
+bool Grid::checkAllNotes(CellLogs *cellLogs)
 {
     Cell::Notes rowGroup[9];
     Cell::Notes colGroup[9];
@@ -426,6 +497,28 @@ bool Grid::checkAllNotes()
     {
         if (!rowGroup[i].all() || !colGroup[i].all() || !blkGroup[i].all())
         {
+            if (cellLogs)
+            {
+                if (!rowGroup[i].all())
+                {
+                    rowGroup[i].flip();
+                    const auto v = utils::bitset_it(rowGroup[i]).front() + 1;
+                    cellLogs->emplace_back(i, 0, CellAction::MissingNoteRow, v);
+                }
+                else if (!colGroup[i].all())
+                {
+                    colGroup[i].flip();
+                    const auto v = utils::bitset_it(colGroup[i]).front() + 1;
+                    cellLogs->emplace_back(0, i, CellAction::MissingNoteCol, v);
+                }
+                else if (!blkGroup[i].all())
+                {
+                    blkGroup[i].flip();
+                    const auto v = utils::bitset_it(blkGroup[i]).front() + 1;
+                    const auto &[r, c] = g_blockElem2RowCol[i][0];
+                    cellLogs->emplace_back(r, c, CellAction::MissingNoteBlk, v);
+                }
+            }
             return false;
         }
     }
@@ -433,9 +526,9 @@ bool Grid::checkAllNotes()
     return true;
 }
 
-bool Grid::checkAll()
+bool Grid::checkAll(CellLogs *cellLogs)
 {
-    return (checkAllValues() && checkAllNotes());
+    return (checkAllValues(cellLogs) && checkAllNotes(cellLogs));
 }
 
 int Grid::clearNotesCascade(int _row, int _col, int _value, CellLogs *cellLogs, bool *check)

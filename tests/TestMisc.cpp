@@ -6,24 +6,104 @@ bool invalidPuzzle()
     Grid grid;
     grid.fillValues(".56.73..2.1.49.....34..48...25..19.4.81.5.72.6.93..15...7...34.....34.1.1..26.58.");
     grid.fillNotes();
-    if (solver::solve(grid) != Level::LEV_UNKNOWN)
+    solver::Logs logs;
+    if (solver::solve(grid, &logs) != Level::LEV_INVALID)
     {
-        printMsg(__func__, "Test failed");
+        printMsg(__func__, "Test failed: Wrong level");
         return false;
     }
+
+    if (logs.empty())
+    {
+        printMsg(__func__, "Test failed: Logs empty");
+        return false;
+    }
+
+    if (logs.front().cellLogs.empty())
+    {
+        printMsg(__func__, "Test failed: CellLogs empty");
+        return false;
+    }
+
+    const auto cellLog = logs.front().cellLogs.front();
+    if (cellLog.action != CellAction::ConflictedValue)
+    {
+        printMsg(__func__, "Test failed: Wrong action");
+        return false;
+    }
+
+    if (cellLog.cell != std::make_pair(2, 5))
+    {
+        printMsg(__func__, "Test failed: Wrong cell");
+        return false;
+    }
+
+    if (cellLog.value != 4)
+    {
+        printMsg(__func__, "Test failed: Wrong value");
+        return false;
+    }
+
     return true;
 }
 
 bool noSolution()
 {
     Grid grid;
-    grid.fillValues("...76.......4...718...................7...9..6..3..12..7.....4......6......97....");
+    grid.fillValues("123.56789...4....................................................................");
     grid.fillNotes();
-    if (solver::solve(grid) != Level::LEV_UNKNOWN)
+    solver::Logs logs;
+    if (solver::solve(grid, &logs) != Level::LEV_INVALID)
     {
-        printMsg(__func__, "Test failed");
+        printMsg(__func__, "Test failed: Wrong level");
         return false;
     }
+
+    if (logs.empty())
+    {
+        printMsg(__func__, "Test failed: Logs empty");
+        return false;
+    }
+
+    if (logs.front().cellLogs.empty())
+    {
+        printMsg(__func__, "Test failed: CellLogs empty");
+        return false;
+    }
+
+    const auto cellLog = logs.front().cellLogs.front();
+    if (cellLog.action != CellAction::MissingNoteRow)
+    {
+        printMsg(__func__, "Test failed: Wrong action");
+        return false;
+    }
+
+    if (cellLog.cell != std::make_pair(0, 0))
+    {
+        printMsg(__func__, "Test failed: Wrong cell");
+        return false;
+    }
+
+    if (cellLog.value != 4)
+    {
+        printMsg(__func__, "Test failed: Wrong value");
+        return false;
+    }
+
+    return true;
+}
+
+bool noSolution2()
+{
+    Grid grid;
+    grid.fillValues("...76.......4...718...................7...9..6..3..12..7.....4......6......97....");
+    grid.fillNotes();
+    if (Level level = solver::solve(grid); level != Level::LEV_INVALID)
+    {
+        printMsg(__func__, "Test failed due wrong level: " + level2Str(level));
+        return false;
+    }
+
     return true;
 }
 
@@ -33,9 +113,9 @@ bool multipleSolutions()
     grid.fillValues("......574.4.15...35......62....64.9.....157.6.6...28.5....49.1.......4....67813..");
     grid.fillNotes();
 
-    if (solver::techniques::bruteForce(grid, 2) != 2)
+    if (Level level = solver::solve(grid); level != Level::LEV_6_MULTI)
     {
-        printMsg(__func__, "Test failed");
+        printMsg(__func__, "Test failed due wrong level: " + level2Str(level));
         return false;
     }
     return true;
@@ -45,7 +125,7 @@ bool multipleSolutionsFromNotes()
 {
     Grid grid;
     grid.fillBoard(
-    R"(
+        R"(
         +-------------------------------+-------------------------------+-------------------------------+
         | 123456789 2345678   3456      | 1234569   1234579   12345689  | 12345689  123456789 12345689  |
         | 23478     2345678   34678     | 123456789 123456789 12345689  | 123456789 234678    2345678   |
@@ -61,7 +141,7 @@ bool multipleSolutionsFromNotes()
         +-------------------------------+-------------------------------+-------------------------------+
     )");
 
-    if (solver::solve(grid) != Level::LEV_3_GUESS)
+    if (solver::solve(grid) != Level::LEV_6_MULTI)
     {
         printMsg(__func__, "Test failed");
         return false;
@@ -73,7 +153,7 @@ bool onlyNotes()
 {
     Grid grid;
     grid.fillBoard(
-    R"(
+        R"(
         +-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+
         | 1456789   | 3456789   | 456789    | 12356789  | 2356789   | 13456789  | 123456789 | 123456789 | 123456789 |
         | 123456789 | 3456789   | 456789    | 123456789 | 23456789  | 23456789  | 1245789   | 123456789 | 23456789  |
@@ -89,9 +169,35 @@ bool onlyNotes()
         +-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+
     )");
 
-    if (solver::solve(grid) != Level::LEV_2_LOGIC)
+    if (solver::solve(grid) != Level::LEV_3_LOGIC)
     {
         printMsg(__func__, "Test failed");
+        return false;
+    }
+    return true;
+}
+
+bool notesNotProvided()
+{
+    Grid grid;
+    grid.fillValues("973..1.68.45...92.2.6..85.36...83...4.7...6.9...74...23.82..7.5.24...81.79.8..234");
+
+    if (Level level = solver::solve(grid); level != Level::LEV_INVALID)
+    {
+        printMsg(__func__, "Test failed due wrong level: " + level2Str(level));
+        return false;
+    }
+    return true;
+}
+
+bool puzzleFull()
+{
+    Grid grid;
+    grid.fillValues("239485167456371892817926435724539681965817324183642579548293716672158943391764258");
+
+    if (Level level = solver::solve(grid); level != Level::LEV_0_NONE)
+    {
+        printMsg(__func__, "Test failed due wrong level: " + level2Str(level));
         return false;
     }
     return true;
@@ -105,6 +211,9 @@ int main(int, char **)
     if (!noSolution())
         return failed();
 
+    if (!noSolution2())
+        return failed();
+
     if (!multipleSolutions())
         return failed();
 
@@ -112,6 +221,12 @@ int main(int, char **)
         return failed();
 
     if (!onlyNotes())
+        return failed();
+
+    if (!notesNotProvided())
+        return failed();
+
+    if (!puzzleFull())
         return failed();
 
     return passed();

@@ -5,73 +5,82 @@ namespace l2sg::solver
 
 static const std::vector<std::tuple<Level, Technique, std::function<bool(Grid &, Logs *)>>> g_techniquesVec = {
     //
-    {Level::LEV_0_LOGIC, solver::Technique::NakedSingles,
+    {Level::LEV_1_LOGIC, solver::Technique::NakedSingles,
      [](Grid &pGrid, Logs *logs) { return techniques::nakedSingles(pGrid, logs); }},
     //
-    {Level::LEV_0_LOGIC, solver::Technique::HiddenSingles,
+    {Level::LEV_1_LOGIC, solver::Technique::HiddenSingles,
      [](Grid &pGrid, Logs *logs) { return techniques::hiddenSingles(pGrid, logs); }},
     //
-    {Level::LEV_1_LOGIC, solver::Technique::LockedCandidatesType1,
+    {Level::LEV_2_LOGIC, solver::Technique::LockedCandidatesType1,
      [](Grid &pGrid, Logs *logs) { return techniques::lockedCandidates(pGrid, LockedCandType::Type1Pointing, logs); }},
     //
-    {Level::LEV_1_LOGIC, solver::Technique::LockedCandidatesType2,
+    {Level::LEV_2_LOGIC, solver::Technique::LockedCandidatesType2,
      [](Grid &pGrid, Logs *logs) { return techniques::lockedCandidates(pGrid, LockedCandType::Type2Claiming, logs); }},
     //
-    {Level::LEV_1_LOGIC, solver::Technique::NakedPair,
+    {Level::LEV_2_LOGIC, solver::Technique::NakedPair,
      [](Grid &pGrid, Logs *logs) { return techniques::nakedMulti(pGrid, NakedMultiType::Pair, logs); }},
     //
-    {Level::LEV_1_LOGIC, solver::Technique::HiddenPair,
+    {Level::LEV_2_LOGIC, solver::Technique::HiddenPair,
      [](Grid &pGrid, Logs *logs) { return techniques::hiddenMulti(pGrid, HiddenMultiType::Pair, logs); }},
     //
-    {Level::LEV_1_LOGIC, solver::Technique::NakedTriple,
+    {Level::LEV_2_LOGIC, solver::Technique::NakedTriple,
      [](Grid &pGrid, Logs *logs) { return techniques::nakedMulti(pGrid, NakedMultiType::Triple, logs); }},
     //
-    {Level::LEV_1_LOGIC, solver::Technique::HiddenTriple,
+    {Level::LEV_2_LOGIC, solver::Technique::HiddenTriple,
      [](Grid &pGrid, Logs *logs) { return techniques::hiddenMulti(pGrid, HiddenMultiType::Triple, logs); }},
     //
-    {Level::LEV_2_LOGIC, solver::Technique::NakedQuadruple,
+    {Level::LEV_3_LOGIC, solver::Technique::NakedQuadruple,
      [](Grid &pGrid, Logs *logs) { return techniques::nakedMulti(pGrid, NakedMultiType::Quadruple, logs); }},
     //
-    {Level::LEV_2_LOGIC, solver::Technique::HiddenQuadruple,
+    {Level::LEV_3_LOGIC, solver::Technique::HiddenQuadruple,
      [](Grid &pGrid, Logs *logs) { return techniques::hiddenMulti(pGrid, HiddenMultiType::Quadruple, logs); }},
     //
-    {Level::LEV_2_LOGIC, solver::Technique::XWings,
+    {Level::LEV_3_LOGIC, solver::Technique::XWings,
      [](Grid &pGrid, Logs *logs) { return techniques::xWings(pGrid, logs); }},
     //
-    {Level::LEV_2_LOGIC, solver::Technique::Skyscraper,
+    {Level::LEV_3_LOGIC, solver::Technique::Skyscraper,
      [](Grid &pGrid, Logs *logs) { return techniques::skyscraper(pGrid, logs); }},
     //
-    {Level::LEV_2_LOGIC, solver::Technique::TwoStringKite,
+    {Level::LEV_3_LOGIC, solver::Technique::TwoStringKite,
      [](Grid &pGrid, Logs *logs) { return techniques::twoStringKite(pGrid, logs); }},
     //
-    {Level::LEV_2_LOGIC, solver::Technique::XYWing,
+    {Level::LEV_3_LOGIC, solver::Technique::XYWing,
      [](Grid &pGrid, Logs *logs) { return techniques::xyWing(pGrid, logs); }},
     //
-    {Level::LEV_2_LOGIC, solver::Technique::WWing,
+    {Level::LEV_3_LOGIC, solver::Technique::WWing,
      [](Grid &pGrid, Logs *logs) { return techniques::wWing(pGrid, logs); }},
     //
-    {Level::LEV_2_LOGIC, solver::Technique::Swordfish,
+    {Level::LEV_3_LOGIC, solver::Technique::Swordfish,
      [](Grid &pGrid, Logs *logs) { return techniques::basicFish(pGrid, solver::BasicFishType::Swordfish, logs); }},
     //
-    {Level::LEV_2_LOGIC, solver::Technique::Jellyfish,
+    {Level::LEV_3_LOGIC, solver::Technique::Jellyfish,
      [](Grid &pGrid, Logs *logs) { return techniques::basicFish(pGrid, solver::BasicFishType::Jellyfish, logs); }},
     //
-    {Level::LEV_3_GUESS, solver::Technique::SimpleGuess,
+    {Level::LEV_4_GUESS, solver::Technique::SimpleGuess,
      [](Grid &pGrid, Logs *logs) { return solver::techniques::simpleGuess(pGrid, logs); }},
     //
-    {Level::LEV_3_GUESS, solver::Technique::BruteForce,
+    {Level::LEV_5_BRUTE, solver::Technique::BruteForce,
      [](Grid &pGrid, Logs *logs) { return (techniques::bruteForce(pGrid, 1, logs) == 1); }}
     //
 };
 
 Level solve(Grid &pGrid, Logs *logs, Level maxLevel)
 {
-    Level level(Level::LEV_0_LOGIC);
-
-    if (!pGrid.checkAll())
+    if (pGrid.isFull())
     {
-        return Level::LEV_UNKNOWN;
+        return Level::LEV_0_NONE;
     }
+    else
+    {
+        ScopedLog log(logs, Technique::BadPuzzle);
+        if (!pGrid.checkAll(log.getCellsPtr()))
+        {
+            return Level::LEV_INVALID;
+        }
+    }
+
+    Grid srcGrid(pGrid);
+    Level level(Level::LEV_1_LOGIC);
 
     auto it = g_techniquesVec.begin();
     while (it != g_techniquesVec.end())
@@ -87,7 +96,20 @@ Level solve(Grid &pGrid, Logs *logs, Level maxLevel)
             // Alway run NakedSingle before verify if the grid is full
             solveFunc(pGrid, logs);
             if (pGrid.isFull())
+            {
+                switch (level)
+                {
+                    case Level::LEV_4_GUESS:
+                    case Level::LEV_5_BRUTE:
+                        solve(srcGrid, nullptr, Level::LEV_3_LOGIC);
+                        if (techniques::bruteForce(srcGrid, 2) == 2)
+                            level = Level::LEV_6_MULTI;
+                        break;
+                    default:
+                        break;
+                }
                 return level;
+            }
         }
         else if (solveFunc(pGrid, logs))
         {
@@ -102,9 +124,17 @@ Level solve(Grid &pGrid, Logs *logs, Level maxLevel)
 
 bool solveByTechniques(Grid &pGrid, const TechniqueSet &allowedTechniques, TechniqueSet *usedTechniques, Logs *logs)
 {
-    if (!pGrid.checkAll())
+    if (pGrid.isFull())
     {
-        return Level::LEV_UNKNOWN;
+        return false;
+    }
+    else
+    {
+        ScopedLog log(logs, Technique::BadPuzzle);
+        if (!pGrid.checkAll(log.getCellsPtr()))
+        {
+            return false;
+        }
     }
 
     auto it = g_techniquesVec.begin();

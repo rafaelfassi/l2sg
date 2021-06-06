@@ -96,8 +96,10 @@ public:
     }
     void fillValues(int *_pValues);
     bool fillValues(const std::string &values);
+    void fillNotes();
     void fillNotes(const std::string &notes);
-    void fillBoard(const std::string &board);
+    bool fillBoard(const std::string &board);
+    bool fillAny(const std::string &inStr);
     bool fillValuesArrayFormString(const std::string &values, int *array);
     inline int getValue(int _row, int _col) const { return m_cells[_row][_col].getValue(); }
     inline void setValue(int _row, int _col, int _val) { m_cells[_row][_col].setValue(_val); }
@@ -126,12 +128,14 @@ public:
     int clearNotes(int _row, int _col);
     bool isAllowedValue(int _row, int _col, int _val);
     bool isFull();
-    void fillNotes();
+    bool isEmpty();
+    bool isNotesEmpty();
+    bool hasFullNotes();
     void clearNotes();
     int countNotes(int _note, int _i, int _gType);
-    bool checkAllValues();
-    bool checkAllNotes();
-    bool checkAll();
+    bool checkAllValues(CellLogs *cellLogs = nullptr);
+    bool checkAllNotes(CellLogs *cellLogs = nullptr);
+    bool checkAll(CellLogs *cellLogs = nullptr);
     int clearNotesCascade(int _row, int _col, int _value, CellLogs *cellLogs = nullptr, bool *check = nullptr);
     int clearRowNotes(
         int _row, int _note, CellLogs *cellLogs = nullptr,

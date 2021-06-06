@@ -32,7 +32,7 @@ int bruteForce(Grid &pGrid, int maxSolutions = 1, Logs *logs = nullptr);
 } // namespace techniques
 
 void getTechniquesForLevel(Level level, TechniqueSet &techniques);
-Level solve(Grid &pGrid, Logs *logs = nullptr, Level maxLevel = Level::LEV_3_GUESS);
+Level solve(Grid &pGrid, Logs *logs = nullptr, Level maxLevel = Level::LEV_5_BRUTE);
 bool solveByTechniques(Grid &pGrid, const TechniqueSet &allowedTechniques, TechniqueSet *usedTechniques = nullptr,
                        Logs *logs = nullptr);
 

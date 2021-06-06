@@ -20,8 +20,7 @@ bool test(Level expectedLevel, const std::string &puzzle, const std::string &exp
     if (ok && (resultLevel != expectedLevel))
     {
         std::stringstream ss;
-        ss << "Level Error. Expected: " << std::to_string(expectedLevel)
-           << " Result: " << std::to_string(resultLevel);
+        ss << "Level Error. Expected: " << level2Str(expectedLevel) << " Result: " << level2Str(resultLevel);
         printMsg(puzzle, ss.str());
         ok = false;
     }
@@ -31,7 +30,7 @@ bool test(Level expectedLevel, const std::string &puzzle, const std::string &exp
 
 bool testEasy()
 {
-    constexpr auto level(Level::LEV_0_LOGIC);
+    constexpr auto level(Level::LEV_1_LOGIC);
 
     if (!test(level, //
               "91.2.8.3...31...85....341...72..3496.9......2354..67.863........45.7...1.81..5...",
@@ -58,7 +57,7 @@ bool testEasy()
 
 bool testMedium()
 {
-    constexpr auto level(Level::LEV_1_LOGIC);
+    constexpr auto level(Level::LEV_2_LOGIC);
 
     if (!test(level, //
               "6..72...9....4..3.3......67.......83...8.7...57.......95......1.2..5....4...31..2",
@@ -90,7 +89,7 @@ bool testMedium()
 
 bool testHard()
 {
-    constexpr auto level(Level::LEV_2_LOGIC);
+    constexpr auto level(Level::LEV_3_LOGIC);
 
     // Skyscraper
     if (!test(level, //
@@ -127,12 +126,19 @@ bool testHard()
 
 bool testGuesses()
 {
-    constexpr auto level(Level::LEV_3_GUESS);
+    constexpr auto level(Level::LEV_4_GUESS);
 
     if (!test(level, //
               "12.48.7....6......78...1......8.56...3..9.1.......4.....2.63..83.....2.7.472.93..",
               "123486759456972831789531462294815673538697124671324985912763548365148297847259316"))
         return false;
+
+    return true;
+}
+
+bool testBruteForce()
+{
+    constexpr auto level(Level::LEV_5_BRUTE);
 
     if (!test(level, //
               "1....7..5.56.9.21....5..6....1.......9.2...5...8.7...43......78....6..3..758.3..6",
@@ -169,6 +175,9 @@ int main(int, char **)
         return failed();
 
     if (!testGuesses())
+        return failed();
+
+    if (!testBruteForce())
         return failed();
 
     return passed();
